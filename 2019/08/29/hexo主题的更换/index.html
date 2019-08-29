@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.3.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.3.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.3.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.3.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.3.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.3.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="主题主体安装设置 这里以next主题为例，进入hexo项目目录，执行以下命令，从github上下载next主题,并将主题存放在themes目录的next文件夹下 1$ git clone https://github.com/theme-next/hexo-theme-next themes/next">
+<meta name="keywords" content="-hexo -next">
+<meta property="og:type" content="article">
+<meta property="og:title" content="hexo主题的更换">
+<meta property="og:url" content="http://yoursite.com/2019/08/29/hexo主题的更换/index.html">
+<meta property="og:site_name" content="刘绍煌">
+<meta property="og:description" content="主题主体安装设置 这里以next主题为例，进入hexo项目目录，执行以下命令，从github上下载next主题,并将主题存放在themes目录的next文件夹下 1$ git clone https://github.com/theme-next/hexo-theme-next themes/next">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/.com//menu.png">
+<meta property="og:updated_time" content="2019-08-29T07:15:03.054Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="hexo主题的更换">
+<meta name="twitter:description" content="主题主体安装设置 这里以next主题为例，进入hexo项目目录，执行以下命令，从github上下载next主题,并将主题存放在themes目录的next文件夹下 1$ git clone https://github.com/theme-next/hexo-theme-next themes/next">
+<meta name="twitter:image" content="http://yoursite.com/.com//menu.png">
+  <link rel="canonical" href="http://yoursite.com/2019/08/29/hexo主题的更换/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>hexo主题的更换 | 刘绍煌</title>
+  <meta name="generator" content="Hexo 3.9.0">
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">刘绍煌</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/29/hexo主题的更换/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="刘绍煌">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="刘绍煌">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">hexo主题的更换
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2019-08-29 13:45:29 / 修改时间：15:15:03" itemprop="dateCreated datePublished" datetime="2019-08-29T13:45:29+08:00">2019-08-29</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/hexo/" itemprop="url" rel="index"><span itemprop="name">hexo</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h4 id="主题主体安装设置"><a href="#主题主体安装设置" class="headerlink" title="主题主体安装设置"></a>主题主体安装设置</h4><ul>
+<li><p>这里以next主题为例，进入hexo项目目录，执行以下命令，从github上下载next主题,并将主题存放在themes目录的next文件夹下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ git clone https://github.com/theme-next/hexo-theme-next themes/next</span><br></pre></td></tr></table></figure>
+
+<a id="more"></a></li>
+<li><p>更改主题</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">项目主目录进入主目录，这里以hexo为例</span><br><span class="line">$ cd hexo</span><br><span class="line">打开该目录下的_config.yml文件</span><br><span class="line">将theme属性更改为</span><br><span class="line">theme: next</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>更改主题文字为中文</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">同上打开主目录下的_config.yml文件</span><br><span class="line">将language属性更改为</span><br><span class="line">language: zh-CN</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>更改主题标题</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">同上打开主目录下的_config.yml文件</span><br><span class="line">修改title标签为想要的标题</span><br><span class="line">title: 标题</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h4 id="主题内部设置"><a href="#主题内部设置" class="headerlink" title="主题内部设置"></a>主题内部设置</h4><ul>
+<li><p>主题内部配置文件为themes/next目录下的_config.yml</p>
+</li>
+<li><p>更改主题样式</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">在主题配置文件中更改scheme属性来切换不同样式的主题</span><br><span class="line">#scheme: Muse</span><br><span class="line">#scheme: Mist</span><br><span class="line">scheme: Pisces</span><br><span class="line">#scheme: Gemini</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>配置菜单找到menu标签<br>以下配置在主要中打开主页，归档页，分类和标签<br>如下图所示<br><img src="/.com//menu.png" alt="按钮"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">menu:</span><br><span class="line">  home: /</span><br><span class="line">  archives: /archives</span><br><span class="line">  #about: /about</span><br><span class="line">  categories: /categories</span><br><span class="line">  tags: /tags</span><br><span class="line">  #commonweal: /404.html</span><br></pre></td></tr></table></figure>
+
+<p>每个标签的含义为</p>
+<table>
+<thead>
+<tr>
+<th>键值</th>
+<th>设定值</th>
+<th>显示文本（简体中文）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>home</td>
+<td>home: /</td>
+<td>主页</td>
+</tr>
+<tr>
+<td>archives</td>
+<td>archives: /archives</td>
+<td>归档页</td>
+</tr>
+<tr>
+<td>categories</td>
+<td>categories: /categories</td>
+<td>分类页</td>
+</tr>
+<tr>
+<td>tags</td>
+<td>tags: /tags</td>
+<td>标签页</td>
+</tr>
+<tr>
+<td>about</td>
+<td>about: /about</td>
+<td>关于页面</td>
+</tr>
+<tr>
+<td>commonweal</td>
+<td>commonweal: /404.html</td>
+<td>公益 404</td>
+</tr>
+</tbody></table>
+</li>
+<li><p>配置标签和分类按钮<br>  现在点击标签和分类按钮是无法使用的，下面进行标签和分类按钮的配置<br>  标签按钮配置</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">在hexo项目下执行</span><br><span class="line">hexo new page tags</span><br><span class="line">执行完成后在source\tags目录下生成index.md文件</span><br><span class="line">打开文件在标题中增加 type: &quot;tags&quot;</span><br><span class="line">如</span><br><span class="line">---</span><br><span class="line">title: tags</span><br><span class="line">date: 2019-08-29 14:35:28</span><br><span class="line">type: &quot;tags&quot;</span><br><span class="line">---</span><br></pre></td></tr></table></figure>
+
+<p>   配置分类按钮</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">同上打开工程目录</span><br><span class="line">hexo new page categories</span><br><span class="line">打开文件在标题中增加 type: &quot;categories&quot;</span><br><span class="line">如</span><br><span class="line">---</span><br><span class="line">title: categories</span><br><span class="line">date: 2019-08-29 14:43:25</span><br><span class="line">type: &quot;categories&quot;</span><br><span class="line">---</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h4 id="编写博客内容"><a href="#编写博客内容" class="headerlink" title="编写博客内容"></a>编写博客内容</h4><pre><code><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">  执行 hexo new 标题</span><br><span class="line">  在source/_posts目录下会出现  标题.md文件</span><br><span class="line">  打开文件 给博文添加分类和标签 categories，tags</span><br><span class="line">  如下</span><br><span class="line">  ---</span><br><span class="line">  title: 标题</span><br><span class="line">  date: 2019-08-29 13:45:29</span><br><span class="line">  categories: hexo</span><br><span class="line">  tags:</span><br><span class="line">    -hexo</span><br><span class="line">    -next</span><br><span class="line">  ---</span><br><span class="line">这样这个博文就属于hexo分类，并且其有两个标签hexo和next</span><br><span class="line">现在进入首页点击分类和标签按钮即可按分类和标签找到该文章</span><br></pre></td></tr></table></figure></code></pre><h4 id="给文章配置图片"><a href="#给文章配置图片" class="headerlink" title="给文章配置图片"></a>给文章配置图片</h4><pre><code><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">在项目目录下安装插件</span><br><span class="line">$ npm install hexo-asset-image --save</span><br><span class="line">配置主配置文件_config.yml（项目根目录下非主题目录）</span><br><span class="line">post_asset_folder: true</span><br><span class="line">这样在执行 hexo new 标题   命令时会在source\_posts目录下建立一个对应文件夹</span><br><span class="line">把图片放入该目录即可</span><br><span class="line">然后可以使用md语法引用图片如</span><br><span class="line">![按钮](menu.png)</span><br></pre></td></tr></table></figure></code></pre><h4 id="首页展示文章全文的问题"><a href="#首页展示文章全文的问题" class="headerlink" title="首页展示文章全文的问题"></a>首页展示文章全文的问题</h4><ul>
+<li>首页中展示的文章是全文，这样导致首页非常的长，可以使用md语法在文章中加入 <!-- more -->来控制首页展示的长度
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/hexo-next/" rel="tag"># -hexo -next</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2019/08/29/hexo搭建/" rel="next" title="windows下hexo搭建">
+                  <i class="fa fa-chevron-left"></i> windows下hexo搭建
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2019/08/29/将hexo发布到github/" rel="prev" title="将hexo发布到github">
+                  将hexo发布到github <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#主题主体安装设置"><span class="nav-number">1.</span> <span class="nav-text">主题主体安装设置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#主题内部设置"><span class="nav-number">2.</span> <span class="nav-text">主题内部设置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#编写博客内容"><span class="nav-number">3.</span> <span class="nav-text">编写博客内容</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#给文章配置图片"><span class="nav-number">4.</span> <span class="nav-text">给文章配置图片</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#首页展示文章全文的问题"><span class="nav-number">5.</span> <span class="nav-text">首页展示文章全文的问题</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">刘绍煌</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">3</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        
+        
+          
+        
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">刘绍煌</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.3.0</div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.3.0"></script><script src="/js/motion.js?v=7.3.0"></script>
+<script src="/js/schemes/pisces.js?v=7.3.0"></script>
+<script src="/js/next-boot.js?v=7.3.0"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
