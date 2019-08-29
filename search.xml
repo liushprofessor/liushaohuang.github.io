@@ -2,7 +2,7 @@
 <search>
   <entry>
     <title><![CDATA[将hexo发布到github]]></title>
-    <url>%2F2019%2F08%2F29%2F%E5%B0%86hexo%E5%8F%91%E5%B8%83%E5%88%B0github%2F</url>
+    <url>%2Fliushaohuang.github.io%2F2019%2F08%2F29%2F%E5%B0%86hexo%E5%8F%91%E5%B8%83%E5%88%B0github%2F</url>
     <content type="text"><![CDATA[创建一个github仓库 创建一个github公有仓库,点击settings如图 选择GitHub Pages选项 设置git分支为，和访问域名 设置hexo部署目录1234567891011打开项目目录下的_config.yml文件修改deploy:属性type 为类型设置为gitbranch设置为master分支repo为你的仓库地址如deploy:type: gitbranch: masterrepo: https:// 参数解释 参数 描述 repo 库（Repository）地址 branch 分支名称。如果不指定，则默认值为 master message 自定义提交信息,非必须 安装部署插件 12进入项目主目录执行$ npm install hexo-deployer-git --save 发布项目至github pages 123$ hexo clean$ hexo g$ hexo d 解决样式丢失问题 此时发布项目至github，css样式会丢失修改以下内容 123456789101112131415打开项目目录下的_config.yml文件修改如下参数url: https://liushprofessor.github.io/liushaohuang.github.io/root: /liushaohuang.github.iopermalink: :year/:month/:day/:title/permalink_defaults:其中url替换为你github的仓库地址(网址)root 为网站的根目录（github对应的仓库名）重新发布解决问题]]></content>
       <categories>
         <category>hexo</category>
@@ -13,7 +13,7 @@
   </entry>
   <entry>
     <title><![CDATA[hexo主题的更换]]></title>
-    <url>%2F2019%2F08%2F29%2Fhexo%E4%B8%BB%E9%A2%98%E7%9A%84%E6%9B%B4%E6%8D%A2%2F</url>
+    <url>%2Fliushaohuang.github.io%2F2019%2F08%2F29%2Fhexo%E4%B8%BB%E9%A2%98%E7%9A%84%E6%9B%B4%E6%8D%A2%2F</url>
     <content type="text"><![CDATA[主题主体安装设置 这里以next主题为例，进入hexo项目目录，执行以下命令，从github上下载next主题,并将主题存放在themes目录的next文件夹下 1$ git clone https://github.com/theme-next/hexo-theme-next themes/next 更改主题 12345项目主目录进入主目录，这里以hexo为例$ cd hexo打开该目录下的_config.yml文件将theme属性更改为theme: next 更改主题文字为中文 123同上打开主目录下的_config.yml文件将language属性更改为language: zh-CN 更改主题标题 123同上打开主目录下的_config.yml文件修改title标签为想要的标题title: 标题 主题内部设置 主题内部配置文件为themes/next目录下的_config.yml 更改主题样式 12345在主题配置文件中更改scheme属性来切换不同样式的主题#scheme: Muse#scheme: Mistscheme: Pisces#scheme: Gemini 配置菜单找到menu标签以下配置在主要中打开主页，归档页，分类和标签如下图所示 1234567menu: home: / archives: /archives #about: /about categories: /categories tags: /tags #commonweal: /404.html 每个标签的含义为 键值 设定值 显示文本（简体中文） home home: / 主页 archives archives: /archives 归档页 categories categories: /categories 分类页 tags tags: /tags 标签页 about about: /about 关于页面 commonweal commonweal: /404.html 公益 404 配置标签和分类按钮 现在点击标签和分类按钮是无法使用的，下面进行标签和分类按钮的配置 标签按钮配置 12345678910在hexo项目下执行hexo new page tags执行完成后在source\tags目录下生成index.md文件打开文件在标题中增加 type: &quot;tags&quot;如---title: tagsdate: 2019-08-29 14:35:28type: &quot;tags&quot;--- 配置分类按钮 123456789同上打开工程目录hexo new page categories打开文件在标题中增加 type: &quot;categories&quot;如---title: categoriesdate: 2019-08-29 14:43:25type: &quot;categories&quot;--- 编写博客内容1234567891011121314 执行 hexo new 标题 在source/_posts目录下会出现 标题.md文件 打开文件 给博文添加分类和标签 categories，tags 如下 --- title: 标题 date: 2019-08-29 13:45:29 categories: hexo tags: -hexo -next ---这样这个博文就属于hexo分类，并且其有两个标签hexo和next现在进入首页点击分类和标签按钮即可按分类和标签找到该文章给文章配置图片 方法1 123456在项目根目下创建images文件夹将图片放入该文件夹使用md标签应用图片如![按钮](/images/menu.png)注意：在github中代码是放在仓库的二级目录中，所以路径需该为![按钮](/仓库名/images/menu.png) 方法2(暂未成功)12345678910更改主目录的_config.yml的文件修改以下配置post_asset_folder: true 当资源文件管理功能打开后，Hexo将会在你每一次通过 hexo new [layout] &lt;title&gt; 命令创建新文章时自动创建一个文件夹。 这个资源文件夹将会有与这个文章文件一样的名字。将所有与你的文章有关的资源放在这个关联文件夹中之后， 你可以通过相对路径来引用它们，这样你就得到了一个更简单而且方便得多的工作流。在md中使用标签&#123;% asset_img menu.png 标题 %&#125;来引入图片 首页展示文章全文的问题 首页中展示的文章是全文，这样导致首页非常的长，可以使用md语法在文章中加入来控制首页展示的长度]]></content>
       <categories>
         <category>hexo</category>
@@ -24,7 +24,7 @@
   </entry>
   <entry>
     <title><![CDATA[windows下hexo搭建]]></title>
-    <url>%2F2019%2F08%2F29%2Fhexo%E6%90%AD%E5%BB%BA%2F</url>
+    <url>%2Fliushaohuang.github.io%2F2019%2F08%2F29%2Fhexo%E6%90%AD%E5%BB%BA%2F</url>
     <content type="text"><![CDATA[下载nodejs nodejs下载地址下载 安装hexo1npm install -g hexo-cli 构建hexo项目 安装 Hexo 完成后，执行下列命令，Hexo 将会在指定文件夹中新建所需要的文件。 123$ cd &lt;folder&gt;$ npm install 安装nodejs的依赖到hexo目录下$ hexo init &lt;folder&gt; 初始化hexo项目 新建完成后，指定文件夹的目录如下： 12345678.├── _config.yml 网站的配置信息,可以在此配置大部分的参数,详细配置参考官网[配置](https://hexo.io/zh-cn/docs/configuration)├── package.json├── scaffolds 模版文件夹。当您新建文章时，Hexo 会根据 scaffold 来建立文件├── source 资源文件夹，除 _posts 文件夹之外，开头命名为 _ (下划线)的文件 / 文件夹和隐藏的文件将会被忽略。Markdown 和 HTML 文件会被解析并放到 public 文件夹，而其他文件会被拷贝过去| ├── _drafts| └── _posts└── themes 主题目录，主题有自己的_config.yml文件，用来配置主题自己的属性 编译开启web服务 123hexo ghexo s访问http://localhost:4000 即可看见项目 构建时遇到的错误 12在执行hexo init &lt;folder&gt; 命令时 出现ERROR Local hexo not found in错误删除hexo目录下的node_modules文件 然后在hexo工程目录下重新执行npm install 安装nodejs依赖]]></content>
       <categories>
         <category>hexo</category>
