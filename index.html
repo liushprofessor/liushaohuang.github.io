@@ -242,7 +242,7 @@
                 
               
 
-              <time title="创建时间：2019-08-30 21:23:33 / 修改时间：22:16:55" itemprop="dateCreated datePublished" datetime="2019-08-30T21:23:33+08:00">2019-08-30</time>
+              <time title="创建时间：2019-08-30 21:23:33 / 修改时间：22:18:50" itemprop="dateCreated datePublished" datetime="2019-08-30T21:23:33+08:00">2019-08-30</time>
             </span>
           
             
@@ -280,52 +280,15 @@
 <li><p>元数据表中记录着很多hive中有用的信息，比如数据库实例，表，表结构，还有表数据的条数   </p>
 </li>
 <li><p>表数据条数只有在hive为内部表时的统计是准确的，如果建立的表为外部表 (external)则需要执行统计语句才能得到准确结果</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ANALYZE TABLE tablename COMPUTE STATISTICS;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>使用元数据表中的统计数据可以很简单快捷的得到hive的元数据，比如表的数量，和数据量</p>
-</li>
-</ul>
-<h4 id="mysql主从介绍"><a href="#mysql主从介绍" class="headerlink" title="mysql主从介绍"></a>mysql主从介绍</h4><ul>
-<li>mysql主从时利用mysql的日志来完成主从的，所以在做主从设置时，先要保证主数据库和从数据库数据的一致</li>
-</ul>
-<h4 id="迁移数据"><a href="#迁移数据" class="headerlink" title="迁移数据"></a>迁移数据</h4><ul>
-<li>如果主数据库中已经在做主从时已经存在数据那么，先将主数据库中数据复制到从数据库中，从而保证主数据库和从数据库数据的一致</li>
-</ul>
-<h4 id="配置主数据库配置文件"><a href="#配置主数据库配置文件" class="headerlink" title="配置主数据库配置文件"></a>配置主数据库配置文件</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">  vi /etc/my.cnf</span><br><span class="line"></span><br><span class="line">  将以下信息填入</span><br><span class="line">  server-id = 1 #Mysql服务的唯一编号 每个mysql服务Id需唯一</span><br><span class="line">  log-bin=mysql-bin # logbin的名字</span><br><span class="line">  binlog-do-db=metastore #需要同步的数据库的名字，如果是多个数据库存在多条</span><br><span class="line">  binlog-ignore-db=test01 #不需要同步的数据库的名字</span><br><span class="line">  log-slave-updates=1 # log更新间隔</span><br><span class="line">  slave-skip-errors=1 # 是跳过错误，继续执行复制操作(可选)</span><br><span class="line">  binlog_format=MIXED  #必须制定日志的类型，这里选择混合日志存储，不然无法建立hive表</span><br><span class="line">  #重启数据库</span><br><span class="line">  service mysqld restart</span><br><span class="line">```  </span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">#### 配置从数据配置文件</span><br></pre></td></tr></table></figure>
-
-<p>  #Mysql服务的唯一编号 每个mysql服务Id需唯一<br>  server-id = 2</p>
-<h1 id="read-only-1只读模式，可以限定普通用户进行数据修改的操作，但不会限定具有super权限的用户（如超级管理员root用户）的数据修改操作。如果想保证super用户也不能写操作，就可以就需要执行给所有的表加读锁的命令-“flush-tables-with-read-lock-”"><a href="#read-only-1只读模式，可以限定普通用户进行数据修改的操作，但不会限定具有super权限的用户（如超级管理员root用户）的数据修改操作。如果想保证super用户也不能写操作，就可以就需要执行给所有的表加读锁的命令-“flush-tables-with-read-lock-”" class="headerlink" title="read_only=1只读模式，可以限定普通用户进行数据修改的操作，但不会限定具有super权限的用户（如超级管理员root用户）的数据修改操作。如果想保证super用户也不能写操作，就可以就需要执行给所有的表加读锁的命令 “flush tables with read lock;”"></a>read_only=1只读模式，可以限定普通用户进行数据修改的操作，但不会限定具有super权限的用户（如超级管理员root用户）的数据修改操作。如果想保证super用户也不能写操作，就可以就需要执行给所有的表加读锁的命令 “flush tables with read lock;”</h1><p>  read_only = 1</p>
-<p>  #replicate-do-db=metastore #需要复制的数据库名，如果复制多个数据库，重复设置这个选项即可</p>
-<p>  #replicate-ignore-db=test05 #需要忽略不复制数据库名，如果个数据库，重复设置这个选项即可<br>  replicate-rewrite-db = metastore-&gt;apollo # 如果主数据库名字和从数据库名不一样，则使用这个配置，表明将主数据库metastore  </p>
-<p>  #复制到从数据库apollo实例下，和replicate-do-db配置不能共存</p>
-<p>  #重启数据库<br>  service mysqld restart</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br><span class="line">#### 设置主数据库复制账号</span><br></pre></td></tr></table></figure>
-
-<p> CREATE USER ‘slave’@’%’ IDENTIFIED BY ‘mysql’;<br> GRANT REPLICATION SLAVE ON <em>.</em> TO ‘slave’@’%’;<br> FLUSH PRIVILEGES;</p>
-<h1 id="查看赋权状态"><a href="#查看赋权状态" class="headerlink" title="查看赋权状态"></a>查看赋权状态</h1><p> use mysql;<br> select  User,authentication_string,Host from user;</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">* 查看是否开启日志</span><br></pre></td></tr></table></figure>
-
-<p>show variables like ‘log_bin’;</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">* 如果开启value值为on  </span><br><span class="line"></span><br><span class="line"> |Variable_name|Value|</span><br><span class="line"> |   -------   |----|</span><br><span class="line"> |log_bin|ON|</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">####  查看主节点状态</span><br></pre></td></tr></table></figure>
-
-<p>  show master status;</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">* 结果示例,表示  metastore实例日志文件为mysql-bin.000005，当前日志偏移量为1242284</span><br><span class="line">|File|Position|Binlog_Do_DB|</span><br><span class="line">|---|---|---|</span><br><span class="line">|mysql-bin.000005|1242284|metastore|</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">#### 操作从数据库</span><br><span class="line">* 其中change master语句中的master_log_file 为上一步查看的metastore日志文件，master_log_pos为该日志文件的偏移量，  </span><br><span class="line">这样主数据库中的数据发生变化，偏移量就会增长，从数据库根据偏移量去同步数据</span><br></pre></td></tr></table></figure>
-
-<h1 id="停止正在进行的slave-如果有，此方法也用于修改slave的值-如果参数不对"><a href="#停止正在进行的slave-如果有，此方法也用于修改slave的值-如果参数不对" class="headerlink" title="停止正在进行的slave(如果有，此方法也用于修改slave的值(如果参数不对))"></a>停止正在进行的slave(如果有，此方法也用于修改slave的值(如果参数不对))</h1><p>stop slave;</p>
-<h1 id="需要主机名，上面步骤的账户密码以及日志文件名字和位置-请根据实际情况自行修改"><a href="#需要主机名，上面步骤的账户密码以及日志文件名字和位置-请根据实际情况自行修改" class="headerlink" title="需要主机名，上面步骤的账户密码以及日志文件名字和位置(请根据实际情况自行修改)"></a>需要主机名，上面步骤的账户密码以及日志文件名字和位置(请根据实际情况自行修改)</h1><p>change master to master_host=’192.168.1.1’, master_user=’slave’, master_password=’mysql’, master_log_file=’mysql-bin.000005’, master_log_pos=1242284;</p>
-<h1 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h1><p>start slave;</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">* 查看状态</span><br></pre></td></tr></table></figure>
-
-<p>  show slave status;<br>  如果发现Slave_IO_Running和Slave_SQL_Running状态为YES则成功<br>  Slave_IO_Running负责和主机通讯<br>  Slave_SQL_Running负者执行从数据库sql语句<br>  Last_Error复制记录上一次同步出错的出错愿意</p>
-<pre><code>
-
-#### 易错注意点
-
-* 在配置主数据库配置文件时必须指定  binlog_format类型，不然hive建表会出错  
-
-* 配置从数据配置文件时，replicate-do-db=metastore和replicate-rewrite-db不能共存  
-
-* 当同步主数据库的数据到不同名字的从数据库中时，不可直接用Navicat图形化工具去直接操作数据库，应该写语句去执行，不然会导致同步失败</code></pre>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2019/08/30/hive-mysql元数据表单的主从备份/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
         
       
     </div>
