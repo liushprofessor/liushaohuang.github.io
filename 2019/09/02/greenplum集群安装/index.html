@@ -55,31 +55,33 @@
   };
 </script>
 
-  <meta name="description" content="刘绍煌的个人博客">
-<meta property="og:type" content="website">
-<meta property="og:title" content="刘绍煌">
-<meta property="og:url" content="http://www.liushaohuang.cn/index.html">
+  <meta name="description" content="Greenplum集群搭建 关闭所有主机防火墙12systemctl stop firewalld.servicesystemctl disable firewalld.service  关闭SELINUX12vi /etc/selinux/config将属性 SELINUX 改为 disabled  系统设置设置hostname12345vi /etc/hosts添加各个主机的hostname如">
+<meta name="keywords" content="greenplum">
+<meta property="og:type" content="article">
+<meta property="og:title" content="greenplum集群安装">
+<meta property="og:url" content="http://www.liushaohuang.cn/2019/09/02/greenplum集群安装/index.html">
 <meta property="og:site_name" content="刘绍煌">
-<meta property="og:description" content="刘绍煌的个人博客">
+<meta property="og:description" content="Greenplum集群搭建 关闭所有主机防火墙12systemctl stop firewalld.servicesystemctl disable firewalld.service  关闭SELINUX12vi /etc/selinux/config将属性 SELINUX 改为 disabled  系统设置设置hostname12345vi /etc/hosts添加各个主机的hostname如">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-09-02T08:10:37.047Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="刘绍煌">
-<meta name="twitter:description" content="刘绍煌的个人博客">
-  <link rel="canonical" href="http://www.liushaohuang.cn/">
+<meta name="twitter:title" content="greenplum集群安装">
+<meta name="twitter:description" content="Greenplum集群搭建 关闭所有主机防火墙12systemctl stop firewalld.servicesystemctl disable firewalld.service  关闭SELINUX12vi /etc/selinux/config将属性 SELINUX 改为 disabled  系统设置设置hostname12345vi /etc/hosts添加各个主机的hostname如">
+  <link rel="canonical" href="http://www.liushaohuang.cn/2019/09/02/greenplum集群安装/">
 
 
 <script id="page-configurations">
   // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
-    isHome: true,
-    isPost: false,
+    isHome: false,
+    isPost: true,
     isPage: false,
     isArchive: false
   };
 </script>
 
-  <title>刘绍煌</title>
+  <title>greenplum集群安装 | 刘绍煌</title>
   <meta name="generator" content="Hexo 3.9.0">
   
 
@@ -210,12 +212,13 @@
 
           <div id="content" class="content">
             
+
   <div id="posts" class="posts-expand">
-        <article itemscope itemtype="http://schema.org/Article">
+      <article itemscope itemtype="http://schema.org/Article">
   
   
   
-  <div class="post-block home">
+  <div class="post-block post">
     <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2019/09/02/greenplum集群安装/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -228,9 +231,8 @@
       <meta itemprop="name" content="刘绍煌">
     </span>
       <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-            
-            <a href="/2019/09/02/greenplum集群安装/" class="post-title-link" itemprop="url">greenplum集群安装</a>
+        <h1 class="post-title" itemprop="name headline">greenplum集群安装
+
           
         </h1>
 
@@ -277,7 +279,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="Greenplum集群搭建"><a href="#Greenplum集群搭建" class="headerlink" title="Greenplum集群搭建"></a>Greenplum集群搭建</h1><ol>
+        <h1 id="Greenplum集群搭建"><a href="#Greenplum集群搭建" class="headerlink" title="Greenplum集群搭建"></a>Greenplum集群搭建</h1><ol>
 <li><h5 id="关闭所有主机防火墙"><a href="#关闭所有主机防火墙" class="headerlink" title="关闭所有主机防火墙"></a>关闭所有主机防火墙</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">systemctl stop firewalld.service</span><br><span class="line">systemctl disable firewalld.service</span><br></pre></td></tr></table></figure>
 
 <h5 id="关闭SELINUX"><a href="#关闭SELINUX" class="headerlink" title="关闭SELINUX"></a>关闭SELINUX</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/selinux/config</span><br><span class="line">将属性 SELINUX 改为 disabled</span><br></pre></td></tr></table></figure>
@@ -325,679 +327,69 @@
 </li>
 </ol>
 
-        
-      
     </div>
 
     
     
     
-      <footer class="post-footer">
-          <div class="post-eof"></div>
         
-      </footer>
+      
+        <div id="reward-container">
+  <div></div>
+  <button id="reward-button" disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/赞赏码.png" alt="刘绍煌 微信支付">
+        <p>微信支付</p>
+      </div>
+
   </div>
-  
-  
-  
-  </article>
-
-    
-        <article itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2019/09/02/缓慢维度的设计和处理/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="刘绍煌">
-      <meta itemprop="description" content="刘绍煌的个人博客">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="刘绍煌">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-            
-            <a href="/2019/09/02/缓慢维度的设计和处理/" class="post-title-link" itemprop="url">缓慢维度的设计和处理</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2019-09-02 10:06:22 / 修改时间：15:43:31" itemprop="dateCreated datePublished" datetime="2019-09-02T10:06:22+08:00">2019-09-02</time>
-            </span>
-          
-            
-
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/数据仓库/" itemprop="url" rel="index"><span itemprop="name">数据仓库</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
+</div>
 
       
-          <h4 id="关于缓慢维度变化的简介"><a href="#关于缓慢维度变化的简介" class="headerlink" title="关于缓慢维度变化的简介"></a>关于缓慢维度变化的简介</h4><blockquote>
-<p>在数据仓库设计中理想状态下维度是不会变化的，但是事与愿违，大部分业务系统中的维度是会发生变化的，那么如何去处理这些变化的维度就是本文关注的内容，举个例子如下企业组织架构维度表  </p>
-</blockquote>
-<table>
-<thead>
-<tr>
-<th>ID_</th>
-<th>企业名</th>
-<th>部门名</th>
-<th>组名</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>1</td>
-<td>微软</td>
-<td>研发部</td>
-<td>开发一组</td>
-</tr>
-</tbody></table>
-          <!--noindex-->
+
+      <footer class="post-footer">
           
-            <div class="post-button text-center">
-              <a class="btn" href="/2019/09/02/缓慢维度的设计和处理/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/greenplum/" rel="tag"># greenplum</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2019/09/02/缓慢维度的设计和处理/" rel="next" title="缓慢维度的设计和处理">
+                  <i class="fa fa-chevron-left"></i> 缓慢维度的设计和处理
+                </a>
+              
             </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
 
-    
-    
-    
-      <footer class="post-footer">
-          <div class="post-eof"></div>
-        
-      </footer>
-  </div>
-  
-  
-  
-  </article>
+            <span class="post-nav-divider"></span>
 
-    
-        <article itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2019/08/31/数据仓库维度建模概述/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="刘绍煌">
-      <meta itemprop="description" content="刘绍煌的个人博客">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="刘绍煌">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-            
-            <a href="/2019/08/31/数据仓库维度建模概述/" class="post-title-link" itemprop="url">数据仓库维度建模概述</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
+            <div class="post-nav-prev post-nav-item">
               
-                
-              
-
-              <time title="创建时间：2019-08-31 19:14:00" itemprop="dateCreated datePublished" datetime="2019-08-31T19:14:00+08:00">2019-08-31</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-09-02 10:12:51" itemprop="dateModified" datetime="2019-09-02T10:12:51+08:00">2019-09-02</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/数据仓库/" itemprop="url" rel="index"><span itemprop="name">数据仓库</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h4 id="什么是维度"><a href="#什么是维度" class="headerlink" title="什么是维度"></a>什么是维度</h4><ul>
-<li><p>简单的来说维度就是用于分析数据仓库中的事实的描述（关于事实下文讲解）.举个例子在数据库中有两张表，订单明细表和商品表<br>  订单明细表</p>
-<table>
-<thead>
-<tr>
-<th>ID_</th>
-<th>ORDER_ID</th>
-<th>PRODUCT_ID_</th>
-<th>quantity</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>1</td>
-<td>1</td>
-<td>1</td>
-<td>10</td>
-</tr>
-</tbody></table>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2019/08/31/数据仓库维度建模概述/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
             </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-          <div class="post-eof"></div>
+          </div>
         
       </footer>
+    
   </div>
   
   
   
   </article>
 
-    
-        <article itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2019/08/30/hive-mysql元数据表单的主从备份/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="刘绍煌">
-      <meta itemprop="description" content="刘绍煌的个人博客">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="刘绍煌">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-            
-            <a href="/2019/08/30/hive-mysql元数据表单的主从备份/" class="post-title-link" itemprop="url">hive mysql元数据表单的主从备份</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2019-08-30 21:23:33" itemprop="dateCreated datePublished" datetime="2019-08-30T21:23:33+08:00">2019-08-30</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-09-02 10:12:09" itemprop="dateModified" datetime="2019-09-02T10:12:09+08:00">2019-09-02</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/hive/" itemprop="url" rel="index"><span itemprop="name">hive</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h4 id="hive元数据库和使用介绍"><a href="#hive元数据库和使用介绍" class="headerlink" title="hive元数据库和使用介绍"></a>hive元数据库和使用介绍</h4><ul>
-<li><p>hive 会将表的元数据信息存储在数据库中，这里采用mysql作为元数据库存储hive的元数据</p>
-</li>
-<li><p>元数据表中记录着很多hive中有用的信息，比如数据库实例，表，表结构，还有表数据的条数</p>
-</li>
-<li><p>表数据条数只有在hive为内部表时的统计是准确的，如果建立的表为外部表 (external)则需要执行统计语句才能得到准确结果</p>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2019/08/30/hive-mysql元数据表单的主从备份/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-          <div class="post-eof"></div>
-        
-      </footer>
   </div>
-  
-  
-  
-  </article>
-
-    
-        <article itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2019/08/29/将hexo发布到github/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="刘绍煌">
-      <meta itemprop="description" content="刘绍煌的个人博客">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="刘绍煌">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-            
-            <a href="/2019/08/29/将hexo发布到github/" class="post-title-link" itemprop="url">将hexo发布到github</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2019-08-29 15:17:40" itemprop="dateCreated datePublished" datetime="2019-08-29T15:17:40+08:00">2019-08-29</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-09-02 10:13:09" itemprop="dateModified" datetime="2019-09-02T10:13:09+08:00">2019-09-02</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/hexo/" itemprop="url" rel="index"><span itemprop="name">hexo</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h4 id="创建一个github仓库"><a href="#创建一个github仓库" class="headerlink" title="创建一个github仓库"></a>创建一个github仓库</h4><ul>
-<li><p>创建一个github公有仓库,点击settings如图<br><img src="/images/github1.png" alt="按钮"></p>
-</li>
-<li><p>选择GitHub Pages选项  设置git分支为，和访问域名<br><img src="/images/github2.png" alt="按钮"></p>
-</li>
-</ul>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2019/08/29/将hexo发布到github/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-          <div class="post-eof"></div>
-        
-      </footer>
-  </div>
-  
-  
-  
-  </article>
-
-    
-        <article itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2019/08/29/hexo主题的更换/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="刘绍煌">
-      <meta itemprop="description" content="刘绍煌的个人博客">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="刘绍煌">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-            
-            <a href="/2019/08/29/hexo主题的更换/" class="post-title-link" itemprop="url">hexo主题的更换</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2019-08-29 13:45:29" itemprop="dateCreated datePublished" datetime="2019-08-29T13:45:29+08:00">2019-08-29</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-09-02 10:13:24" itemprop="dateModified" datetime="2019-09-02T10:13:24+08:00">2019-09-02</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/hexo/" itemprop="url" rel="index"><span itemprop="name">hexo</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h4 id="主题主体安装设置"><a href="#主题主体安装设置" class="headerlink" title="主题主体安装设置"></a>主题主体安装设置</h4><ul>
-<li><p>这里以next主题为例，进入hexo项目目录，执行以下命令，从github上下载next主题,并将主题存放在themes目录的next文件夹下</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ git clone https://github.com/theme-next/hexo-theme-next themes/next</span><br></pre></td></tr></table></figure>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2019/08/29/hexo主题的更换/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-          <div class="post-eof"></div>
-        
-      </footer>
-  </div>
-  
-  
-  
-  </article>
-
-    
-        <article itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2019/08/29/hexo搭建/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="刘绍煌">
-      <meta itemprop="description" content="刘绍煌的个人博客">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="刘绍煌">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-            
-            <a href="/2019/08/29/hexo搭建/" class="post-title-link" itemprop="url">windows下hexo搭建</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2019-08-29 11:47:29" itemprop="dateCreated datePublished" datetime="2019-08-29T11:47:29+08:00">2019-08-29</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-09-02 10:11:46" itemprop="dateModified" datetime="2019-09-02T10:11:46+08:00">2019-09-02</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/hexo/" itemprop="url" rel="index"><span itemprop="name">hexo</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h4 id="下载nodejs"><a href="#下载nodejs" class="headerlink" title="下载nodejs"></a>下载nodejs</h4><p> nodejs下载地址<a href="https://nodejs.org/en/" target="_blank" rel="noopener">下载</a></p>
-<h4 id="安装hexo"><a href="#安装hexo" class="headerlink" title="安装hexo"></a>安装hexo</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install -g hexo-cli</span><br></pre></td></tr></table></figure>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2019/08/29/hexo搭建/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-          <div class="post-eof"></div>
-        
-      </footer>
-  </div>
-  
-  
-  
-  </article>
-
-    
-  </div>
-
-  
 
 
           </div>
@@ -1016,6 +408,11 @@
 
   <aside class="sidebar">
     <div class="sidebar-inner">
+        
+        
+        
+        
+      
 
       <ul class="sidebar-nav motion-element">
         <li class="sidebar-nav-toc">
@@ -1028,6 +425,8 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Greenplum集群搭建"><span class="nav-number">1.</span> <span class="nav-text">Greenplum集群搭建</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#关闭所有主机防火墙"><span class="nav-number">1.0.0.0.1.</span> <span class="nav-text">关闭所有主机防火墙</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#关闭SELINUX"><span class="nav-number">1.0.0.0.2.</span> <span class="nav-text">关闭SELINUX</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#系统设置"><span class="nav-number">1.0.0.0.3.</span> <span class="nav-text">系统设置</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#设置hostname"><span class="nav-number">1.0.0.0.4.</span> <span class="nav-text">设置hostname</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#设置系统参数至sysctl-conf"><span class="nav-number">1.0.0.0.5.</span> <span class="nav-text">设置系统参数至sysctl.conf</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#在-etc-security-limits-conf中修改以下参数"><span class="nav-number">1.0.0.0.6.</span> <span class="nav-text">在/etc/security/limits.conf中修改以下参数</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#同步集群时间"><span class="nav-number">1.0.0.0.7.</span> <span class="nav-text">同步集群时间</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#免密登录"><span class="nav-number">1.0.0.0.8.</span> <span class="nav-text">免密登录</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#在主节点安准Greenplum"><span class="nav-number">1.0.0.0.9.</span> <span class="nav-text">在主节点安准Greenplum</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#在集群中安装Greenplum"><span class="nav-number">1.0.0.0.9.1.</span> <span class="nav-text">在集群中安装Greenplum</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#创建数据目录"><span class="nav-number">1.0.0.0.10.</span> <span class="nav-text">创建数据目录</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#创建段节点（数据节点）目录"><span class="nav-number">1.0.0.0.11.</span> <span class="nav-text">创建段节点（数据节点）目录</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#用gpssh命令在段节点-数据节点-创建目录和更改其权限"><span class="nav-number">1.0.0.0.12.</span> <span class="nav-text">用gpssh命令在段节点(数据节点)创建目录和更改其权限</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#配置数据库"><span class="nav-number">1.0.0.0.13.</span> <span class="nav-text">配置数据库</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#运行初始化脚本"><span class="nav-number">1.0.0.0.14.</span> <span class="nav-text">运行初始化脚本</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#在主节点和备份主节点设置环境变量"><span class="nav-number">1.0.0.0.15.</span> <span class="nav-text">在主节点和备份主节点设置环境变量</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#设置账号"><span class="nav-number">1.0.0.0.16.</span> <span class="nav-text">设置账号</span></a></li></ol></li></ol></li></ol></li></ol></li></ol></div>
+        
       </div>
       <!--/noindex-->
 
