@@ -55,18 +55,18 @@
   };
 </script>
 
-  <meta name="description" content="刘绍煌的个人博客">
+  <meta name="description" content="关于缓慢维度变化的简介 在数据仓库设计中理想状态下维度是不会变化的，但是事与愿违，大部分业务系统中的维度是会发生变化的，那么如何去处理这些变化的维度就是本文关注的内容，举个例子如下企业组织架构维度表">
 <meta name="keywords" content="维度,数据仓库">
 <meta property="og:type" content="article">
 <meta property="og:title" content="缓慢维度的设计和处理">
 <meta property="og:url" content="http://www.liushaohuang.cn/2019/09/02/缓慢维度的设计和处理/index.html">
 <meta property="og:site_name" content="刘绍煌">
-<meta property="og:description" content="刘绍煌的个人博客">
+<meta property="og:description" content="关于缓慢维度变化的简介 在数据仓库设计中理想状态下维度是不会变化的，但是事与愿违，大部分业务系统中的维度是会发生变化的，那么如何去处理这些变化的维度就是本文关注的内容，举个例子如下企业组织架构维度表">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-09-02T02:10:30.721Z">
+<meta property="og:updated_time" content="2019-09-02T07:38:33.779Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="缓慢维度的设计和处理">
-<meta name="twitter:description" content="刘绍煌的个人博客">
+<meta name="twitter:description" content="关于缓慢维度变化的简介 在数据仓库设计中理想状态下维度是不会变化的，但是事与愿违，大部分业务系统中的维度是会发生变化的，那么如何去处理这些变化的维度就是本文关注的内容，举个例子如下企业组织架构维度表">
   <link rel="canonical" href="http://www.liushaohuang.cn/2019/09/02/缓慢维度的设计和处理/">
 
 
@@ -247,7 +247,7 @@
                 
               
 
-              <time title="创建时间：2019-09-02 10:06:22 / 修改时间：10:10:30" itemprop="dateCreated datePublished" datetime="2019-09-02T10:06:22+08:00">2019-09-02</time>
+              <time title="创建时间：2019-09-02 10:06:22 / 修改时间：15:38:33" itemprop="dateCreated datePublished" datetime="2019-09-02T10:06:22+08:00">2019-09-02</time>
             </span>
           
             
@@ -279,7 +279,547 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        
+        <h4 id="关于缓慢维度变化的简介"><a href="#关于缓慢维度变化的简介" class="headerlink" title="关于缓慢维度变化的简介"></a>关于缓慢维度变化的简介</h4><blockquote>
+<p>在数据仓库设计中理想状态下维度是不会变化的，但是事与愿违，大部分业务系统中的维度是会发生变化的，那么如何去处理这些变化的维度就是本文关注的内容，举个例子如下企业组织架构维度表  </p>
+</blockquote>
+<a id="more"></a>
+
+<table>
+<thead>
+<tr>
+<th>ID_</th>
+<th>企业名</th>
+<th>部门名</th>
+<th>组名</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>微软</td>
+<td>研发部</td>
+<td>开发一组</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>如果有一天上表中的部门名发生变化怎么办?根据Kimball的数据仓库工具箱，我们把处理缓慢维度的方法分为7种类型，其为类型1至类型7</p>
+</blockquote>
+<h4 id="类型1-重写"><a href="#类型1-重写" class="headerlink" title="类型1:重写"></a>类型1:重写</h4><blockquote>
+<p>顾名思义，就是将维度表中的字段简单的替换，如上表中如果采用类型1的话，如果部门后续由研发部变成技术部，那么维度表将变成下表，部门维度表和部门人数事实表做关联  </p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>ID_</th>
+<th>企业名</th>
+<th>部门名</th>
+<th>组名</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>微软</td>
+<td>技术部</td>
+<td>开发一组</td>
+</tr>
+</tbody></table>
+<p>部门人数事实表  </p>
+<table>
+<thead>
+<tr>
+<th>ID_</th>
+<th>部门ID外键</th>
+<th>人数</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>1</td>
+<td>10</td>
+</tr>
+</tbody></table>
+<ul>
+<li>类型1的优劣势<blockquote>
+<p>有点是简单易于实现，仅需重写维度表中的属性值而不需要去更改事实表，但是无法保留历史值，如果业务中存在对维度的历史值进行分析，那么就无法采用该类型，举例：采用类型1将部门名改成技术部后，现在需要分析在部门叫研发部时，研发部下有多少人?那么如果采用类型1将无从下手，因为维度表中没有保存历史维度数据,而部门人数事实表中的数据是用部门ID去与其关联的。<em>但是实际中如果采用类似hive无法执行update语句的数据仓库工具去建设的话，那么只能重新全量生成维度表</em></p>
+</blockquote>
+</li>
+</ul>
+<h4 id="类型2：增加新行"><a href="#类型2：增加新行" class="headerlink" title="类型2：增加新行"></a>类型2：增加新行</h4><blockquote>
+<p>类型2是最常用的处理缓慢维度的办法,如果采用此设计方式则在部门名变更为技术部时维度表和事实表如下  </p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>ID_</th>
+<th>企业名</th>
+<th>部门名</th>
+<th>组名</th>
+<th>行有效日期</th>
+<th>行失效日期</th>
+<th>是否生效</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>微软</td>
+<td>研发部</td>
+<td>开发一组</td>
+<td>2011-1-1</td>
+<td>2019-9-1</td>
+<td>no</td>
+</tr>
+<tr>
+<td>2</td>
+<td>微软</td>
+<td>技术部</td>
+<td>开发一组</td>
+<td>2019-9-2</td>
+<td>9999-1-1</td>
+<td>yes</td>
+</tr>
+</tbody></table>
+<p>部门人数事实表  </p>
+<table>
+<thead>
+<tr>
+<th>ID_</th>
+<th>部门ID外键</th>
+<th>人数</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>1</td>
+<td>10</td>
+</tr>
+<tr>
+<td>2</td>
+<td>2</td>
+<td>100</td>
+</tr>
+</tbody></table>
+<p>在事实表中原来旧的数据仍然和研发部关联，但是新增的数据已经和新的维度（技术部）做关联。这样数据就保留了历史变化的信息，如果需求中存在对历史维度进行分析的话可以采用此类型应对维度缓慢维度变化。</p>
+<h4 id="类型3：新增新列"><a href="#类型3：新增新列" class="headerlink" title="类型3：新增新列"></a>类型3：新增新列</h4><blockquote>
+<p> 采用维度2去处理维度变化时存在一个缺点，如果需求需要将新的属性值和旧的属性值做关联分析，那么采用类型2将很难实现，因为类型2并没有记录维度变化的关联关系，如果存在这方面需求则可以采用类型3处理，事实表通过代理键ID关联维度表(维度表在创建时自己生产的id，不是业务方提供的ID)但实际中类型3不经常使用 如：  </p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>ID_</th>
+<th>企业名</th>
+<th>当前部门名</th>
+<th>之前部门名</th>
+<th>组名</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>微软</td>
+<td>技术部</td>
+<td>研发部</td>
+<td>开发一组</td>
+</tr>
+</tbody></table>
+<p>部门人数事实表  </p>
+<table>
+<thead>
+<tr>
+<th>ID_</th>
+<th>部门ID外键</th>
+<th>人数</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>1</td>
+<td>10</td>
+</tr>
+</tbody></table>
+<h4 id="类型4：微型维度"><a href="#类型4：微型维度" class="headerlink" title="类型4：微型维度"></a>类型4：微型维度</h4><blockquote>
+<p>其解决问题的场景为应对维度表中存在大量数据（几百万），且一些属性快速变化。因为当维度表中存在大量的数据，特别是维度中某些信息还是易变时，我们不希望已经存在几百万的维度表中新增数据（采用类型2），因为这样会使维度表发生膨胀，实际情况中维度表中的数据应该远远小于事实表，那么类型3就派上用场，还是引用上诉两张表，假设现在部门维度有几十万个部门，且组名经常发生变化（即使不太可能），那么我们将才用下面设计</p>
+</blockquote>
+<p>部门表  </p>
+<table>
+<thead>
+<tr>
+<th>ID_</th>
+<th>企业名</th>
+<th>部门名</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>微软</td>
+<td>研发部</td>
+</tr>
+</tbody></table>
+<p>组名表</p>
+<table>
+<thead>
+<tr>
+<th>ID_</th>
+<th>组名</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>开发一组</td>
+</tr>
+<tr>
+<td>1</td>
+<td>开发二组</td>
+</tr>
+</tbody></table>
+<p>部门人数事实表  </p>
+<table>
+<thead>
+<tr>
+<th>ID_</th>
+<th>部门ID外键</th>
+<th>组名外键</th>
+<th>人数</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>10</td>
+</tr>
+<tr>
+<td>2</td>
+<td>1</td>
+<td>2</td>
+<td>100</td>
+</tr>
+</tbody></table>
+<ul>
+<li><strong>部门表和组名表不再使用星型维度直接做关联，而是在事实表中新建外键来关联部门和组</strong></li>
+</ul>
+<h4 id="类型5：微型维度与类型1支架表"><a href="#类型5：微型维度与类型1支架表" class="headerlink" title="类型5：微型维度与类型1支架表"></a>类型5：微型维度与类型1支架表</h4><blockquote>
+<p>之所以称之为类型5是因为其是类型4和类型1的结合 4+1=5，该技术实现为在主维度中用一个外键id和一个微型维度做关联，这样能避免微型维度发生变化时更新主维度的每行的信息，且如果客户需求需要在不关联事实表的情况下完成维度的过滤分析等类型5是很好的处理方法，举例</p>
+</blockquote>
+<p>商店维度表</p>
+<table>
+<thead>
+<tr>
+<th>ID_</th>
+<th>商店名</th>
+<th>地区ID</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>一号门店</td>
+<td>1</td>
+</tr>
+</tbody></table>
+<p>地区维度表  </p>
+<table>
+<thead>
+<tr>
+<th>地区ID</th>
+<th>省</th>
+<th>市</th>
+<th>县</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>福建省</td>
+<td>福州市</td>
+<td>闽清县</td>
+</tr>
+</tbody></table>
+<p>如果不采用类型5的话维度表结构为</p>
+<table>
+<thead>
+<tr>
+<th>ID_</th>
+<th>商店名</th>
+<th>省</th>
+<th>市</th>
+<th>县</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>一号门店</td>
+<td>福建省</td>
+<td>福州市</td>
+<td>闽清县</td>
+</tr>
+<tr>
+<td>2</td>
+<td>二号门店</td>
+<td>福建省</td>
+<td>福州市</td>
+<td>闽清县</td>
+</tr>
+</tbody></table>
+<p><strong>那么有一条闽清县更改了名字变成闽清市，如果不采用类型5支架表的话那么将要更改所有商店维度表中有关闽清县的记录，将其改成闽清市，如果你在很多事实表中都使用了地区信息，那就需要更改所有有关地区的维度，这是无法忍受的，但是如果采用类型5则只需要更改地区类型的属性即可完成所有有关地区维度信息的修改。</strong></p>
+<h4 id="类型6"><a href="#类型6" class="headerlink" title="类型6"></a>类型6</h4><blockquote>
+<p>类型6为 类型2,3,1的组合（2+3+1=6），回顾类型3，当为了记录维度变化的历史先后关系时我们采用类型3，但是类型3也有一个缺点就是它只记录当前的变化，和上一次的变化，类型6解决了这个问题，其维度表如：</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>ID_</th>
+<th>企业名</th>
+<th>当前部门名</th>
+<th>之前部门名</th>
+<th>组名</th>
+<th>生效日期</th>
+<th>结束日期</th>
+<th>当前是否生效</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>微软</td>
+<td>技术部</td>
+<td>研发部</td>
+<td>开发一组</td>
+<td>2011-1-1</td>
+<td>2019-9-1</td>
+<td>no</td>
+</tr>
+<tr>
+<td>2</td>
+<td>微软</td>
+<td>技术部2</td>
+<td>技术部</td>
+<td>开发一组</td>
+<td>2011-1-1</td>
+<td>9999-1-1</td>
+<td>yes</td>
+</tr>
+</tbody></table>
+<p>部门人数事实表  </p>
+<table>
+<thead>
+<tr>
+<th>ID_</th>
+<th>部门ID外键</th>
+<th>人数</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>1</td>
+<td>10</td>
+</tr>
+</tbody></table>
+<ul>
+<li><strong>尽管该技术具有某种诱惑力，但是加大了系统的复杂度，考虑任务是否有这种需求才使用这种方法。</strong></li>
+</ul>
+<h4 id="类型7"><a href="#类型7" class="headerlink" title="类型7"></a>类型7</h4><blockquote>
+<p>当需要分析维度表的当前和历史场景的时候可以使用类型7，其运用事实表关联类型2和基于类型2的维度表创建一个当前部门的视图来实现，如下</p>
+</blockquote>
+<p>部门维度</p>
+<table>
+<thead>
+<tr>
+<th>ID_</th>
+<th>部门编码</th>
+<th>企业名</th>
+<th>当前部门名</th>
+<th>生效日期</th>
+<th>结束日期</th>
+<th>当前是否生效</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>code1</td>
+<td>微软</td>
+<td>研发部</td>
+<td>2011-1-1</td>
+<td>2019-9-1</td>
+<td>no</td>
+</tr>
+<tr>
+<td>2</td>
+<td>code1</td>
+<td>微软</td>
+<td>技术部</td>
+<td>2011-1-1</td>
+<td>9999-1-1</td>
+<td>yes</td>
+</tr>
+</tbody></table>
+<p>当前部门视图（可以根据部门问题创建一个当前部门视图 比如:select * from 部门维度 where 当前是否生效=’yes’）</p>
+<table>
+<thead>
+<tr>
+<th>部门编码</th>
+<th>部门ID</th>
+<th>当前部门名</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>code1</td>
+<td>2</td>
+<td>技术部</td>
+</tr>
+<tr>
+<td>code1</td>
+<td>3</td>
+<td>人力资源部</td>
+</tr>
+</tbody></table>
+<p>部门人数事实表  </p>
+<table>
+<thead>
+<tr>
+<th>ID_</th>
+<th>部门ID外键</th>
+<th>部门编码</th>
+<th>人数</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>1</td>
+<td>code1</td>
+<td>10</td>
+</tr>
+<tr>
+<td>2</td>
+<td>2</td>
+<td>code1</td>
+<td>10</td>
+</tr>
+</tbody></table>
+<p>这样通过事实表中存在，部门ID外键和部门编码就可以分析历史部门数据和当前部门数据所存在的关系</p>
+<h4 id="杂项目维度"><a href="#杂项目维度" class="headerlink" title="杂项目维度"></a>杂项目维度</h4><ul>
+<li><p>在建模过程中通常会遇到大量五花八门的指标和描述，它们包行小的范围离散值处理这些离散值有一下几种方法</p>
+<ol>
+<li>忽略这些标志和指标,如果这些描述具有业务价值则不能采用这种方式</li>
+<li>在事实表中保存这些表示，尽量不要在事实表中保存这些描述，这些描述可能使事实表的列发生膨胀</li>
+<li>将每个标志和指标放入各自的维度，如果事实表的外键在合理范围内（不超过20个），则在事实表中加入不同的外键是可接受的。</li>
+<li>杂项维度,如下</li>
+</ol>
+<p>在交易事实表中存在以下杂项描述</p>
+<p>支付方式:CASH,CREDIT<br>购买渠道:ONLINE,OFFLINE<br>对应事实表中一共存在以下4中组合方式（2的二次方），数据为</p>
+<table>
+<thead>
+<tr>
+<th>支付方式</th>
+<th>购买渠道</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>CASH</td>
+<td>ONLINE</td>
+</tr>
+<tr>
+<td>CASH</td>
+<td>OFFLINE</td>
+</tr>
+<tr>
+<td>CREDIT</td>
+<td>ONLINE</td>
+</tr>
+<tr>
+<td>CREDIT</td>
+<td>OFFLINE</td>
+</tr>
+</tbody></table>
+</li>
+</ul>
+<p>  那么与其建这些杂项目反正事实表中，或者维度数目已经较大的情况下，我们可以创建一个杂项维度,将这些杂项的所有可能罗列出来如</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>支付方式</th>
+<th>购买渠道</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>CASH</td>
+<td>ONLINE</td>
+</tr>
+<tr>
+<td>2</td>
+<td>CASH</td>
+<td>OFFLINE</td>
+</tr>
+<tr>
+<td>3</td>
+<td>CREDIT</td>
+<td>ONLINE</td>
+</tr>
+<tr>
+<td>4</td>
+<td>CREDIT</td>
+<td>OFFLINE</td>
+</tr>
+</tbody></table>
+<p>  现在在事实表中的数据为</p>
+<table>
+<thead>
+<tr>
+<th>ID_</th>
+<th>杂项外键</th>
+<th>金额</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>2</td>
+<td>100</td>
+</tr>
+<tr>
+<td>2</td>
+<td>1</td>
+<td>1000</td>
+</tr>
+</tbody></table>
+<h4 id="不同粒度的事务事实（表头模式）"><a href="#不同粒度的事务事实（表头模式）" class="headerlink" title="不同粒度的事务事实（表头模式）"></a>不同粒度的事务事实（表头模式）</h4><p> 实践中应该避免这么模式，应该保证事实表中的粒度和维度是一样的<br> 比如存在订单详细事实表</p>
+<table>
+<thead>
+<tr>
+<th>ID_</th>
+<th>订单ID</th>
+<th>商品外键</th>
+<th>金额</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>order1</td>
+<td>1</td>
+<td>1000</td>
+</tr>
+<tr>
+<td>2</td>
+<td>order1</td>
+<td>2</td>
+<td>888</td>
+</tr>
+</tbody></table>
+<p>订单维度表  </p>
+<table>
+<thead>
+<tr>
+<th>ID_</th>
+<th>订单描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>order1</td>
+<td>订单1信息</td>
+</tr>
+<tr>
+<td>order1</td>
+<td>订单2信息</td>
+</tr>
+</tbody></table>
+<p>这样的设计存在一个问题，订单详情事实表中的粒度是订单的每个商品，但是却关联了订单维度，这两个关联存在不同的粒度，应该尽量避免这种情况，更好的做法应该是再新建一个关于订单的事实表，在订单明细表中将订单id做为退化维度（只是单纯的记录一下订单id，为了方便分析）</p>
+<h4 id="多币种"><a href="#多币种" class="headerlink" title="多币种"></a>多币种</h4><p>  最常见的分析需求是订单事务以当地交易币种表示，在构建订单事实表时应该包含2中货币信息事实，一种是当地货币，一种是公司采用的标准统计货币，比如公司在日本销售的货物以日元结算，公司财报中的统计标准为美元，那么在订单事实表中应该包行2中货币，一种是日元，一种是公司的标准货币美元。</p>
+
     </div>
 
     
@@ -380,6 +920,8 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#关于缓慢维度变化的简介"><span class="nav-number">1.</span> <span class="nav-text">关于缓慢维度变化的简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#类型1-重写"><span class="nav-number">2.</span> <span class="nav-text">类型1:重写</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#类型2：增加新行"><span class="nav-number">3.</span> <span class="nav-text">类型2：增加新行</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#类型3：新增新列"><span class="nav-number">4.</span> <span class="nav-text">类型3：新增新列</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#类型4：微型维度"><span class="nav-number">5.</span> <span class="nav-text">类型4：微型维度</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#类型5：微型维度与类型1支架表"><span class="nav-number">6.</span> <span class="nav-text">类型5：微型维度与类型1支架表</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#类型6"><span class="nav-number">7.</span> <span class="nav-text">类型6</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#类型7"><span class="nav-number">8.</span> <span class="nav-text">类型7</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#杂项目维度"><span class="nav-number">9.</span> <span class="nav-text">杂项目维度</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#不同粒度的事务事实（表头模式）"><span class="nav-number">10.</span> <span class="nav-text">不同粒度的事务事实（表头模式）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#多币种"><span class="nav-number">11.</span> <span class="nav-text">多币种</span></a></li></ol></div>
+        
       </div>
       <!--/noindex-->
 
