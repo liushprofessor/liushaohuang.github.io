@@ -55,18 +55,18 @@
   };
 </script>
 
-  <meta name="description" content="Greenplum集群搭建 关闭所有主机防火墙12systemctl stop firewalld.servicesystemctl disable firewalld.service  关闭SELINUX12vi /etc/selinux/config将属性 SELINUX 改为 disabled  系统设置设置hostname12345vi /etc/hosts添加各个主机的hostname如">
+  <meta name="description" content="Greenplum集群搭建 关闭所有主机防火墙12systemctl stop firewalld.servicesystemctl disable firewalld.service">
 <meta name="keywords" content="greenplum">
 <meta property="og:type" content="article">
 <meta property="og:title" content="greenplum集群安装">
 <meta property="og:url" content="http://www.liushaohuang.cn/2019/09/02/greenplum集群安装/index.html">
 <meta property="og:site_name" content="刘绍煌">
-<meta property="og:description" content="Greenplum集群搭建 关闭所有主机防火墙12systemctl stop firewalld.servicesystemctl disable firewalld.service  关闭SELINUX12vi /etc/selinux/config将属性 SELINUX 改为 disabled  系统设置设置hostname12345vi /etc/hosts添加各个主机的hostname如">
+<meta property="og:description" content="Greenplum集群搭建 关闭所有主机防火墙12systemctl stop firewalld.servicesystemctl disable firewalld.service">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-09-02T08:10:37.047Z">
+<meta property="og:updated_time" content="2019-09-02T09:23:19.064Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="greenplum集群安装">
-<meta name="twitter:description" content="Greenplum集群搭建 关闭所有主机防火墙12systemctl stop firewalld.servicesystemctl disable firewalld.service  关闭SELINUX12vi /etc/selinux/config将属性 SELINUX 改为 disabled  系统设置设置hostname12345vi /etc/hosts添加各个主机的hostname如">
+<meta name="twitter:description" content="Greenplum集群搭建 关闭所有主机防火墙12systemctl stop firewalld.servicesystemctl disable firewalld.service">
   <link rel="canonical" href="http://www.liushaohuang.cn/2019/09/02/greenplum集群安装/">
 
 
@@ -247,7 +247,7 @@
                 
               
 
-              <time title="创建时间：2019-09-02 16:09:03 / 修改时间：16:10:37" itemprop="dateCreated datePublished" datetime="2019-09-02T16:09:03+08:00">2019-09-02</time>
+              <time title="创建时间：2019-09-02 16:09:03 / 修改时间：17:23:19" itemprop="dateCreated datePublished" datetime="2019-09-02T16:09:03+08:00">2019-09-02</time>
             </span>
           
             
@@ -282,8 +282,13 @@
         <h1 id="Greenplum集群搭建"><a href="#Greenplum集群搭建" class="headerlink" title="Greenplum集群搭建"></a>Greenplum集群搭建</h1><ol>
 <li><h5 id="关闭所有主机防火墙"><a href="#关闭所有主机防火墙" class="headerlink" title="关闭所有主机防火墙"></a>关闭所有主机防火墙</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">systemctl stop firewalld.service</span><br><span class="line">systemctl disable firewalld.service</span><br></pre></td></tr></table></figure>
 
-<h5 id="关闭SELINUX"><a href="#关闭SELINUX" class="headerlink" title="关闭SELINUX"></a>关闭SELINUX</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/selinux/config</span><br><span class="line">将属性 SELINUX 改为 disabled</span><br></pre></td></tr></table></figure>
 </li>
+</ol>
+<a id="more"></a>
+
+<h5 id="关闭SELINUX"><a href="#关闭SELINUX" class="headerlink" title="关闭SELINUX"></a>关闭SELINUX</h5>   <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/selinux/config</span><br><span class="line">将属性 SELINUX 改为 disabled</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
 <li><h5 id="系统设置"><a href="#系统设置" class="headerlink" title="系统设置"></a>系统设置</h5><h5 id="设置hostname"><a href="#设置hostname" class="headerlink" title="设置hostname"></a>设置hostname</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/hosts</span><br><span class="line">添加各个主机的hostname如:</span><br><span class="line">192.168.171.75 master</span><br><span class="line">192.168.171.76 node1</span><br><span class="line">192.168.171.77 node2</span><br></pre></td></tr></table></figure>
 
 <h5 id="设置系统参数至sysctl-conf"><a href="#设置系统参数至sysctl-conf" class="headerlink" title="设置系统参数至sysctl.conf"></a>设置系统参数至sysctl.conf</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/sysctl.conf</span><br><span class="line">在文件中添加以下代码</span><br><span class="line">kernel.shmmax = 500000000</span><br><span class="line">kernel.shmmni = 4096</span><br><span class="line">kernel.shmall = 4000000000</span><br><span class="line">kernel.sem = 500 2048000 200 40960</span><br><span class="line">kernel.sysrq = 1</span><br><span class="line">kernel.core_uses_pid = 1</span><br><span class="line">kernel.msgmnb = 65536</span><br><span class="line">kernel.msgmax = 65536</span><br><span class="line">kernel.msgmni = 2048</span><br><span class="line">net.ipv4.tcp_syncookies = 1</span><br><span class="line">net.ipv4.conf.default.accept_source_route = 0</span><br><span class="line">net.ipv4.tcp_max_syn_backlog = 4096</span><br><span class="line">net.ipv4.conf.all.arp_filter = 1</span><br><span class="line">net.ipv4.ip_local_port_range = 10000 65535</span><br><span class="line">net.core.netdev_max_backlog = 10000</span><br><span class="line">net.core.rmem_max = 2097152</span><br><span class="line">net.core.wmem_max = 2097152</span><br><span class="line">vm.overcommit_memory = 2</span><br><span class="line">vm.swappiness = 10</span><br><span class="line">vm.zone_reclaim_mode = 0</span><br><span class="line">vm.dirty_expire_centisecs = 500</span><br><span class="line">vm.dirty_writeback_centisecs = 100</span><br><span class="line">vm.dirty_background_ratio = 0</span><br><span class="line">vm.dirty_ratio = 0</span><br><span class="line">vm.dirty_background_bytes = 1610612736</span><br><span class="line">vm.dirty_bytes = 4294967296</span><br></pre></td></tr></table></figure>
