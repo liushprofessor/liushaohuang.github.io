@@ -56,14 +56,14 @@
 </script>
 
   <meta name="description" content="hive元数据库和使用介绍 hive 会将表的元数据信息存储在数据库中，这里采用mysql作为元数据库存储hive的元数据  元数据表中记录着很多hive中有用的信息，比如数据库实例，表，表结构，还有表数据的条数  表数据条数只有在hive为内部表时的统计是准确的，如果建立的表为外部表 (external)则需要执行统计语句才能得到准确结果">
-<meta name="keywords" content="hive">
+<meta name="keywords" content="hive,mysql主从搭建">
 <meta property="og:type" content="article">
 <meta property="og:title" content="hive mysql元数据表单的主从备份">
 <meta property="og:url" content="http://www.liushaohuang.cn/2019/08/30/hive-mysql元数据表单的主从备份/index.html">
 <meta property="og:site_name" content="刘绍煌">
 <meta property="og:description" content="hive元数据库和使用介绍 hive 会将表的元数据信息存储在数据库中，这里采用mysql作为元数据库存储hive的元数据  元数据表中记录着很多hive中有用的信息，比如数据库实例，表，表结构，还有表数据的条数  表数据条数只有在hive为内部表时的统计是准确的，如果建立的表为外部表 (external)则需要执行统计语句才能得到准确结果">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-08-30T14:49:19.314Z">
+<meta property="og:updated_time" content="2019-09-02T02:12:09.839Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="hive mysql元数据表单的主从备份">
 <meta name="twitter:description" content="hive元数据库和使用介绍 hive 会将表的元数据信息存储在数据库中，这里采用mysql作为元数据库存储hive的元数据  元数据表中记录着很多hive中有用的信息，比如数据库实例，表，表结构，还有表数据的条数  表数据条数只有在hive为内部表时的统计是准确的，如果建立的表为外部表 (external)则需要执行统计语句才能得到准确结果">
@@ -247,11 +247,19 @@
                 
               
 
-              <time title="创建时间：2019-08-30 21:23:33 / 修改时间：22:49:19" itemprop="dateCreated datePublished" datetime="2019-08-30T21:23:33+08:00">2019-08-30</time>
+              <time title="创建时间：2019-08-30 21:23:33" itemprop="dateCreated datePublished" datetime="2019-08-30T21:23:33+08:00">2019-08-30</time>
             </span>
           
             
 
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-09-02 10:12:09" itemprop="dateModified" datetime="2019-09-02T10:12:09+08:00">2019-09-02</time>
+              </span>
             
           
             <span class="post-meta-item">
@@ -392,6 +400,8 @@
             
               <a href="/tags/hive/" rel="tag"># hive</a>
             
+              <a href="/tags/mysql主从搭建/" rel="tag"># mysql主从搭建</a>
+            
           </div>
         
 
@@ -476,7 +486,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-count">6</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -522,7 +532,11 @@
         
           
         
-        <span class="site-state-item-count">5</span>
+          
+        
+          
+        
+        <span class="site-state-item-count">7</span>
         <span class="site-state-item-name">标签</span>
         </a>
       </div>
