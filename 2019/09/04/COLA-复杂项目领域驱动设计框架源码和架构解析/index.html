@@ -55,18 +55,18 @@
   };
 </script>
 
-  <meta name="description" content="COLA简介  可自行到github上查看md简介  https://github.com/alibaba/COLA 目录结构分析COAL提供了一个很方便的maven生成模板，按照项目说明我们生成一个web项目，打开目录我们发现如下几个子模块 父项目 └── start   项目启动模块 └── app     项目应用服务模块（可以理解为客户端程序员在此编写代码） └── client  提供给">
+  <meta name="description" content="COLA简介  可自行到github上查看md简介  https://github.com/alibaba/COLA 目录结构分析COAL提供了一个很方便的maven生成模板，按照项目说明我们生成一个web项目，打开目录我们发现如下几个子模块">
 <meta name="keywords" content="领域驱动设计,COLA">
 <meta property="og:type" content="article">
 <meta property="og:title" content="COLA-复杂项目领域驱动设计框架源码和架构解析">
 <meta property="og:url" content="http://www.liushaohuang.cn/2019/09/04/COLA-复杂项目领域驱动设计框架源码和架构解析/index.html">
 <meta property="og:site_name" content="刘绍煌">
-<meta property="og:description" content="COLA简介  可自行到github上查看md简介  https://github.com/alibaba/COLA 目录结构分析COAL提供了一个很方便的maven生成模板，按照项目说明我们生成一个web项目，打开目录我们发现如下几个子模块 父项目 └── start   项目启动模块 └── app     项目应用服务模块（可以理解为客户端程序员在此编写代码） └── client  提供给">
+<meta property="og:description" content="COLA简介  可自行到github上查看md简介  https://github.com/alibaba/COLA 目录结构分析COAL提供了一个很方便的maven生成模板，按照项目说明我们生成一个web项目，打开目录我们发现如下几个子模块">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-09-04T06:21:31.017Z">
+<meta property="og:updated_time" content="2019-09-04T06:23:03.367Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="COLA-复杂项目领域驱动设计框架源码和架构解析">
-<meta name="twitter:description" content="COLA简介  可自行到github上查看md简介  https://github.com/alibaba/COLA 目录结构分析COAL提供了一个很方便的maven生成模板，按照项目说明我们生成一个web项目，打开目录我们发现如下几个子模块 父项目 └── start   项目启动模块 └── app     项目应用服务模块（可以理解为客户端程序员在此编写代码） └── client  提供给">
+<meta name="twitter:description" content="COLA简介  可自行到github上查看md简介  https://github.com/alibaba/COLA 目录结构分析COAL提供了一个很方便的maven生成模板，按照项目说明我们生成一个web项目，打开目录我们发现如下几个子模块">
   <link rel="canonical" href="http://www.liushaohuang.cn/2019/09/04/COLA-复杂项目领域驱动设计框架源码和架构解析/">
 
 
@@ -247,7 +247,7 @@
                 
               
 
-              <time title="创建时间：2019-09-04 10:48:16 / 修改时间：14:21:31" itemprop="dateCreated datePublished" datetime="2019-09-04T10:48:16+08:00">2019-09-04</time>
+              <time title="创建时间：2019-09-04 10:48:16 / 修改时间：14:23:03" itemprop="dateCreated datePublished" datetime="2019-09-04T10:48:16+08:00">2019-09-04</time>
             </span>
           
             
@@ -281,15 +281,15 @@
       
         <h4 id="COLA简介"><a href="#COLA简介" class="headerlink" title="COLA简介"></a>COLA简介</h4><p>  可自行到github上查看md简介<br>  <a href="https://github.com/alibaba/COLA" target="_blank" rel="noopener">https://github.com/alibaba/COLA</a></p>
 <h4 id="目录结构分析"><a href="#目录结构分析" class="headerlink" title="目录结构分析"></a>目录结构分析</h4><p>COAL提供了一个很方便的maven生成模板，按照项目说明我们生成一个web项目，打开目录我们发现如下几个子模块</p>
+<a id="more"></a>
+
 <pre><code>父项目
 └── start   项目启动模块
 └── app     项目应用服务模块（可以理解为客户端程序员在此编写代码）
 └── client  提供给客户端程序员使用的二方包，为应用服务模块提供一下基础类
 └── controller  控制层SpringMVC实现
 └── domain  领域层
-└── infrastructure  基础设施层，包含数据库持久化，一些其它基础设施调用代码放在此，如RPC调用，队列调用等基础设施代码</code></pre><a id="more"></a>
-
-<p>其项目依赖目录如下<br>start依赖controller，controller依赖app，app同时依赖client和infrastructure，infrastructure依赖domain</p>
+└── infrastructure  基础设施层，包含数据库持久化，一些其它基础设施调用代码放在此，如RPC调用，队列调用等基础设施代码</code></pre><p>其项目依赖目录如下<br>start依赖controller，controller依赖app，app同时依赖client和infrastructure，infrastructure依赖domain</p>
 <pre><code>start
  └── controller
      └── app
