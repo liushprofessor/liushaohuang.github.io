@@ -55,18 +55,18 @@
   };
 </script>
 
-  <meta name="description" content="COLA简介  可自行到github上查看md简介  https://github.com/alibaba/COLA 目录结构分析COAL提供了一个很方便的maven生成模板，按照项目说明我们生成一个web项目，打开目录我们发现如下几个子模块">
+  <meta name="description" content="COLA简介  可自行到github上查看md简介  https://github.com/alibaba/COLA 目录结构分析COAL提供了一个很方便的maven生成模板，按照项目说明我们生成一个web项目，打开目录我们发现如下几个子模块 父项目 └── start   项目启动模块 └── app     项目应用服务模块（可以理解为客户端程序员在此编写代码） └── client  提供给">
 <meta name="keywords" content="领域驱动设计,COLA">
 <meta property="og:type" content="article">
 <meta property="og:title" content="COLA-复杂项目领域驱动设计框架源码和架构解析">
 <meta property="og:url" content="http://www.liushaohuang.cn/2019/09/04/COLA-复杂项目领域驱动设计框架源码和架构解析/index.html">
 <meta property="og:site_name" content="刘绍煌">
-<meta property="og:description" content="COLA简介  可自行到github上查看md简介  https://github.com/alibaba/COLA 目录结构分析COAL提供了一个很方便的maven生成模板，按照项目说明我们生成一个web项目，打开目录我们发现如下几个子模块">
+<meta property="og:description" content="COLA简介  可自行到github上查看md简介  https://github.com/alibaba/COLA 目录结构分析COAL提供了一个很方便的maven生成模板，按照项目说明我们生成一个web项目，打开目录我们发现如下几个子模块 父项目 └── start   项目启动模块 └── app     项目应用服务模块（可以理解为客户端程序员在此编写代码） └── client  提供给">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-09-04T06:06:20.846Z">
+<meta property="og:updated_time" content="2019-09-04T06:19:36.846Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="COLA-复杂项目领域驱动设计框架源码和架构解析">
-<meta name="twitter:description" content="COLA简介  可自行到github上查看md简介  https://github.com/alibaba/COLA 目录结构分析COAL提供了一个很方便的maven生成模板，按照项目说明我们生成一个web项目，打开目录我们发现如下几个子模块">
+<meta name="twitter:description" content="COLA简介  可自行到github上查看md简介  https://github.com/alibaba/COLA 目录结构分析COAL提供了一个很方便的maven生成模板，按照项目说明我们生成一个web项目，打开目录我们发现如下几个子模块 父项目 └── start   项目启动模块 └── app     项目应用服务模块（可以理解为客户端程序员在此编写代码） └── client  提供给">
   <link rel="canonical" href="http://www.liushaohuang.cn/2019/09/04/COLA-复杂项目领域驱动设计框架源码和架构解析/">
 
 
@@ -247,7 +247,7 @@
                 
               
 
-              <time title="创建时间：2019-09-04 10:48:16 / 修改时间：14:06:20" itemprop="dateCreated datePublished" datetime="2019-09-04T10:48:16+08:00">2019-09-04</time>
+              <time title="创建时间：2019-09-04 10:48:16 / 修改时间：14:19:36" itemprop="dateCreated datePublished" datetime="2019-09-04T10:48:16+08:00">2019-09-04</time>
             </span>
           
             
@@ -281,81 +281,52 @@
       
         <h4 id="COLA简介"><a href="#COLA简介" class="headerlink" title="COLA简介"></a>COLA简介</h4><p>  可自行到github上查看md简介<br>  <a href="https://github.com/alibaba/COLA" target="_blank" rel="noopener">https://github.com/alibaba/COLA</a></p>
 <h4 id="目录结构分析"><a href="#目录结构分析" class="headerlink" title="目录结构分析"></a>目录结构分析</h4><p>COAL提供了一个很方便的maven生成模板，按照项目说明我们生成一个web项目，打开目录我们发现如下几个子模块</p>
-<a id="more"></a>
-
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">    父项目</span><br><span class="line">    └── start   项目启动模块</span><br><span class="line">    └── app     项目应用服务模块（可以理解为客户端程序员在此编写代码）</span><br><span class="line">    └── client  提供给客户端程序员使用的二方包，为应用服务模块提供一下基础类</span><br><span class="line">    └── controller  控制层SpringMVC实现</span><br><span class="line">    └── domain  领域层</span><br><span class="line">    └── infrastructure  基础设施层，包含数据库持久化，一些其它基础设施调用代码放在此，如RPC调用，队列调用等基础设施代码</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">```  </span><br><span class="line">其项目依赖目录如下  </span><br><span class="line">start依赖controller，controller依赖app，app同时依赖client和infrastructure，infrastructure依赖domain</span><br></pre></td></tr></table></figure>
-
+<pre><code>父项目
+└── start   项目启动模块
+└── app     项目应用服务模块（可以理解为客户端程序员在此编写代码）
+└── client  提供给客户端程序员使用的二方包，为应用服务模块提供一下基础类
+└── controller  控制层SpringMVC实现
+└── domain  领域层
+└── infrastructure  基础设施层，包含数据库持久化，一些其它基础设施调用代码放在此，如RPC调用，队列调用等基础设施代码</code></pre><p>其项目依赖目录如下<br>start依赖controller，controller依赖app，app同时依赖client和infrastructure，infrastructure依赖domain</p>
 <pre><code>start
-└── controller
-    └── app
-        ├── client
-        ├── infrastructure
-            └── domain</code></pre><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">**从依赖中我们明显可以看到前文提到的六边形架构的影子，controller为输入端适配器，infrastructure为持久化输出适配器，而核心服务domain领域层作为软件的核心和最稳定的部分放在依赖的最底层**</span><br><span class="line"></span><br><span class="line">#### 结合领域驱动设计分析目录结构</span><br><span class="line">从目录结构当中划分其实这个框架应该分为两部分，app层之下（不包括）为领域部分，这部分由对领域知识理解较好的开发人员去建模，而app层（包括）之上则为客户端代码，可以由对领域知识不那么了解的开发人员去开发，作者之所以引入client模块一方面是提供了一些二方包和接口功能客户端调用，最主要的原因是反腐，为了反腐在client包中引入DTO，为了读写分离（在领域驱动中这点很重要）又有Command和Query两个实现类，以此完成写命令和读命令的区分，因为在写命令中需要完全遵守领域模型去完成，但是在查询中往往为了响应速度等的妥协而放弃领域模型，直接从基础设施层中读取查询对象返回给前端.  </span><br><span class="line"></span><br><span class="line">应用框架方面提供了一些注解如示例中的@Command注解,其需要作用在CommandExecutorI的实现类下，这部分内容放在app层代码由客户端人员去实现，这样可以将客户端的业务逻辑放在CommandExecutorI接口规定的方法下，客户端逻辑更加清晰，一个@Command代表着一个客户单操作，每个客户端操作的代码又放在不同的CommandExecutorI实现类下，而框架显示的将操作分为查询操作和命令操作来实现读写分离，实现了各个功能模块的解耦。  </span><br><span class="line"></span><br><span class="line">client包作为约束客户端（APP）层的重要模块，其下面定义了一个CustomerServiceI接口，此结构的实现类由app层去实现，这种依赖反转的方式很好的控制了app端能做什么也简化了开发。</span><br><span class="line"></span><br><span class="line">domain包为领域开发人员所使用的包，领域开发人员将设计的领域模型都放在此提供app层和infrastructure层去调用</span><br><span class="line"></span><br><span class="line">infrastructure包可以由数据库开发人员去实现，里面包含领域对象持久化内容和一些基础服务，并且其提供了一个SpringBean的配置文件负责整合了框架</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">#### 核心源码解析</span><br><span class="line">在demo app层中我们发现了被@Command注解的实现类</span><br></pre></td></tr></table></figure>
+ └── controller
+     └── app
+         ├── client
+         ├── infrastructure
+             └── domain</code></pre><p><strong>从依赖中我们明显可以看到前文提到的六边形架构的影子，controller为输入端适配器，infrastructure为持久化输出适配器，而核心服务domain领域层作为软件的核心和最稳定的部分放在依赖的最底层</strong></p>
+<h4 id="结合领域驱动设计分析目录结构"><a href="#结合领域驱动设计分析目录结构" class="headerlink" title="结合领域驱动设计分析目录结构"></a>结合领域驱动设计分析目录结构</h4><p>从目录结构当中划分其实这个框架应该分为两部分，app层之下（不包括）为领域部分，这部分由对领域知识理解较好的开发人员去建模，而app层（包括）之上则为客户端代码，可以由对领域知识不那么了解的开发人员去开发，作者之所以引入client模块一方面是提供了一些二方包和接口功能客户端调用，最主要的原因是反腐，为了反腐在client包中引入DTO，为了读写分离（在领域驱动中这点很重要）又有Command和Query两个实现类，以此完成写命令和读命令的区分，因为在写命令中需要完全遵守领域模型去完成，但是在查询中往往为了响应速度等的妥协而放弃领域模型，直接从基础设施层中读取查询对象返回给前端.  </p>
+<p>应用框架方面提供了一些注解如示例中的@Command注解,其需要作用在CommandExecutorI的实现类下，这部分内容放在app层代码由客户端人员去实现，这样可以将客户端的业务逻辑放在CommandExecutorI接口规定的方法下，客户端逻辑更加清晰，一个@Command代表着一个客户单操作，每个客户端操作的代码又放在不同的CommandExecutorI实现类下，而框架显示的将操作分为查询操作和命令操作来实现读写分离，实现了各个功能模块的解耦。  </p>
+<p>client包作为约束客户端（APP）层的重要模块，其下面定义了一个CustomerServiceI接口，此结构的实现类由app层去实现，这种依赖反转的方式很好的控制了app端能做什么也简化了开发。</p>
+<p>domain包为领域开发人员所使用的包，领域开发人员将设计的领域模型都放在此提供app层和infrastructure层去调用</p>
+<p>infrastructure包可以由数据库开发人员去实现，里面包含领域对象持久化内容和一些基础服务，并且其提供了一个SpringBean的配置文件负责整合了框架</p>
+<h4 id="核心源码解析"><a href="#核心源码解析" class="headerlink" title="核心源码解析"></a>核心源码解析</h4><p>在demo app层中我们发现了被@Command注解的实现类</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">@Command</span><br><span class="line">public class CustomerListByNameQryExe implements QueryExecutorI&lt;MultiResponse&lt;Customer&gt;, CustomerListByNameQry&gt; &#123;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public MultiResponse&lt;Customer&gt; execute(CustomerListByNameQry cmd) &#123;</span><br><span class="line">        List&lt;Customer&gt; customerList = new ArrayList&lt;&gt;();</span><br><span class="line">        Customer customer = new Customer();</span><br><span class="line">        customer.setCustomerName(&quot;Frank&quot;);</span><br><span class="line">        customerList.add(customer);</span><br><span class="line">        return MultiResponse.ofWithoutTotal(customerList);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>@Command<br>public class CustomerListByNameQryExe implements QueryExecutorI&lt;MultiResponse<customer>, CustomerListByNameQry&gt; {</customer></p>
-<pre><code>@Override
-public MultiResponse&lt;Customer&gt; execute(CustomerListByNameQry cmd) {
-    List&lt;Customer&gt; customerList = new ArrayList&lt;&gt;();
-    Customer customer = new Customer();
-    customer.setCustomerName(&quot;Frank&quot;);
-    customerList.add(customer);
-    return MultiResponse.ofWithoutTotal(customerList);
-}</code></pre><p>}</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">在app服务类调用中仅仅是将customerListByNameQry对象发送给CommandBusI（CommandBus总线）即完成调用</span><br></pre></td></tr></table></figure>
+<p>在app服务类调用中仅仅是将customerListByNameQry对象发送给CommandBusI（CommandBus总线）即完成调用</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">@Service</span><br><span class="line">public class CustomerServiceImpl implements CustomerServiceI &#123;</span><br><span class="line"></span><br><span class="line">    @Autowired</span><br><span class="line">    private CommandBusI commandBus;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public Response addCustomer(CustomerAddCmd customerAddCmd) &#123;</span><br><span class="line">        return (Response)commandBus.send(customerAddCmd);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public MultiResponse&lt;Customer&gt; listByName(CustomerListByNameQry customerListByNameQry) &#123;</span><br><span class="line">        return (MultiResponse&lt;Customer&gt;)commandBus.send(customerListByNameQry);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>@Service<br>public class CustomerServiceImpl implements CustomerServiceI {</p>
-<pre><code>@Autowired
-private CommandBusI commandBus;
+<p>我们使用编译器进入CommandBusI实现类发现CommandBusI下对应着一个CommandBus的实现类</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">@Component</span><br><span class="line">public class CommandBus implements CommandBusI&#123;</span><br><span class="line"></span><br><span class="line">    @Autowired</span><br><span class="line">    private CommandHub commandHub;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public Response send(Command cmd) &#123;</span><br><span class="line">            return commandHub.getCommandInvocation(cmd.getClass()).invoke(cmd);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-@Override
-public Response addCustomer(CustomerAddCmd customerAddCmd) {
-    return (Response)commandBus.send(customerAddCmd);
-}
+<p>我们再进入CommandHub查看getCommandInvocation方法，发现其实CommandInvocation是从一个HashMap中来的，那么HashMap里的值是合适初始化的呢</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">private Map&lt;Class/*CommandClz*/, CommandInvocation&gt; commandRepository = new HashMap&lt;&gt;();</span><br><span class="line"></span><br><span class="line">public CommandInvocation getCommandInvocation(Class cmdClass) &#123;</span><br><span class="line">        CommandInvocation commandInvocation = commandRepository.get(cmdClass);</span><br><span class="line">        if (commandRepository.get(cmdClass) == null)</span><br><span class="line">            throw new ColaException(cmdClass + &quot; is not registered in CommandHub, please register first&quot;);</span><br><span class="line">        return commandInvocation;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
 
-@Override
-public MultiResponse&lt;Customer&gt; listByName(CustomerListByNameQry customerListByNameQry) {
-    return (MultiResponse&lt;Customer&gt;)commandBus.send(customerListByNameQry);
-}</code></pre><p>}</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">我们使用编译器进入CommandBusI实现类发现CommandBusI下对应着一个CommandBus的实现类</span><br></pre></td></tr></table></figure>
+<p>在infrastructure模块下我们发现框架的入口配置类ColaConfig</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">@Configuration</span><br><span class="line">public class ColaConfig &#123;</span><br><span class="line"></span><br><span class="line">    @Bean(initMethod = &quot;init&quot;)</span><br><span class="line">    public Bootstrap bootstrap() &#123;</span><br><span class="line">        Bootstrap bootstrap = new Bootstrap();</span><br><span class="line">        List&lt;String&gt; packagesToScan  = new ArrayList&lt;&gt;();</span><br><span class="line">        packagesToScan.add(&quot;com.liu&quot;);</span><br><span class="line">        bootstrap.setPackages(packagesToScan);</span><br><span class="line">        return bootstrap;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>@Component<br>public class CommandBus implements CommandBusI{</p>
-<pre><code>@Autowired
-private CommandHub commandHub;
+<p>于是我们定位到框架的入口,顺着初始化代码在源码COLA-master的cola-framework下找到Bootstrap类,找到初始化方法init</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public void init() &#123;</span><br><span class="line">       Set&lt;Class&lt;?&gt;&gt; classSet = scanConfiguredPackages();</span><br><span class="line">       registerBeans(classSet);</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
 
-@Override
-public Response send(Command cmd) {
-        return commandHub.getCommandInvocation(cmd.getClass()).invoke(cmd);
-}</code></pre><p>}</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">我们再进入CommandHub查看getCommandInvocation方法，发现其实CommandInvocation是从一个HashMap中来的，那么HashMap里的值是合适初始化的呢</span><br></pre></td></tr></table></figure>
+<p>看到这里我们就已经明白了scanConfiguredPackages（）方法是扫描编译目录下的Class文件，registerBeans是注册bean对象<br>我们进入registerBeans方法,发现其遍历之前扫描的class文件,并且传入在registerFactory</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">private void registerBeans(Set&lt;Class&lt;?&gt;&gt; classSet) &#123;</span><br><span class="line">      for (Class&lt;?&gt; targetClz : classSet) &#123;</span><br><span class="line">          RegisterI register = registerFactory.getRegister(targetClz);</span><br><span class="line">          if (null != register) &#123;</span><br><span class="line">              register.doRegistration(targetClz);</span><br><span class="line">          &#125;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
 
-<p>private Map&lt;Class/<em>CommandClz</em>/, CommandInvocation&gt; commandRepository = new HashMap&lt;&gt;();</p>
-<p>public CommandInvocation getCommandInvocation(Class cmdClass) {<br>        CommandInvocation commandInvocation = commandRepository.get(cmdClass);<br>        if (commandRepository.get(cmdClass) == null)<br>            throw new ColaException(cmdClass + “ is not registered in CommandHub, please register first”);<br>        return commandInvocation;<br>    }</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">在infrastructure模块下我们发现框架的入口配置类ColaConfig</span><br></pre></td></tr></table></figure>
+<p>进入registerFactory.getRegister(targetClz)方法，发现代码在registerFactory中根据类上的注解返回对应的注册器，之前对应的@Command注解对应的就是为commandRegister注册器</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">public RegisterI getRegister(Class&lt;?&gt; targetClz) &#123;</span><br><span class="line">        PreInterceptor preInterceptorAnn = targetClz.getDeclaredAnnotation(PreInterceptor.class);</span><br><span class="line">        if (preInterceptorAnn != null) &#123;</span><br><span class="line">            return preInterceptorRegister;</span><br><span class="line">        &#125;</span><br><span class="line">        PostInterceptor postInterceptorAnn = targetClz.getDeclaredAnnotation(PostInterceptor.class);</span><br><span class="line">        if (postInterceptorAnn != null) &#123;</span><br><span class="line">            return postInterceptorRegister;</span><br><span class="line">        &#125;</span><br><span class="line">        Command commandAnn = targetClz.getDeclaredAnnotation(Command.class);</span><br><span class="line">        if (commandAnn != null) &#123;</span><br><span class="line">            return commandRegister;</span><br><span class="line">        &#125;</span><br><span class="line">        Extension extensionAnn = targetClz.getDeclaredAnnotation(Extension.class);</span><br><span class="line">        if (extensionAnn != null) &#123;</span><br><span class="line">            return extensionRegister;</span><br><span class="line">        &#125;</span><br><span class="line">        EventHandler eventHandlerAnn = targetClz.getDeclaredAnnotation(EventHandler.class);</span><br><span class="line">        if (eventHandlerAnn != null) &#123;</span><br><span class="line">            return eventRegister;</span><br><span class="line">        &#125;</span><br><span class="line">        return null;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
 
-<p>@Configuration<br>public class ColaConfig {</p>
-<pre><code>@Bean(initMethod = &quot;init&quot;)
-public Bootstrap bootstrap() {
-    Bootstrap bootstrap = new Bootstrap();
-    List&lt;String&gt; packagesToScan  = new ArrayList&lt;&gt;();
-    packagesToScan.add(&quot;com.liu&quot;);
-    bootstrap.setPackages(packagesToScan);
-    return bootstrap;
-}</code></pre><p>}</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">于是我们定位到框架的入口,顺着初始化代码在源码COLA-master的cola-framework下找到Bootstrap类,找到初始化方法init</span><br></pre></td></tr></table></figure>
+<p>我们再看commandRegister中的doRegistration方法，现在结果一目了然，这里获取Spring容器中的CommandInvocation对象，并且调用commandHub.getCommandRepository().put(commandClz, commandInvocation)将之前被@Command注解的实现类传入commandRepository中也就是之前上面从HashMap中获取CommandInvocation的地方，代码中还提供了自定义AOP功能，但这部分并未开发接口，至此，整个框架的代码流程就已清晰。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">    public void doRegistration(Class&lt;?&gt; targetClz) &#123;</span><br><span class="line">        Class&lt;? extends Command&gt; commandClz = getCommandFromExecutor(targetClz);</span><br><span class="line">        CommandInvocation commandInvocation = ApplicationContextHelper.getBean(CommandInvocation.class);</span><br><span class="line">        commandInvocation.setCommandExecutor((CommandExecutorI) ApplicationContextHelper.getBean(targetClz));</span><br><span class="line">        commandInvocation.setPreInterceptors(collectInterceptors(commandClz, true));</span><br><span class="line">        commandInvocation.setPostInterceptors(collectInterceptors(commandClz, false));</span><br><span class="line">        commandHub.getCommandRepository().put(commandClz, commandInvocation);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
 
-<p>public void init() {<br>       Set&lt;Class&lt;?&gt;&gt; classSet = scanConfiguredPackages();<br>       registerBeans(classSet);<br>   }</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">看到这里我们就已经明白了scanConfiguredPackages（）方法是扫描编译目录下的Class文件，registerBeans是注册bean对象</span><br><span class="line">我们进入registerBeans方法,发现其遍历之前扫描的class文件,并且传入在registerFactory</span><br></pre></td></tr></table></figure>
 
-<p>private void registerBeans(Set&lt;Class<?>> classSet) {
-      for (Class<?> targetClz : classSet) {<br>          RegisterI register = registerFactory.getRegister(targetClz);<br>          if (null != register) {<br>              register.doRegistration(targetClz);<br>          }<br>      }</p>
-<p>  }</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">进入registerFactory.getRegister(targetClz)方法，发现代码在registerFactory中根据类上的注解返回对应的注册器，之前对应的@Command注解对应的就是为commandRegister注册器</span><br></pre></td></tr></table></figure>
-
-<p>public RegisterI getRegister(Class&lt;?&gt; targetClz) {<br>        PreInterceptor preInterceptorAnn = targetClz.getDeclaredAnnotation(PreInterceptor.class);<br>        if (preInterceptorAnn != null) {<br>            return preInterceptorRegister;<br>        }<br>        PostInterceptor postInterceptorAnn = targetClz.getDeclaredAnnotation(PostInterceptor.class);<br>        if (postInterceptorAnn != null) {<br>            return postInterceptorRegister;<br>        }<br>        Command commandAnn = targetClz.getDeclaredAnnotation(Command.class);<br>        if (commandAnn != null) {<br>            return commandRegister;<br>        }<br>        Extension extensionAnn = targetClz.getDeclaredAnnotation(Extension.class);<br>        if (extensionAnn != null) {<br>            return extensionRegister;<br>        }<br>        EventHandler eventHandlerAnn = targetClz.getDeclaredAnnotation(EventHandler.class);<br>        if (eventHandlerAnn != null) {<br>            return eventRegister;<br>        }<br>        return null;<br>    }</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">我们再看commandRegister中的doRegistration方法，现在结果一目了然，这里获取Spring容器中的CommandInvocation对象，并且调用commandHub.getCommandRepository().put(commandClz, commandInvocation)将之前被@Command注解的实现类传入commandRepository中也就是之前上面从HashMap中获取CommandInvocation的地方，代码中还提供了自定义AOP功能，但这部分并未开发接口，至此，整个框架的代码流程就已清晰。</span><br></pre></td></tr></table></figure>
-
-<p>@Override<br>    public void doRegistration(Class&lt;?&gt; targetClz) {<br>        Class&lt;? extends Command&gt; commandClz = getCommandFromExecutor(targetClz);<br>        CommandInvocation commandInvocation = ApplicationContextHelper.getBean(CommandInvocation.class);<br>        commandInvocation.setCommandExecutor((CommandExecutorI) ApplicationContextHelper.getBean(targetClz));<br>        commandInvocation.setPreInterceptors(collectInterceptors(commandClz, true));<br>        commandInvocation.setPostInterceptors(collectInterceptors(commandClz, false));<br>        commandHub.getCommandRepository().put(commandClz, commandInvocation);<br>    }</p>
-<pre><code></code></pre>
     </div>
 
     
@@ -456,7 +427,7 @@ public Bootstrap bootstrap() {
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#COLA简介"><span class="nav-number">1.</span> <span class="nav-text">COLA简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#目录结构分析"><span class="nav-number">2.</span> <span class="nav-text">目录结构分析</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#COLA简介"><span class="nav-number">1.</span> <span class="nav-text">COLA简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#目录结构分析"><span class="nav-number">2.</span> <span class="nav-text">目录结构分析</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#结合领域驱动设计分析目录结构"><span class="nav-number">3.</span> <span class="nav-text">结合领域驱动设计分析目录结构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#核心源码解析"><span class="nav-number">4.</span> <span class="nav-text">核心源码解析</span></a></li></ol></div>
         
       </div>
       <!--/noindex-->
