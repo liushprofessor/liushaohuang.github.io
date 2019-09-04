@@ -64,7 +64,7 @@
 <meta property="og:description" content="什么是领域驱动设计 接触领域驱动设计已经有一年多的时间了，其更关注的是解决复杂的软件设计。这期间也拿一些小项目尝试实践过，也看过一些领域驱动的框架如Halo，Cola,在实践过程中发现如果小项目如果采用简化版的领域驱动设计的理念去实践，代码结构也会有明显的改善，在小项目实践过程中更关注的是边界的划分，和不同功能模块代码的解耦，把核心的领域代码和其它代码区分出来，更好的将代码和现实业务结合起来，更好">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://www.liushaohuang.cn/images/%E5%85%AD%E8%BE%B9%E5%BD%A2%E6%9E%B6%E6%9E%84.png">
-<meta property="og:updated_time" content="2019-09-04T02:38:40.286Z">
+<meta property="og:updated_time" content="2019-09-04T02:43:26.247Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="领域驱动设计DDD简介">
 <meta name="twitter:description" content="什么是领域驱动设计 接触领域驱动设计已经有一年多的时间了，其更关注的是解决复杂的软件设计。这期间也拿一些小项目尝试实践过，也看过一些领域驱动的框架如Halo，Cola,在实践过程中发现如果小项目如果采用简化版的领域驱动设计的理念去实践，代码结构也会有明显的改善，在小项目实践过程中更关注的是边界的划分，和不同功能模块代码的解耦，把核心的领域代码和其它代码区分出来，更好的将代码和现实业务结合起来，更好">
@@ -260,7 +260,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-09-04 10:38:40" itemprop="dateModified" datetime="2019-09-04T10:38:40+08:00">2019-09-04</time>
+                <time title="修改时间：2019-09-04 10:43:26" itemprop="dateModified" datetime="2019-09-04T10:43:26+08:00">2019-09-04</time>
               </span>
             
           
@@ -364,9 +364,8 @@
 <li><p>应用层<br>定义系统可以完成的工作，很薄的一层。它并不处理业务逻辑通过协调领域对象或领域服务完成业务逻辑，并通过输入端口输出结果。也可以在这一层进行事物管理。</p>
 </li>
 <li><p>领域层<br>负责表示业务概念、规则与状态，属于业务的核心。</p>
-</li>
-<li><p><em>应用层与领域层的不变性可以保证核心领域不受外部的干扰，而端口的可替换性可以很方便的对接不用的外部系统。*</em></p>
-<p>我在这里对以上的解释说明下  </p>
+<p><strong>应用层与领域层的不变性可以保证核心领域不受外部的干扰，而端口的可替换性可以很方便的对接不用的外部系统</strong></p>
+<p><strong>我在这里对以上的解释说明下</strong>  </p>
 </li>
 <li><p><em>输入端口在上图中对应适配器A,B,C,D比如在http服务中其对应的就是Controller层，用Spring的话就是SpringMVC框架，适配器完成了http对应用用程序的转化，因为应用层提供了固定的API来满足各种渠道的调用，比如现在我要增加一个人RPC调用，我只要根据应用层所提供的API写一个转换器将应用层的API转化成RPC调用的方法即可，图中领域模型作为为核心最稳定的内容放在了六边形的中央，其它所有的组件都必须依赖领域模型，这符合了领域驱动的模型。最后是输出端口，我们将持久化的代码放入这里（资源库Repository）下面给出我们架构设计的依赖结构*</em></p>
 <p>输出层  -&gt; 应用程序(APP) -&gt; 资源库（Repository）-&gt; 领域层</p>
