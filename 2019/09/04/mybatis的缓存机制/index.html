@@ -63,7 +63,7 @@
 <meta property="og:site_name" content="刘绍煌">
 <meta property="og:description" content="缓存简介 一级缓存 会话缓存 mybatis对应sqlsession，对应于一个连接  二级缓存 应用缓存，不同会话也可访问统一缓存 mybatis对应namespace  三级缓存 跨jvm 如redis">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-09-04T07:40:15.650Z">
+<meta property="og:updated_time" content="2019-09-04T07:43:10.187Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="mybatis的缓存机制">
 <meta name="twitter:description" content="缓存简介 一级缓存 会话缓存 mybatis对应sqlsession，对应于一个连接  二级缓存 应用缓存，不同会话也可访问统一缓存 mybatis对应namespace  三级缓存 跨jvm 如redis">
@@ -247,7 +247,7 @@
                 
               
 
-              <time title="创建时间：2019-09-04 15:28:01 / 修改时间：15:40:15" itemprop="dateCreated datePublished" datetime="2019-09-04T15:28:01+08:00">2019-09-04</time>
+              <time title="创建时间：2019-09-04 15:28:01 / 修改时间：15:43:10" itemprop="dateCreated datePublished" datetime="2019-09-04T15:28:01+08:00">2019-09-04</time>
             </span>
           
             
@@ -290,7 +290,7 @@
 </li>
 </ul>
 <h4 id="mybatis缓存实践"><a href="#mybatis缓存实践" class="headerlink" title="mybatis缓存实践"></a>mybatis缓存实践</h4><blockquote>
-<p>spring事务有四个等级，在mysql inndbn内核中默认采用可重复读（两个事务同时处理一条数据<br> 一个事务更新了，在另一个事务中读取到的仍然是旧的值），mybatis中默认开启一级缓存，如果事务等级低于可重复读<br> 那么再两个事务同时操作一条记录中如（@Transactional( isolation =Isolation.READ_COMMITTED )），一个<br> 事务修改另一个事务就会看见该修改，但是mybatis默认会在当前事务中从缓存中读取，需要手动调用sqlSession.clearCache();<br> 或者在xml select标签中加上 flushCache=”true”读取时刷新缓存，如果采用java编码方式则加上@Options(flushCache =Options.FlushCachePolicy.TRUE )注解读取时刷新mybatis缓存</p>
+<p>spring事务有四个等级，在mysql inndbn内核中默认采用可重复读（两个事务同时处理一条数据<br> 一个事务更新了，在另一个事务中读取到的仍然是旧的值），mybatis中默认开启一级缓存，如果事务等级低于可重复读<br> 那么在两个事务同时操作一条记录中如（@Transactional( isolation =Isolation.READ_COMMITTED )），一个<br> 事务修改另一个事务就会看见该修改，但是mybatis默认会在当前事务中从缓存中读取，需要手动调用sqlSession.clearCache();<br> 或者在xml select标签中加上 flushCache=”true”读取时刷新缓存，如果采用java编码方式则加上@Options(flushCache =Options.FlushCachePolicy.TRUE )注解读取时刷新mybatis缓存</p>
 </blockquote>
 <blockquote>
 <p>在Spring中只有同一锁中读取数据才能用到一级缓存，因为同一锁中使用的是sqlSession是同一个实例对象，如果两次调用是获取不同的sqlSession,所以一级缓存无效,同样因为sqlsession不同所以update也无法对一级缓存进行刷新,另外尽量不要对mybatis返回的对象进行操作，因为返回的对象是缓存在一级缓存中的，改变返回对象一级缓存中的对象也会改变</p>
