@@ -55,31 +55,33 @@
   };
 </script>
 
-  <meta name="description" content="刘绍煌的个人博客">
-<meta property="og:type" content="website">
-<meta property="og:title" content="刘绍煌">
-<meta property="og:url" content="http://www.liushaohuang.cn/index.html">
+  <meta name="description" content="前言 前面已经简介过领域驱动的基本概念，前文介绍的COLA框架在大型项目或者微服务架构中目测有较好的实践，但是对于一个中小项目或者小公司来说管理大量依赖包模块简直就是噩梦，或者就是项目达不到那种规模，采用分包模式也是一种浪费，但是采用领域驱动设计在本人实践过程中确实大大提升了代码质量，最主要的改善就是使开发人员不再以数据库驱动开发，而是真正的开始从业务和领域入手，这样开发出的代码往往能更好的实现面">
+<meta name="keywords" content="领域驱动设计">
+<meta property="og:type" content="article">
+<meta property="og:title" content="小型项目领域驱动设计实践">
+<meta property="og:url" content="http://www.liushaohuang.cn/2019/09/05/小型项目领域驱动设计实践/index.html">
 <meta property="og:site_name" content="刘绍煌">
-<meta property="og:description" content="刘绍煌的个人博客">
+<meta property="og:description" content="前言 前面已经简介过领域驱动的基本概念，前文介绍的COLA框架在大型项目或者微服务架构中目测有较好的实践，但是对于一个中小项目或者小公司来说管理大量依赖包模块简直就是噩梦，或者就是项目达不到那种规模，采用分包模式也是一种浪费，但是采用领域驱动设计在本人实践过程中确实大大提升了代码质量，最主要的改善就是使开发人员不再以数据库驱动开发，而是真正的开始从业务和领域入手，这样开发出的代码往往能更好的实现面">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-09-06T03:39:30.824Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="刘绍煌">
-<meta name="twitter:description" content="刘绍煌的个人博客">
-  <link rel="canonical" href="http://www.liushaohuang.cn/">
+<meta name="twitter:title" content="小型项目领域驱动设计实践">
+<meta name="twitter:description" content="前言 前面已经简介过领域驱动的基本概念，前文介绍的COLA框架在大型项目或者微服务架构中目测有较好的实践，但是对于一个中小项目或者小公司来说管理大量依赖包模块简直就是噩梦，或者就是项目达不到那种规模，采用分包模式也是一种浪费，但是采用领域驱动设计在本人实践过程中确实大大提升了代码质量，最主要的改善就是使开发人员不再以数据库驱动开发，而是真正的开始从业务和领域入手，这样开发出的代码往往能更好的实现面">
+  <link rel="canonical" href="http://www.liushaohuang.cn/2019/09/05/小型项目领域驱动设计实践/">
 
 
 <script id="page-configurations">
   // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
-    isHome: true,
-    isPost: false,
+    isHome: false,
+    isPost: true,
     isPage: false,
     isArchive: false
   };
 </script>
 
-  <title>刘绍煌</title>
+  <title>小型项目领域驱动设计实践 | 刘绍煌</title>
   <meta name="generator" content="Hexo 3.9.0">
   
 
@@ -210,12 +212,13 @@
 
           <div id="content" class="content">
             
+
   <div id="posts" class="posts-expand">
-        <article itemscope itemtype="http://schema.org/Article">
+      <article itemscope itemtype="http://schema.org/Article">
   
   
   
-  <div class="post-block home">
+  <div class="post-block post">
     <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2019/09/05/小型项目领域驱动设计实践/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -228,9 +231,8 @@
       <meta itemprop="name" content="刘绍煌">
     </span>
       <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-            
-            <a href="/2019/09/05/小型项目领域驱动设计实践/" class="post-title-link" itemprop="url">小型项目领域驱动设计实践</a>
+        <h1 class="post-title" itemprop="name headline">小型项目领域驱动设计实践
+
           
         </h1>
 
@@ -285,7 +287,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><blockquote>
+        <h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><blockquote>
 <p>前面已经简介过领域驱动的基本概念，前文介绍的COLA框架在大型项目或者微服务架构中目测有较好的实践，但是对于一个中小项目或者小公司来说管理大量依赖包模块简直就是噩梦，或者就是项目达不到那种规模，采用分包模式也是一种浪费，但是采用领域驱动设计在本人实践过程中确实大大提升了代码质量，最主要的改善就是使开发人员不再以数据库驱动开发，而是真正的开始从业务和领域入手，这样开发出的代码往往能更好的实现面向对象，将代码划分出边界，使代码的可读性更强，代码更加健壮。本文结合现实中使用领域驱动设计时遇到的问题进行了总结，如果错误还需海涵。</p>
 </blockquote>
 <h4 id="项目说明"><a href="#项目说明" class="headerlink" title="项目说明"></a>项目说明</h4><p>  本文代码存放在 <a href="https://github.com/liushprofessor/ddd-demo" target="_blank" rel="noopener">https://github.com/liushprofessor/ddd-demo</a> 中<br>  本项目主要有3个大包分别包含3次不同的实践，实践的具体内容如全文所述</p>
@@ -403,975 +405,69 @@
 
 <h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>使用了领域驱动设计是一个长期过程，随着业务的变化原来的模型可能不再适用，或者有一天觉得原来的模型并不合理，这些都是非常常见的现象，领域驱动设计的另一个核心就是不断重构来创造出合适的模型，没有什么所谓银弹，只有不断摸着石头过河才能构建出好的设计。<br>最后说一点在现实生活中肯定会有一些设计和需求的矛盾，比如客户坚持要批量新增而且又要快速响应怎么办？领域设计可能会影响一部分效率，但是什么才是慢？我觉得的在合理时间内就不算是慢，比如采用过程化开发调用一个接口的响应速度是1秒，采用领域驱动设计是1.1秒那我觉得这个慢是可接受的，并不影响用户体验，但是这0.1秒换来的是代码设设计的清晰，我觉得这是一笔稳赚不赔的买卖，最后再次声明，没有所谓的银弹，世界上没有完美的事，代码一样，人生也一样，不要和甲方爸爸过不去，因为他是你的爸爸。</p>
 
-        
-      
     </div>
 
     
     
     
-      <footer class="post-footer">
-          <div class="post-eof"></div>
         
-      </footer>
+      
+        <div id="reward-container">
+  <div></div>
+  <button id="reward-button" disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/赞赏码.png" alt="刘绍煌 微信支付">
+        <p>微信支付</p>
+      </div>
+
   </div>
-  
-  
-  
-  </article>
-
-    
-        <article itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2019/09/04/mybatis的缓存机制/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="刘绍煌">
-      <meta itemprop="description" content="刘绍煌的个人博客">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="刘绍煌">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-            
-            <a href="/2019/09/04/mybatis的缓存机制/" class="post-title-link" itemprop="url">mybatis的缓存机制</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2019-09-04 15:28:01 / 修改时间：15:43:10" itemprop="dateCreated datePublished" datetime="2019-09-04T15:28:01+08:00">2019-09-04</time>
-            </span>
-          
-            
-
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/mybatis/" itemprop="url" rel="index"><span itemprop="name">mybatis</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
+</div>
 
       
-          <h4 id="缓存简介"><a href="#缓存简介" class="headerlink" title="缓存简介"></a>缓存简介</h4><ul>
-<li><p>一级缓存 会话缓存 mybatis对应sqlsession，对应于一个连接</p>
-</li>
-<li><p>二级缓存 应用缓存，不同会话也可访问统一缓存 mybatis对应namespace</p>
-</li>
-<li><p>三级缓存 跨jvm 如redis</p>
-          <!--noindex-->
+
+      <footer class="post-footer">
           
-            <div class="post-button text-center">
-              <a class="btn" href="/2019/09/04/mybatis的缓存机制/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/领域驱动设计/" rel="tag"># 领域驱动设计</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2019/09/04/mybatis的缓存机制/" rel="next" title="mybatis的缓存机制">
+                  <i class="fa fa-chevron-left"></i> mybatis的缓存机制
+                </a>
+              
             </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
 
-    
-    
-    
-      <footer class="post-footer">
-          <div class="post-eof"></div>
-        
-      </footer>
-  </div>
-  
-  
-  
-  </article>
+            <span class="post-nav-divider"></span>
 
-    
-        <article itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2019/09/04/COLA-复杂项目领域驱动设计框架源码和架构解析/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="刘绍煌">
-      <meta itemprop="description" content="刘绍煌的个人博客">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="刘绍煌">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-            
-            <a href="/2019/09/04/COLA-复杂项目领域驱动设计框架源码和架构解析/" class="post-title-link" itemprop="url">COLA-复杂项目领域驱动设计框架源码和架构解析</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
+            <div class="post-nav-prev post-nav-item">
               
-                
-              
-
-              <time title="创建时间：2019-09-04 10:48:16 / 修改时间：14:23:03" itemprop="dateCreated datePublished" datetime="2019-09-04T10:48:16+08:00">2019-09-04</time>
-            </span>
-          
-            
-
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/领域驱动设计-DDD/" itemprop="url" rel="index"><span itemprop="name">领域驱动设计(DDD)</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h4 id="COLA简介"><a href="#COLA简介" class="headerlink" title="COLA简介"></a>COLA简介</h4><p>  可自行到github上查看md简介<br>  <a href="https://github.com/alibaba/COLA" target="_blank" rel="noopener">https://github.com/alibaba/COLA</a></p>
-<h4 id="目录结构分析"><a href="#目录结构分析" class="headerlink" title="目录结构分析"></a>目录结构分析</h4><p>COAL提供了一个很方便的maven生成模板，按照项目说明我们生成一个web项目，打开目录我们发现如下几个子模块</p>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2019/09/04/COLA-复杂项目领域驱动设计框架源码和架构解析/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
             </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-          <div class="post-eof"></div>
+          </div>
         
       </footer>
+    
   </div>
   
   
   
   </article>
 
-    
-        <article itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2019/09/03/领域驱动设计DDD简介/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="刘绍煌">
-      <meta itemprop="description" content="刘绍煌的个人博客">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="刘绍煌">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-            
-            <a href="/2019/09/03/领域驱动设计DDD简介/" class="post-title-link" itemprop="url">领域驱动设计DDD简介</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2019-09-03 15:42:49" itemprop="dateCreated datePublished" datetime="2019-09-03T15:42:49+08:00">2019-09-03</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-09-04 10:43:26" itemprop="dateModified" datetime="2019-09-04T10:43:26+08:00">2019-09-04</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/领域驱动设计-DDD/" itemprop="url" rel="index"><span itemprop="name">领域驱动设计(DDD)</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h4 id="什么是领域驱动设计"><a href="#什么是领域驱动设计" class="headerlink" title="什么是领域驱动设计"></a>什么是领域驱动设计</h4><blockquote>
-<p>接触领域驱动设计已经有一年多的时间了，其更关注的是解决复杂的软件设计。这期间也拿一些小项目尝试实践过，也看过一些领域驱动的框架如Halo，Cola,在实践过程中发现如果小项目如果采用简化版的领域驱动设计的理念去实践，代码结构也会有明显的改善，在小项目实践过程中更关注的是边界的划分，和不同功能模块代码的解耦，把核心的领域代码和其它代码区分出来，更好的将代码和现实业务结合起来，更好的执行面向对象，在使用领域驱动设计时能让我们从数据库驱动设计的理念中转换出来，在设计时假设计算机内存是无限大，只考虑领域模型，而不考虑数据库模型，从而使代码更贴近业务，我觉得这是领域驱动设计给我带来的感触。就比如架构，架构的本质无非就是把代码的边界区分好，把代码放在该放的地方Eric Evans提出的领域驱动设计是一个很好的解决这部分问题的方法。<br>领域驱动设计，领域代表着行业，你的软件是应用在哪个行业实现什么样的功能，比如你编写了一个财务软件，那么财务行业就是你编写软件的领域，Eric Evans强调软件一定是要由领域专家和领域知识去驱动开发的，因为软件最终是要应用到领域当中，如果绕过这部分内容直接开发软件，那么开发的软件往往无法交付或者无法满足功能，在我认为，软件是现实生活中的映射，在开发第一个版本的时候，可以和领域专家或者领域中的从业人员进行交流业务流程(现实往往只能找到产品经理)，交流一下在没有软件的情况下，线下业务是如何进行的，然后再根据这些流程去建立领域对象，去驱动整体的软件设计。</p>
-</blockquote>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2019/09/03/领域驱动设计DDD简介/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-          <div class="post-eof"></div>
-        
-      </footer>
   </div>
-  
-  
-  
-  </article>
-
-    
-        <article itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2019/09/02/greenplum集群安装/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="刘绍煌">
-      <meta itemprop="description" content="刘绍煌的个人博客">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="刘绍煌">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-            
-            <a href="/2019/09/02/greenplum集群安装/" class="post-title-link" itemprop="url">greenplum集群安装</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2019-09-02 16:09:03 / 修改时间：17:23:19" itemprop="dateCreated datePublished" datetime="2019-09-02T16:09:03+08:00">2019-09-02</time>
-            </span>
-          
-            
-
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/数据仓库/" itemprop="url" rel="index"><span itemprop="name">数据仓库</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Greenplum集群搭建"><a href="#Greenplum集群搭建" class="headerlink" title="Greenplum集群搭建"></a>Greenplum集群搭建</h1><ol>
-<li><h5 id="关闭所有主机防火墙"><a href="#关闭所有主机防火墙" class="headerlink" title="关闭所有主机防火墙"></a>关闭所有主机防火墙</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">systemctl stop firewalld.service</span><br><span class="line">systemctl disable firewalld.service</span><br></pre></td></tr></table></figure>
-
-</li>
-</ol>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2019/09/02/greenplum集群安装/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-          <div class="post-eof"></div>
-        
-      </footer>
-  </div>
-  
-  
-  
-  </article>
-
-    
-        <article itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2019/09/02/缓慢维度的设计和处理/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="刘绍煌">
-      <meta itemprop="description" content="刘绍煌的个人博客">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="刘绍煌">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-            
-            <a href="/2019/09/02/缓慢维度的设计和处理/" class="post-title-link" itemprop="url">缓慢维度的设计和处理</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2019-09-02 10:06:22 / 修改时间：15:43:31" itemprop="dateCreated datePublished" datetime="2019-09-02T10:06:22+08:00">2019-09-02</time>
-            </span>
-          
-            
-
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/数据仓库/" itemprop="url" rel="index"><span itemprop="name">数据仓库</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h4 id="关于缓慢维度变化的简介"><a href="#关于缓慢维度变化的简介" class="headerlink" title="关于缓慢维度变化的简介"></a>关于缓慢维度变化的简介</h4><blockquote>
-<p>在数据仓库设计中理想状态下维度是不会变化的，但是事与愿违，大部分业务系统中的维度是会发生变化的，那么如何去处理这些变化的维度就是本文关注的内容，举个例子如下企业组织架构维度表  </p>
-</blockquote>
-<table>
-<thead>
-<tr>
-<th>ID_</th>
-<th>企业名</th>
-<th>部门名</th>
-<th>组名</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>1</td>
-<td>微软</td>
-<td>研发部</td>
-<td>开发一组</td>
-</tr>
-</tbody></table>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2019/09/02/缓慢维度的设计和处理/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-          <div class="post-eof"></div>
-        
-      </footer>
-  </div>
-  
-  
-  
-  </article>
-
-    
-        <article itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2019/08/31/数据仓库维度建模概述/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="刘绍煌">
-      <meta itemprop="description" content="刘绍煌的个人博客">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="刘绍煌">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-            
-            <a href="/2019/08/31/数据仓库维度建模概述/" class="post-title-link" itemprop="url">数据仓库维度建模概述</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2019-08-31 19:14:00" itemprop="dateCreated datePublished" datetime="2019-08-31T19:14:00+08:00">2019-08-31</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-09-02 10:12:51" itemprop="dateModified" datetime="2019-09-02T10:12:51+08:00">2019-09-02</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/数据仓库/" itemprop="url" rel="index"><span itemprop="name">数据仓库</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h4 id="什么是维度"><a href="#什么是维度" class="headerlink" title="什么是维度"></a>什么是维度</h4><ul>
-<li><p>简单的来说维度就是用于分析数据仓库中的事实的描述（关于事实下文讲解）.举个例子在数据库中有两张表，订单明细表和商品表<br>  订单明细表</p>
-<table>
-<thead>
-<tr>
-<th>ID_</th>
-<th>ORDER_ID</th>
-<th>PRODUCT_ID_</th>
-<th>quantity</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>1</td>
-<td>1</td>
-<td>1</td>
-<td>10</td>
-</tr>
-</tbody></table>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2019/08/31/数据仓库维度建模概述/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-          <div class="post-eof"></div>
-        
-      </footer>
-  </div>
-  
-  
-  
-  </article>
-
-    
-        <article itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2019/08/30/hive-mysql元数据表单的主从备份/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="刘绍煌">
-      <meta itemprop="description" content="刘绍煌的个人博客">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="刘绍煌">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-            
-            <a href="/2019/08/30/hive-mysql元数据表单的主从备份/" class="post-title-link" itemprop="url">hive mysql元数据表单的主从备份</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2019-08-30 21:23:33" itemprop="dateCreated datePublished" datetime="2019-08-30T21:23:33+08:00">2019-08-30</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-09-02 10:12:09" itemprop="dateModified" datetime="2019-09-02T10:12:09+08:00">2019-09-02</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/hive/" itemprop="url" rel="index"><span itemprop="name">hive</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h4 id="hive元数据库和使用介绍"><a href="#hive元数据库和使用介绍" class="headerlink" title="hive元数据库和使用介绍"></a>hive元数据库和使用介绍</h4><ul>
-<li><p>hive 会将表的元数据信息存储在数据库中，这里采用mysql作为元数据库存储hive的元数据</p>
-</li>
-<li><p>元数据表中记录着很多hive中有用的信息，比如数据库实例，表，表结构，还有表数据的条数</p>
-</li>
-<li><p>表数据条数只有在hive为内部表时的统计是准确的，如果建立的表为外部表 (external)则需要执行统计语句才能得到准确结果</p>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2019/08/30/hive-mysql元数据表单的主从备份/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-          <div class="post-eof"></div>
-        
-      </footer>
-  </div>
-  
-  
-  
-  </article>
-
-    
-        <article itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2019/08/29/将hexo发布到github/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="刘绍煌">
-      <meta itemprop="description" content="刘绍煌的个人博客">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="刘绍煌">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-            
-            <a href="/2019/08/29/将hexo发布到github/" class="post-title-link" itemprop="url">将hexo发布到github</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2019-08-29 15:17:40" itemprop="dateCreated datePublished" datetime="2019-08-29T15:17:40+08:00">2019-08-29</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-09-02 10:13:09" itemprop="dateModified" datetime="2019-09-02T10:13:09+08:00">2019-09-02</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/hexo/" itemprop="url" rel="index"><span itemprop="name">hexo</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h4 id="创建一个github仓库"><a href="#创建一个github仓库" class="headerlink" title="创建一个github仓库"></a>创建一个github仓库</h4><ul>
-<li><p>创建一个github公有仓库,点击settings如图<br><img src="/images/github1.png" alt="按钮"></p>
-</li>
-<li><p>选择GitHub Pages选项  设置git分支为，和访问域名<br><img src="/images/github2.png" alt="按钮"></p>
-</li>
-</ul>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2019/08/29/将hexo发布到github/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-          <div class="post-eof"></div>
-        
-      </footer>
-  </div>
-  
-  
-  
-  </article>
-
-    
-        <article itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2019/08/29/hexo主题的更换/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="刘绍煌">
-      <meta itemprop="description" content="刘绍煌的个人博客">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="刘绍煌">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-            
-            <a href="/2019/08/29/hexo主题的更换/" class="post-title-link" itemprop="url">hexo主题的更换</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2019-08-29 13:45:29" itemprop="dateCreated datePublished" datetime="2019-08-29T13:45:29+08:00">2019-08-29</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-09-02 10:13:24" itemprop="dateModified" datetime="2019-09-02T10:13:24+08:00">2019-09-02</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/hexo/" itemprop="url" rel="index"><span itemprop="name">hexo</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h4 id="主题主体安装设置"><a href="#主题主体安装设置" class="headerlink" title="主题主体安装设置"></a>主题主体安装设置</h4><ul>
-<li><p>这里以next主题为例，进入hexo项目目录，执行以下命令，从github上下载next主题,并将主题存放在themes目录的next文件夹下</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ git clone https://github.com/theme-next/hexo-theme-next themes/next</span><br></pre></td></tr></table></figure>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2019/08/29/hexo主题的更换/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-          <div class="post-eof"></div>
-        
-      </footer>
-  </div>
-  
-  
-  
-  </article>
-
-    
-  </div>
-
-  
-  <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
-  </nav>
 
 
           </div>
@@ -1390,6 +486,11 @@
 
   <aside class="sidebar">
     <div class="sidebar-inner">
+        
+        
+        
+        
+      
 
       <ul class="sidebar-nav motion-element">
         <li class="sidebar-nav-toc">
@@ -1402,6 +503,8 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#项目说明"><span class="nav-number">2.</span> <span class="nav-text">项目说明</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#分包"><span class="nav-number">3.</span> <span class="nav-text">分包</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#建模"><span class="nav-number">4.</span> <span class="nav-text">建模</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#持久化"><span class="nav-number">5.</span> <span class="nav-text">持久化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#领域服务"><span class="nav-number">6.</span> <span class="nav-text">领域服务</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#关于client二方包的思考"><span class="nav-number">7.</span> <span class="nav-text">关于client二方包的思考</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#更进一步"><span class="nav-number">8.</span> <span class="nav-text">更进一步</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#大聚合对象"><span class="nav-number">9.</span> <span class="nav-text">大聚合对象</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#总结"><span class="nav-number">10.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        
       </div>
       <!--/noindex-->
 
