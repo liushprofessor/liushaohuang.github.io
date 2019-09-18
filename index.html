@@ -216,6 +216,217 @@
   
   
   <div class="post-block home">
+    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2019/09/18/bistoury非入侵java生产环境诊断工具/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="刘绍煌">
+      <meta itemprop="description" content="刘绍煌的个人博客">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="刘绍煌">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+            
+            <a href="/2019/09/18/bistoury非入侵java生产环境诊断工具/" class="post-title-link" itemprop="url">bistoury非入侵式java生产环境诊断工具</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2019-09-18 15:05:06 / 修改时间：15:37:09" itemprop="dateCreated datePublished" datetime="2019-09-18T15:05:06+08:00">2019-09-18</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/性能测试和监控/" itemprop="url" rel="index"><span itemprop="name">性能测试和监控</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><blockquote>
+<p>最近闲来无事逛github时发现bistoury,Bistoury是去哪儿网的java应用生产问题诊断工具，提供了一站式的问题诊断方案,可以在生产环境中实现非入侵式系统信息查看,包括堆栈信息,机器情况,在线调试等.</p>
+</blockquote>
+<h4 id="下载"><a href="#下载" class="headerlink" title="下载"></a>下载</h4><p>首先去github中下载编译好的文件<br><a href="https://github.com/qunarcorp/bistoury/releases" target="_blank" rel="noopener">https://github.com/qunarcorp/bistoury/releases</a></p>
+<h4 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h4><ul>
+<li>需要Linux环境</li>
+<li>JDK1.8</li>
+<li>本机 9090，9091，9880，9881 端口未被占用，这些端口会被 Bistoury 使用，如果已占用需要进行配置</li>
+</ul>
+<h1 id="以下为github中提供的快速开始说明"><a href="#以下为github中提供的快速开始说明" class="headerlink" title="以下为github中提供的快速开始说明"></a>以下为github中提供的快速开始说明</h1><h2 id="快速开始"><a href="#快速开始" class="headerlink" title="快速开始"></a>快速开始</h2><p>Bistoury 具有多个模块，并且和公司自身环境有一定的关联，想要合理部署需要进行一些相关的配置。</p>
+<p>为了能够快速启动和体验 Bistoury，我们提供快速部署脚本在单机部署整套 Bistoury 服务。</p>
+<blockquote>
+<p>使用快速部署脚本，会在本机部署一整套 Bistoury 服务，其中包括 ui、proxy、agent。</p>
+</blockquote>
+<p>注意，这里提供的快速部署脚本仅适用于快速上手进行单机诊断，想要获得完整的体验，还是需要进行合理的部署。</p>
+<p>目前在我们公司内部的使用方式，也是推荐的部署方式为：</p>
+<ul>
+<li><p>ui 独立部署，推荐部署在多台机器，并提供独立的域名</p>
+</li>
+<li><p>proxy 独立部署，推荐部署在多台机器，并提供独立的域名</p>
+</li>
+<li><p>agent 需要和应用部署在同一台机器上。推荐在测试环境全环境自动部署，线上环境提供单机一键部署，以及应用下所有机器一键部署</p>
+</li>
+<li><p>独立的应用中心，管理所有功能内部应用和机器信息，这是一个和 Bistoury 相独立的系统，Bistoury 从中拿到不断更新的应用和机器信息</p>
+</li>
+</ul>
+<h3 id="构建"><a href="#构建" class="headerlink" title="构建"></a>构建</h3><h4 id="获取快速部署包"><a href="#获取快速部署包" class="headerlink" title="获取快速部署包"></a>获取快速部署包</h4><ul>
+<li><p>我们在项目 <a href="https://github.com/qunarcorp/bistoury/releases" target="_blank" rel="noopener">Release</a> 页面提供了已经构建好的快速部署包，你也可以直接下载。</p>
+</li>
+<li><p>你也可以下载源码然后自己构建快速启动包，这同样很简单。首先 clone 项目到本地，运行 script/quick_start_build.sh，运行完成后 script 目录下会生成相应的快速部署包，名字格式为 bistoury-quick-start.tar.gz</p>
+</li>
+</ul>
+<h4 id="准备-1"><a href="#准备-1" class="headerlink" title="准备"></a>准备</h4><ul>
+<li><p>目前仅支持 Linux 环境，所以需要一个 Linux 环境</p>
+</li>
+<li><p>本机已安装 jdk1.8+，并且设置了 <code>JAVA_HOME</code> 环境变量，如果没有设置也可以在启动脚本中传递 <code>-j</code> 参数，详情见下文：<a href="#启动参数">启动参数</a></p>
+</li>
+<li><p>本机 9090，9091，9880，9881 端口未被占用，这些端口会被 Bistoury 使用，如果已占用需要进行配置，详情见下文：<a href="#当端口冲突了怎么解决">当端口冲突了怎么解决</a></p>
+</li>
+<li><p>本机已经启动一个待诊断 JAVA 应用，如果是 Spring Web 应用不需要做处理，非 Spring Web 应用需要配置启动脚本的 <code>-c</code> 参数，详情见下文：<a href="#启动参数">启动参数</a></p>
+</li>
+</ul>
+<h4 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h4><p>首先我们将快速启动包 bistoury-quick-start.tar.gz 拷贝到想要安装的位置。</p>
+<p>然后解压启动包：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">tar -zxvf bistoury-quick-start.tar.gz</span><br><span class="line"><span class="built_in">cd</span> bistoury</span><br></pre></td></tr></table></figure>
+
+<p>最后是启动 Bistoury，因为 Bistoury 会用到 jstack 等操作，为了保证所有功能可用，需要使用和待诊断 JAVA 应用相同的用户启动。</p>
+<p>假设应用进程 id 为 1024</p>
+<ul>
+<li>如果应用以本人用户启动，可以直接运行</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./quick_start.sh -p 1024 start</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>如果应用以其它帐号启动，比如 tomcat，需要指定一下用户然后运行</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo -u tomcat ./quick_start.sh -p 1024 start</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>停止运行</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./quick_start.sh stop</span><br></pre></td></tr></table></figure>
+
+<h3 id="访问"><a href="#访问" class="headerlink" title="访问"></a>访问</h3><p>可以通过 <a href="http://ip:9091" target="_blank" rel="noopener">http://ip:9091</a> 来对 ui 进行访问，比如部署的机器 ip 为 192.168.1.20，则可以通过 <a href="http://192.168.1.20:9091/" target="_blank" rel="noopener">http://192.168.1.20:9091/</a> 访问，初始化用户名密码均为 admin</p>
+<h3 id="具体实施中遇到的问题"><a href="#具体实施中遇到的问题" class="headerlink" title="具体实施中遇到的问题"></a>具体实施中遇到的问题</h3><h4 id="websocket连接失败"><a href="#websocket连接失败" class="headerlink" title="websocket连接失败"></a>websocket连接失败</h4><p>原因是本机可能存在多个ip，导致获取的ip不是当前正在使用的ip（获取到的ip可以在各个日志中查看，也可以在应用中心查看），从而出错，</p>
+<p>可以通过quick_start.sh脚本中的-i参数指定当前的ip。</p>
+<p>例子 :</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./quick_start.sh -i 127.0.0.1 -p 1024 start</span><br></pre></td></tr></table></figure>
+
+<h4 id="提示-not-find-proxy-for-agent"><a href="#提示-not-find-proxy-for-agent" class="headerlink" title="提示 not find proxy for agent"></a>提示 not find proxy for agent</h4><p>端口冲突,修改端口即可  </p>
+<table>
+<thead>
+<tr>
+<th align="left">端口</th>
+<th align="left">作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">1. 9880</td>
+<td align="left">agent和proxy通信默认使用9880端口</td>
+</tr>
+<tr>
+<td align="left">2. 9881</td>
+<td align="left">ui和proxy通信默认使用9881端口</td>
+</tr>
+<tr>
+<td align="left">3. 9090</td>
+<td align="left">proxy默认使用9090端口</td>
+</tr>
+<tr>
+<td align="left">4. 9091</td>
+<td align="left">ui默认使用9091端口</td>
+</tr>
+<tr>
+<td align="left">5. 9092</td>
+<td align="left">h2数据库默认使用9092端口</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th align="left">端口</th>
+<th align="left">端口定义的位置</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">9880</td>
+<td align="left"><code>解压缩目录/bistoury-proxy-bin/conf/global.properties</code>中的<code>agent.newport</code>值</td>
+</tr>
+<tr>
+<td align="left">9881</td>
+<td align="left"><code>解压缩目录/bistoury-proxy-bin/conf/global.properties</code>中的<code>server.port</code>值和<code>quick_start.sh</code>中<code>PROXY_WEBSOCKET_PORT</code>的值</td>
+</tr>
+<tr>
+<td align="left">9090</td>
+<td align="left"><code>解压缩目录/bistoury-proxy-bin/conf/server.properties</code>中的<code>tomcat.port</code>值和<code>quick_start.sh</code>中<code>PROXY_TOMCAT_PORT</code>的值以及bistoury-agent-bin/bin/bistoury-agent-env.sh中的BISTOURY_PROXY_HOST的值</td>
+</tr>
+<tr>
+<td align="left">9091</td>
+<td align="left"><code>解压缩目录/bistoury-ui-bin/conf/server.properties</code>中的<code>tomcat.port</code>值</td>
+</tr>
+<tr>
+<td align="left">9092</td>
+<td align="left"><code>解压缩目录/h2/h2.sh</code>中的H2_PORT值</td>
+</tr>
+</tbody></table>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+          <div class="post-eof"></div>
+        
+      </footer>
+  </div>
+  
+  
+  
+  </article>
+
+    
+        <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block home">
     <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2019/09/18/java在linux中占用资源过多的排查/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1094,118 +1305,6 @@
   </article>
 
     
-        <article itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2019/09/02/缓慢维度的设计和处理/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="刘绍煌">
-      <meta itemprop="description" content="刘绍煌的个人博客">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="刘绍煌">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-            
-            <a href="/2019/09/02/缓慢维度的设计和处理/" class="post-title-link" itemprop="url">缓慢维度的设计和处理</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2019-09-02 10:06:22 / 修改时间：15:43:31" itemprop="dateCreated datePublished" datetime="2019-09-02T10:06:22+08:00">2019-09-02</time>
-            </span>
-          
-            
-
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/数据仓库/" itemprop="url" rel="index"><span itemprop="name">数据仓库</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h4 id="关于缓慢维度变化的简介"><a href="#关于缓慢维度变化的简介" class="headerlink" title="关于缓慢维度变化的简介"></a>关于缓慢维度变化的简介</h4><blockquote>
-<p>在数据仓库设计中理想状态下维度是不会变化的，但是事与愿违，大部分业务系统中的维度是会发生变化的，那么如何去处理这些变化的维度就是本文关注的内容，举个例子如下企业组织架构维度表  </p>
-</blockquote>
-<table>
-<thead>
-<tr>
-<th>ID_</th>
-<th>企业名</th>
-<th>部门名</th>
-<th>组名</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>1</td>
-<td>微软</td>
-<td>研发部</td>
-<td>开发一组</td>
-</tr>
-</tbody></table>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2019/09/02/缓慢维度的设计和处理/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-          <div class="post-eof"></div>
-        
-      </footer>
-  </div>
-  
-  
-  
-  </article>
-
-    
   </div>
 
   
@@ -1255,7 +1354,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">15</span>
+          <span class="site-state-item-count">16</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1329,7 +1428,9 @@
         
           
         
-        <span class="site-state-item-count">15</span>
+          
+        
+        <span class="site-state-item-count">16</span>
         <span class="site-state-item-name">标签</span>
         </a>
       </div>
