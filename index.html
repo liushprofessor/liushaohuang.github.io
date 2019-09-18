@@ -361,7 +361,7 @@
                 
               
 
-              <time title="创建时间：2019-09-18 09:34:09 / 修改时间：10:20:28" itemprop="dateCreated datePublished" datetime="2019-09-18T09:34:09+08:00">2019-09-18</time>
+              <time title="创建时间：2019-09-18 09:34:09 / 修改时间：14:15:24" itemprop="dateCreated datePublished" datetime="2019-09-18T09:34:09+08:00">2019-09-18</time>
             </span>
           
             
@@ -393,8 +393,8 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h4 id="C2-CompilerThread1"><a href="#C2-CompilerThread1" class="headerlink" title="C2 CompilerThread1"></a>C2 CompilerThread1</h4><blockquote>
-<p>C2 Compiler 是JVM在server模式下字节码编译器，JVM启动的时候所有代码都处于解释执行模式，当某些代码被执行到一定阈值次数，这些代码(称为热点代码)就会被 C2 Compiler编译成机器码，编译成机器码后执行效率会得到大幅提升。流量进来后，大部分代码成为热点代码，这个过程中C2 Compiler需要频繁占用CPU来运行，当大部分热点代码被编译成机器代码后，C2 Compiler就不再长期占用CPU了，这个过程也可以看作抖动。解决C2 CompilerThread1抖动方法,可以使用Jmeter等压测工具模拟线上访问流量，让C2 Compiler预先将热点代码编译成机器码, 减少对正式环境流量的影响。</p>
+          <h4 id="C2-CompilerThread1-线程"><a href="#C2-CompilerThread1-线程" class="headerlink" title="C2 CompilerThread1 线程"></a>C2 CompilerThread1 线程</h4><blockquote>
+<p>C2 Compiler 线程 是JVM在server模式下字节码编译器，JVM启动的时候所有代码都处于解释执行模式，当某些代码被执行到一定阈值次数，这些代码(称为热点代码)就会被 C2 Compiler编译成机器码，编译成机器码后执行效率会得到大幅提升。流量进来后，大部分代码成为热点代码，这个过程中C2 Compiler需要频繁占用CPU来运行，当大部分热点代码被编译成机器代码后，C2 Compiler就不再长期占用CPU了，这个过程也可以看作抖动。解决C2 CompilerThread1抖动方法,可以使用Jmeter等压测工具模拟线上访问流量，让C2 Compiler预先将热点代码编译成机器码, 减少对正式环境流量的影响。</p>
 </blockquote>
 
         
