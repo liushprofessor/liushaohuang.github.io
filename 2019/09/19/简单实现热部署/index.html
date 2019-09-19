@@ -55,18 +55,19 @@
   };
 </script>
 
-  <meta name="description" content="刘绍煌的个人博客">
+  <meta name="description" content="用类加载器实现热部署如果你写过jsp,你会发现在修改jsp后并不需要重启服务器就能实现jsp页面的替换,jsp本质也是java代码,那它是如何实现不重启JVM实现热部署的呢?答案是类加载器.">
+<meta name="keywords" content="类加载器,热部署">
 <meta property="og:type" content="article">
-<meta property="og:title" content="常见线程说明">
-<meta property="og:url" content="http://www.liushaohuang.cn/2019/09/18/常见线程说明/index.html">
+<meta property="og:title" content="简单实现热部署">
+<meta property="og:url" content="http://www.liushaohuang.cn/2019/09/19/简单实现热部署/index.html">
 <meta property="og:site_name" content="刘绍煌">
-<meta property="og:description" content="刘绍煌的个人博客">
+<meta property="og:description" content="用类加载器实现热部署如果你写过jsp,你会发现在修改jsp后并不需要重启服务器就能实现jsp页面的替换,jsp本质也是java代码,那它是如何实现不重启JVM实现热部署的呢?答案是类加载器.">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-09-18T01:32:36.845Z">
+<meta property="og:updated_time" content="2019-09-19T09:36:20.272Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="常见线程说明">
-<meta name="twitter:description" content="刘绍煌的个人博客">
-  <link rel="canonical" href="http://www.liushaohuang.cn/2019/09/18/常见线程说明/">
+<meta name="twitter:title" content="简单实现热部署">
+<meta name="twitter:description" content="用类加载器实现热部署如果你写过jsp,你会发现在修改jsp后并不需要重启服务器就能实现jsp页面的替换,jsp本质也是java代码,那它是如何实现不重启JVM实现热部署的呢?答案是类加载器.">
+  <link rel="canonical" href="http://www.liushaohuang.cn/2019/09/19/简单实现热部署/">
 
 
 <script id="page-configurations">
@@ -80,7 +81,7 @@
   };
 </script>
 
-  <title>常见线程说明 | 刘绍煌</title>
+  <title>简单实现热部署 | 刘绍煌</title>
   <meta name="generator" content="Hexo 3.9.0">
   
 
@@ -218,7 +219,7 @@
   
   
   <div class="post-block post">
-    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2019/09/18/常见线程说明/">
+    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2019/09/19/简单实现热部署/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="刘绍煌">
@@ -230,7 +231,7 @@
       <meta itemprop="name" content="刘绍煌">
     </span>
       <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">常见线程说明
+        <h1 class="post-title" itemprop="name headline">简单实现热部署
 
           
         </h1>
@@ -246,7 +247,24 @@
                 
               
 
-              <time title="创建时间：2019-09-18 09:32:36" itemprop="dateCreated datePublished" datetime="2019-09-18T09:32:36+08:00">2019-09-18</time>
+              <time title="创建时间：2019-09-19 16:24:11 / 修改时间：17:36:20" itemprop="dateCreated datePublished" datetime="2019-09-19T16:24:11+08:00">2019-09-19</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/JVM/" itemprop="url" rel="index"><span itemprop="name">JVM</span></a></span>
+
+                
+                
+              
             </span>
           
 
@@ -261,7 +279,12 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        
+        <h3 id="用类加载器实现热部署"><a href="#用类加载器实现热部署" class="headerlink" title="用类加载器实现热部署"></a>用类加载器实现热部署</h3><p>如果你写过jsp,你会发现在修改jsp后并不需要重启服务器就能实现jsp页面的替换,jsp本质也是java代码,那它是如何实现不重启JVM实现热部署的呢?答案是类加载器.</p>
+<a id="more"></a>
+<h4 id="实践"><a href="#实践" class="headerlink" title="实践"></a>实践</h4><p>在前面博客中已经简介过类加载器和双亲加载,当中提及java中的class文件只会加在一次,比如我创建的一个类A,在第一次实例A类时会在JAVA默认提供的AppClassLoader加载器中去加载A类,后续如果需要实例化A对象只需要调用加载器的loadClass方法其会去先调用findLoadedClass查找是否class文件以及被加载过,如果被加载过则直接读取,没有的话则通过调用子类实现的findClass的方法去读取加载class文件,由于我们这里想实现热部署,即每次class文件变动就去加载新的class文件而不是通过双亲威迫</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">protected Class&lt;?&gt; loadClass(String name, boolean resolve)</span><br><span class="line">       throws ClassNotFoundException</span><br><span class="line">   &#123;</span><br><span class="line">       synchronized (getClassLoadingLock(name)) &#123;</span><br><span class="line">           // First, check if the class has already been loaded</span><br><span class="line">           Class&lt;?&gt; c = findLoadedClass(name);</span><br><span class="line">           if (c == null) &#123;</span><br><span class="line">               long t0 = System.nanoTime();</span><br><span class="line">               try &#123;</span><br><span class="line">                   if (parent != null) &#123;</span><br><span class="line">                       c = parent.loadClass(name, false);</span><br><span class="line">                   &#125; else &#123;</span><br><span class="line">                       c = findBootstrapClassOrNull(name);</span><br><span class="line">                   &#125;</span><br><span class="line">               &#125; catch (ClassNotFoundException e) &#123;</span><br><span class="line">                   // ClassNotFoundException thrown if class not found</span><br><span class="line">                   // from the non-null parent class loader</span><br><span class="line">               &#125;</span><br><span class="line"></span><br><span class="line">               if (c == null) &#123;</span><br><span class="line">                   // If still not found, then invoke findClass in order</span><br><span class="line">                   // to find the class.</span><br><span class="line">                   long t1 = System.nanoTime();</span><br><span class="line">                   //子类负责实现findClass方法</span><br><span class="line">                   c = findClass(name);</span><br><span class="line"></span><br><span class="line">                   // this is the defining class loader; record the stats</span><br><span class="line">                   sun.misc.PerfCounter.getParentDelegationTime().addTime(t1 - t0);</span><br><span class="line">                   sun.misc.PerfCounter.getFindClassTime().addElapsedTimeFrom(t1);</span><br><span class="line">                   sun.misc.PerfCounter.getFindClasses().increment();</span><br><span class="line">               &#125;</span><br><span class="line">           &#125;</span><br><span class="line">           if (resolve) &#123;</span><br><span class="line">               resolveClass(c);</span><br><span class="line">           &#125;</span><br><span class="line">           return c;</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+
     </div>
 
     
@@ -288,14 +311,25 @@
       
 
       <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/类加载器/" rel="tag"># 类加载器</a>
+            
+              <a href="/tags/热部署/" rel="tag"># 热部署</a>
+            
+          </div>
+        
 
         
 
           <div class="post-nav">
             <div class="post-nav-next post-nav-item">
               
-                <a href="/2019/09/11/elasticsearch单节点安装/" rel="next" title="elasticsearch单节点安装">
-                  <i class="fa fa-chevron-left"></i> elasticsearch单节点安装
+                <a href="/2019/09/19/java类加载器/" rel="next" title="java类加载器">
+                  <i class="fa fa-chevron-left"></i> java类加载器
                 </a>
               
             </div>
@@ -303,10 +337,6 @@
             <span class="post-nav-divider"></span>
 
             <div class="post-nav-prev post-nav-item">
-              
-                <a href="/2019/09/18/java-常见线程说明/" rel="prev" title="C2 CompilerThread1">
-                  C2 CompilerThread1 <i class="fa fa-chevron-right"></i>
-                </a>
               
             </div>
           </div>
@@ -355,6 +385,8 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#用类加载器实现热部署"><span class="nav-number">1.</span> <span class="nav-text">用类加载器实现热部署</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#实践"><span class="nav-number">1.1.</span> <span class="nav-text">实践</span></a></li></ol></li></ol></div>
+        
       </div>
       <!--/noindex-->
 
