@@ -55,19 +55,19 @@
   };
 </script>
 
-  <meta name="description" content="缓存简介 一级缓存 会话缓存 mybatis对应sqlsession，对应于一个连接  二级缓存 应用缓存，不同会话也可访问统一缓存 mybatis对应namespace  三级缓存 跨jvm 如redis">
-<meta name="keywords" content="mybatis">
+  <meta name="description" content="类加载器简介Kotlin,Scala等语言也是运行在JAVA虚拟机的语言,那为什么这些不是java的语言也能够运行在jvm虚拟机上呢?原因就是Class 文件,对虚拟机来说Class文件是一个重要的接口,无论使用何种语言进行软件开发，只要能将源文件编译为正确的 Class 文件，那么这种语言就可以在 Java 虚拟机上运行.可以说，Class 文件就是虚拟机的基石,而加载Class文件又是通过类加">
+<meta name="keywords" content="类加载器,热部署">
 <meta property="og:type" content="article">
-<meta property="og:title" content="mybatis的缓存机制">
-<meta property="og:url" content="http://www.liushaohuang.cn/2019/09/04/mybatis的缓存机制/index.html">
+<meta property="og:title" content="java类加载器">
+<meta property="og:url" content="http://www.liushaohuang.cn/2019/09/19/java类加载器/index.html">
 <meta property="og:site_name" content="刘绍煌">
-<meta property="og:description" content="缓存简介 一级缓存 会话缓存 mybatis对应sqlsession，对应于一个连接  二级缓存 应用缓存，不同会话也可访问统一缓存 mybatis对应namespace  三级缓存 跨jvm 如redis">
+<meta property="og:description" content="类加载器简介Kotlin,Scala等语言也是运行在JAVA虚拟机的语言,那为什么这些不是java的语言也能够运行在jvm虚拟机上呢?原因就是Class 文件,对虚拟机来说Class文件是一个重要的接口,无论使用何种语言进行软件开发，只要能将源文件编译为正确的 Class 文件，那么这种语言就可以在 Java 虚拟机上运行.可以说，Class 文件就是虚拟机的基石,而加载Class文件又是通过类加">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-09-04T07:43:10.187Z">
+<meta property="og:updated_time" content="2019-09-19T03:08:06.770Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="mybatis的缓存机制">
-<meta name="twitter:description" content="缓存简介 一级缓存 会话缓存 mybatis对应sqlsession，对应于一个连接  二级缓存 应用缓存，不同会话也可访问统一缓存 mybatis对应namespace  三级缓存 跨jvm 如redis">
-  <link rel="canonical" href="http://www.liushaohuang.cn/2019/09/04/mybatis的缓存机制/">
+<meta name="twitter:title" content="java类加载器">
+<meta name="twitter:description" content="类加载器简介Kotlin,Scala等语言也是运行在JAVA虚拟机的语言,那为什么这些不是java的语言也能够运行在jvm虚拟机上呢?原因就是Class 文件,对虚拟机来说Class文件是一个重要的接口,无论使用何种语言进行软件开发，只要能将源文件编译为正确的 Class 文件，那么这种语言就可以在 Java 虚拟机上运行.可以说，Class 文件就是虚拟机的基石,而加载Class文件又是通过类加">
+  <link rel="canonical" href="http://www.liushaohuang.cn/2019/09/19/java类加载器/">
 
 
 <script id="page-configurations">
@@ -81,7 +81,7 @@
   };
 </script>
 
-  <title>mybatis的缓存机制 | 刘绍煌</title>
+  <title>java类加载器 | 刘绍煌</title>
   <meta name="generator" content="Hexo 3.9.0">
   
 
@@ -219,7 +219,7 @@
   
   
   <div class="post-block post">
-    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2019/09/04/mybatis的缓存机制/">
+    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2019/09/19/java类加载器/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="刘绍煌">
@@ -231,7 +231,7 @@
       <meta itemprop="name" content="刘绍煌">
     </span>
       <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">mybatis的缓存机制
+        <h1 class="post-title" itemprop="name headline">java类加载器
 
           
         </h1>
@@ -247,7 +247,7 @@
                 
               
 
-              <time title="创建时间：2019-09-04 15:28:01 / 修改时间：15:43:10" itemprop="dateCreated datePublished" datetime="2019-09-04T15:28:01+08:00">2019-09-04</time>
+              <time title="创建时间：2019-09-19 10:09:21 / 修改时间：11:08:06" itemprop="dateCreated datePublished" datetime="2019-09-19T10:09:21+08:00">2019-09-19</time>
             </span>
           
             
@@ -260,7 +260,7 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/mybatis/" itemprop="url" rel="index"><span itemprop="name">mybatis</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/JVM/" itemprop="url" rel="index"><span itemprop="name">JVM</span></a></span>
 
                 
                 
@@ -279,25 +279,54 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h4 id="缓存简介"><a href="#缓存简介" class="headerlink" title="缓存简介"></a>缓存简介</h4><ul>
-<li><p>一级缓存 会话缓存 mybatis对应sqlsession，对应于一个连接</p>
-</li>
-<li><p>二级缓存 应用缓存，不同会话也可访问统一缓存 mybatis对应namespace</p>
-</li>
-<li><p>三级缓存 跨jvm 如redis</p>
-<a id="more"></a>
+        <h4 id="类加载器简介"><a href="#类加载器简介" class="headerlink" title="类加载器简介"></a>类加载器简介</h4><p>Kotlin,Scala等语言也是运行在JAVA虚拟机的语言,那为什么这些不是java的语言也能够运行在jvm虚拟机上呢?原因就是Class 文件,对虚拟机来说Class文件是一个重要的接口,无论使用何种语言进行软件开发，只要能将源文件编译为正确的 Class 文件，那么这种语言就可以在 Java 虚拟机上运行.可以说，Class 文件就是虚拟机的基石,而加载Class文件又是通过类加载器进行的.</p>
+<h4 id="类加载器的工作流程"><a href="#类加载器的工作流程" class="headerlink" title="类加载器的工作流程"></a>类加载器的工作流程</h4><p>Class 文件通常是以文件的方式存在（任何二进制流都可以是 Class 类型），但只有能被 JVM 加载后才能被使用，才能运行编译后的代码。系统载入 Class 过程可以分为加载，链接和初始化三个步骤。其中，链接也可分为验证，准备和解析3步骤,其中，只有加载过程是程序员能够控制的，后面的几个步骤都是有虚拟机自动运行的。因此，我们的关注点主要放在加载阶段。</p>
+<h4 id="什么时候加载类"><a href="#什么时候加载类" class="headerlink" title="什么时候加载类"></a>什么时候加载类</h4><ul>
+<li>当创建一个类的实例是，比如使用 new 关键字，或者通过反射，克隆，反序列化。</li>
+<li>当调用类的静态方法时，即当使用字节码 invokstatic 指令。</li>
+<li>当使用类或接口的静态字段时（final 常量除外），比如，使用 getstatic 或者 pustatic 指令。</li>
+<li>当时用 Java.lang.reflect 包中的方法反射类的方法时。</li>
+<li>当初始化子类，要求先初始化父类。</li>
+<li>作为启动虚拟机，含有 main（）方法的那个类。</li>
+</ul>
+<h4 id="类加载器的分类"><a href="#类加载器的分类" class="headerlink" title="类加载器的分类"></a>类加载器的分类</h4><p>类加载器主要分为以下几类,<strong>除了启动类加载器外,其余扩展器都实现了ClassLoader类</strong></p>
+<ul>
+<li><p>启动类加载器（BootStrap ClassLoader），C++ 语言实现，虚拟机自身的一部分</p>
+<blockquote>
+<p>启动类加载器主要加载${JAVA_HOME}/lib 目录中的包,负责加载JDK中的核心类库,如 rt.jar,我们是无法访问这个类加载器的如下代码</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">System.out.println(String.class.getClassLoader());</span><br></pre></td></tr></table></figure>
 
+<p>控制台中打印的是null,因为String为jdk的核心类由BootStrap ClassLoader加载,我们无法访问这个类加载器.</p>
 </li>
 </ul>
-<h4 id="mybatis缓存实践"><a href="#mybatis缓存实践" class="headerlink" title="mybatis缓存实践"></a>mybatis缓存实践</h4><blockquote>
-<p>spring事务有四个等级，在mysql inndbn内核中默认采用可重复读（两个事务同时处理一条数据<br> 一个事务更新了，在另一个事务中读取到的仍然是旧的值），mybatis中默认开启一级缓存，如果事务等级低于可重复读<br> 那么在两个事务同时操作一条记录中如（@Transactional( isolation =Isolation.READ_COMMITTED )），一个<br> 事务修改另一个事务就会看见该修改，但是mybatis默认会在当前事务中从缓存中读取，需要手动调用sqlSession.clearCache();<br> 或者在xml select标签中加上 flushCache=”true”读取时刷新缓存，如果采用java编码方式则加上@Options(flushCache =Options.FlushCachePolicy.TRUE )注解读取时刷新mybatis缓存</p>
-</blockquote>
+<ul>
+<li><p>扩展类加载器</p>
 <blockquote>
-<p>在Spring中只有同一锁中读取数据才能用到一级缓存，因为同一锁中使用的是sqlSession是同一个实例对象，如果两次调用是获取不同的sqlSession,所以一级缓存无效,同样因为sqlsession不同所以update也无法对一级缓存进行刷新,另外尽量不要对mybatis返回的对象进行操作，因为返回的对象是缓存在一级缓存中的，改变返回对象一级缓存中的对象也会改变</p>
+<p>扩展类加载器有 sun.misc.Launcher$ExtClassLoader 实现，负责加载 <java_home>/lib/ext 目录中的。或者被 java.ext.dirs 系统变量所指定的路径中的所有类库。</java_home></p>
 </blockquote>
+</li>
+<li><p>应用类加载器</p>
 <blockquote>
-<p>二级缓存是基于namespqce的缓存（xml中 <mapper namespace="com.liu.SearchUserXmlI">中的namespace），<br> 所有对于一张表的操作都需要放在一个namespace中，这样保证更新或者insert操作后后二级缓存可以更新，不然会导致<br> 脏读（在另一个namespace中操作后二级缓存没更新，因为没在用一个namespace下），xml开启二级缓存在xml中添加<cache>即可，<br> 注解版开启二级缓存在mapper接口上添加@CacheNamespace(blocking = true)</cache></mapper></p>
+<p>sun.misc.Launcher$AppClassLoader 实现，由于这个类是 ClassLoader 中的 getSystemClassLoader 方法的返回值，也称为系统类加载器，负载加载用户类路径（ClassPath）上所指定的类库，开发者可以直接使用这个类加载器。一般情况下，这个就是程序中默认的类加载器。</p>
 </blockquote>
+</li>
+<li><p>自定义类加载器</p>
+<blockquote>
+<p>自定义类加载器用于加载一些特殊途径的类，一般也是用户程序类。</p>
+</blockquote>
+</li>
+</ul>
+<h4 id="类加载器的双亲委派模式"><a href="#类加载器的双亲委派模式" class="headerlink" title="类加载器的双亲委派模式"></a>类加载器的双亲委派模式</h4><blockquote>
+<p>JVM为了保证同一个Class只被加载一次采用了双亲委派模式进行控制,因为同一个Class文件如果被不同类加载器加载那么他们就不是相同的一个类(如同一个类由应用类加载器加载,之后又由自定义类加载器加载,这两个类不是同一个类,即使他们的包名编写的代码时相同的,我们可以简单根据此简单的实现热部署,我们后续会介绍),那么什么是双亲委派模式呢?类加载器的层级关系是<strong>启动类加载器&gt;扩展类加载器&gt;应用类加载器</strong>,现在我们在程序中new了一个对象,那么他会先在应用加载器中查找,如果没有再往上向扩展类加载器查找,再找不到向启动类加载器中查找.  </p>
+</blockquote>
+<p>我们现在通过代码来验证这一点</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">public class Test &#123;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        ClassLoader classLoader=Test.class.getClassLoader();</span><br><span class="line">        System.out.println(classLoader);//获取应用类加载器</span><br><span class="line">        System.out.println(classLoader.getParent());//获取扩展类加载器</span><br><span class="line">        System.out.println(classLoader.getParent().getParent());//我们无法访问启动类加载器，当试图获取启动类加载器的时候，返回 null，因此，如果返回的是 null，并不意味没有类加载器为它服务，而是指哪个类为启动类加载器</span><br><span class="line">        System.out.println(String.class.getClassLoader());//证明String类由启动类加载器加载,由此可见无法找到类加载器那么这个类有可能是由启动类加载器完成加载的</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>控制台打印出的代码为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sun.misc.Launcher$AppClassLoader@18b4aac2</span><br><span class="line">sun.misc.Launcher$ExtClassLoader@f6f4d33</span><br><span class="line">null</span><br><span class="line">null</span><br></pre></td></tr></table></figure>
+
+<h4 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h4><p>本文部分内容参考 <a href="https://www.jianshu.com/p/85eba062b9c1" target="_blank" rel="noopener">https://www.jianshu.com/p/85eba062b9c1</a></p>
 
     </div>
 
@@ -330,7 +359,9 @@
           
           <div class="post-tags">
             
-              <a href="/tags/mybatis/" rel="tag"># mybatis</a>
+              <a href="/tags/类加载器/" rel="tag"># 类加载器</a>
+            
+              <a href="/tags/热部署/" rel="tag"># 热部署</a>
             
           </div>
         
@@ -340,8 +371,8 @@
           <div class="post-nav">
             <div class="post-nav-next post-nav-item">
               
-                <a href="/2019/09/04/COLA-复杂项目领域驱动设计框架源码和架构解析/" rel="next" title="COLA-复杂项目领域驱动设计框架源码和架构解析">
-                  <i class="fa fa-chevron-left"></i> COLA-复杂项目领域驱动设计框架源码和架构解析
+                <a href="/2019/09/18/bistoury非入侵java生产环境诊断工具/" rel="next" title="bistoury非入侵式java生产环境诊断工具">
+                  <i class="fa fa-chevron-left"></i> bistoury非入侵式java生产环境诊断工具
                 </a>
               
             </div>
@@ -349,10 +380,6 @@
             <span class="post-nav-divider"></span>
 
             <div class="post-nav-prev post-nav-item">
-              
-                <a href="/2019/09/05/小型项目领域驱动设计实践/" rel="prev" title="小型项目领域驱动设计实践">
-                  小型项目领域驱动设计实践 <i class="fa fa-chevron-right"></i>
-                </a>
               
             </div>
           </div>
@@ -401,7 +428,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#缓存简介"><span class="nav-number">1.</span> <span class="nav-text">缓存简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#mybatis缓存实践"><span class="nav-number">2.</span> <span class="nav-text">mybatis缓存实践</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#类加载器简介"><span class="nav-number">1.</span> <span class="nav-text">类加载器简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#类加载器的工作流程"><span class="nav-number">2.</span> <span class="nav-text">类加载器的工作流程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#什么时候加载类"><span class="nav-number">3.</span> <span class="nav-text">什么时候加载类</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#类加载器的分类"><span class="nav-number">4.</span> <span class="nav-text">类加载器的分类</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#类加载器的双亲委派模式"><span class="nav-number">5.</span> <span class="nav-text">类加载器的双亲委派模式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#参考资料"><span class="nav-number">6.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
         
       </div>
       <!--/noindex-->
