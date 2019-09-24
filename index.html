@@ -245,7 +245,7 @@
                 
               
 
-              <time title="创建时间：2019-09-24 16:34:45 / 修改时间：16:50:45" itemprop="dateCreated datePublished" datetime="2019-09-24T16:34:45+08:00">2019-09-24</time>
+              <time title="创建时间：2019-09-24 16:34:45 / 修改时间：16:55:13" itemprop="dateCreated datePublished" datetime="2019-09-24T16:34:45+08:00">2019-09-24</time>
             </span>
           
             
@@ -277,7 +277,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>之前主要使用oracle来实现存储过程,今天在写mysql存储过程时发现mysql并没有类似oracle的for循环语法,因此通过游标方式来实现类似功能,本过程通过正则切割地区id将统计局的全国到村和街道的数据装换成供数据仓库使用的宽表结构 (因为统计局提供的地区层次是通过id来区分的,code字段共有12个字符，第1、2位标识省份，第3、4位标识地市、第5、6位标识县区，第7-9位标识乡镇、第10-12位标识村。其数据来自<a href="http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/" target="_blank" rel="noopener">http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/</a>), 转化后的表结构如下 <strong>注意这里多了一列当前正在使用的id,这是为了应对后续存在的地区名字或结构变化,这里本人采用的是维度变化的类型6的变种,如果id和正在使用的id相同则代表当前地区是最新结构,否则通过子查询去寻找当前的正在使用的地区id,因为这张表中目前有70多万条数据,如果重新生成较为耗时,且这是一个通用维度,历史数据还是关联就的地区状态,所以需要保留地区维度表的历史信息</strong></p>
+          <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>之前主要使用oracle来实现存储过程,今天在写mysql存储过程时发现mysql并没有类似oracle的for循环语法,因此通过游标方式来实现类似功能,本过程通过正则切割地区id将统计局的全国到村和街道的数据装换成供数据仓库使用的宽表结构 (因为统计局提供的地区层次是通过id来区分的,code字段共有12个字符，第1、2位标识省份，第3、4位标识地市、第5、6位标识县区，第7-9位标识乡镇、第10-12位标识村。其数据来自<a href="http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/" target="_blank" rel="noopener">http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/</a>), 转化后的表结构如下 <strong>注意这里多了一列当前正在使用的id,这是为了应对后续存在的地区名字或结构变化,这里本人采用的是维度变化的类型6的变种,如果id和正在使用的id相同则代表当前地区是最新结构,否则通过子查询去寻找当前的正在使用的地区id,因为这张表中目前有70多万条数据,如果重新生成较为耗时,且这是一个通用维度,历史数据还是关联就的地区状态,所以需要保留地区维度表的历史信息,且地区信息是拉平的(数据仓库维度表中数据都是拉平的,以此表来说如果有些数据是关联在福建省下则,需要创建,福建省,福建市,福建县,福建镇,福建乡),因为如果维度不拉平则在统计分析时会漏掉直接关联在福建省下的数据.</strong></p>
           <!--noindex-->
           
             <div class="post-button text-center">
