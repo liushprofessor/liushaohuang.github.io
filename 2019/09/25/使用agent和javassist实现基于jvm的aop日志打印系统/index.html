@@ -55,18 +55,18 @@
   };
 </script>
 
-  <meta name="description" content="简介java在JDK1.5中提供了java.lang.Instrument包,该包提供了一些工具帮助开发人员在 Java 程序运行时动态的修改class,此文介绍其中的agent组件来实现基于jvm层面的aop. 命令如果我们在cmd输入java -help就会看到关于javaagent命令的简介 1234567java -help用法: java [-options] class [args..">
+  <meta name="description" content="简介java在JDK1.5中提供了java.lang.Instrument包,该包提供了一些工具帮助开发人员在 Java 程序运行时动态的修改class,此文介绍其中的agent组件来实现基于jvm层面的aop.">
 <meta name="keywords" content="javassist,agent">
 <meta property="og:type" content="article">
 <meta property="og:title" content="使用agent和javassist实现基于jvm的aop日志打印系统">
 <meta property="og:url" content="http://www.liushaohuang.cn/2019/09/25/使用agent和javassist实现基于jvm的aop日志打印系统/index.html">
 <meta property="og:site_name" content="刘绍煌">
-<meta property="og:description" content="简介java在JDK1.5中提供了java.lang.Instrument包,该包提供了一些工具帮助开发人员在 Java 程序运行时动态的修改class,此文介绍其中的agent组件来实现基于jvm层面的aop. 命令如果我们在cmd输入java -help就会看到关于javaagent命令的简介 1234567java -help用法: java [-options] class [args..">
+<meta property="og:description" content="简介java在JDK1.5中提供了java.lang.Instrument包,该包提供了一些工具帮助开发人员在 Java 程序运行时动态的修改class,此文介绍其中的agent组件来实现基于jvm层面的aop.">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-09-25T03:03:37.593Z">
+<meta property="og:updated_time" content="2019-09-25T03:07:05.943Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="使用agent和javassist实现基于jvm的aop日志打印系统">
-<meta name="twitter:description" content="简介java在JDK1.5中提供了java.lang.Instrument包,该包提供了一些工具帮助开发人员在 Java 程序运行时动态的修改class,此文介绍其中的agent组件来实现基于jvm层面的aop. 命令如果我们在cmd输入java -help就会看到关于javaagent命令的简介 1234567java -help用法: java [-options] class [args..">
+<meta name="twitter:description" content="简介java在JDK1.5中提供了java.lang.Instrument包,该包提供了一些工具帮助开发人员在 Java 程序运行时动态的修改class,此文介绍其中的agent组件来实现基于jvm层面的aop.">
   <link rel="canonical" href="http://www.liushaohuang.cn/2019/09/25/使用agent和javassist实现基于jvm的aop日志打印系统/">
 
 
@@ -247,7 +247,7 @@
                 
               
 
-              <time title="创建时间：2019-09-25 09:35:04 / 修改时间：11:03:37" itemprop="dateCreated datePublished" datetime="2019-09-25T09:35:04+08:00">2019-09-25</time>
+              <time title="创建时间：2019-09-25 09:35:04 / 修改时间：11:07:05" itemprop="dateCreated datePublished" datetime="2019-09-25T09:35:04+08:00">2019-09-25</time>
             </span>
           
             
@@ -280,6 +280,8 @@
 
       
         <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>java在JDK1.5中提供了java.lang.Instrument包,该包提供了一些工具帮助开发人员在 Java 程序运行时动态的修改class,此文介绍其中的agent组件来实现基于jvm层面的aop.</p>
+<a id="more"></a>
+
 <h4 id="命令"><a href="#命令" class="headerlink" title="命令"></a>命令</h4><p>如果我们在cmd输入java -help就会看到关于javaagent命令的简介</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">java -help</span><br><span class="line">用法: java [-options] class [args...]</span><br><span class="line"></span><br><span class="line">其中选项包括:</span><br><span class="line"></span><br><span class="line">   -javaagent:&lt;jarpath&gt;[=&lt;选项&gt;]</span><br><span class="line">                 加载 Java 编程语言代理, 请参阅 java.lang.instrument</span><br></pre></td></tr></table></figure>
 
