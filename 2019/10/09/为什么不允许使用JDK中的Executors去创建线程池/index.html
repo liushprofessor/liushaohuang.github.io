@@ -64,7 +64,7 @@
 <meta property="og:description" content="简介Executors 是JDK 1.5中提供的一个创建线程池的建议类，其是对ThreadPoolExecutor进行了一次封装，屏蔽了ThreadPoolExecutor复杂的参数，简单使用且暴力。Executors提供了3种线程池分别为newCachedThreadPool(无固定大小线程池,如果线程空闲时间超过60s则回收),固定线程池newFixedThreadPool,和单一线程池new">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://www.liushaohuang.cn/images/d4f7b06f3c28d88d17b5e2d4b49b6999.jpg">
-<meta property="og:updated_time" content="2019-10-09T07:15:11.668Z">
+<meta property="og:updated_time" content="2019-10-09T07:18:38.697Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="为什么不允许在高并发下使用JDK中的Executors去创建线程池">
 <meta name="twitter:description" content="简介Executors 是JDK 1.5中提供的一个创建线程池的建议类，其是对ThreadPoolExecutor进行了一次封装，屏蔽了ThreadPoolExecutor复杂的参数，简单使用且暴力。Executors提供了3种线程池分别为newCachedThreadPool(无固定大小线程池,如果线程空闲时间超过60s则回收),固定线程池newFixedThreadPool,和单一线程池new">
@@ -249,7 +249,7 @@
                 
               
 
-              <time title="创建时间：2019-10-09 10:02:17 / 修改时间：15:15:11" itemprop="dateCreated datePublished" datetime="2019-10-09T10:02:17+08:00">2019-10-09</time>
+              <time title="创建时间：2019-10-09 10:02:17 / 修改时间：15:18:38" itemprop="dateCreated datePublished" datetime="2019-10-09T10:02:17+08:00">2019-10-09</time>
             </span>
           
             
@@ -282,6 +282,8 @@
 
       
         <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>Executors 是JDK 1.5中提供的一个创建线程池的建议类，其是对ThreadPoolExecutor进行了一次封装，屏蔽了ThreadPoolExecutor复杂的参数，简单使用且暴力。Executors提供了3种线程池分别为newCachedThreadPool(无固定大小线程池,如果线程空闲时间超过60s则回收),固定线程池newFixedThreadPool,和单一线程池newSingleThreadExecutor(只有一个线程)，相比使用ThreadPoolExecutor，Executors虽然也是使用ThreadPoolExecutor去创建线程池，但是其给ThreadPoolExecutor提供了默认参数，这就使我们在使用Executors时比ThreadPoolExecutor简单的多得多，往往只有传入一个创建线程的个数参数即可，但就是由于其屏蔽了ThreadPoolExecutor的细节导致在使用Executors在处理大量任务时存在OOM的隐患，所以在阿里巴巴编程规范中明确禁止使用Executors去创建线程池，我们可以通过查看api和查看<br>Executors代码可以得知为什么会这样.</p>
+<a id="more"></a>
+
 <h4 id="ThreadPoolExecutor"><a href="#ThreadPoolExecutor" class="headerlink" title="ThreadPoolExecutor"></a>ThreadPoolExecutor</h4><h5 id="api中关于ThreadPoolExecutor构造方法的解释"><a href="#api中关于ThreadPoolExecutor构造方法的解释" class="headerlink" title="api中关于ThreadPoolExecutor构造方法的解释"></a>api中关于ThreadPoolExecutor构造方法的解释</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">public ThreadPoolExecutor(int corePoolSize,</span><br><span class="line">                              int maximumPoolSize,</span><br><span class="line">                              long keepAliveTime,</span><br><span class="line">                              TimeUnit unit,</span><br><span class="line">                              BlockingQueue&lt;Runnable&gt; workQueue,</span><br><span class="line">                              ThreadFactory threadFactory,</span><br><span class="line">                              RejectedExecutionHandler handler)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">                              参数：</span><br><span class="line">                              corePoolSize - 池中所保存的线程数，包括空闲线程。</span><br><span class="line">                              maximumPoolSize - 池中允许的最大线程数。</span><br><span class="line">                              keepAliveTime - 当线程数大于核心时，此为终止前多余的空闲线程等待新任务的最长时间。</span><br><span class="line">                              unit - keepAliveTime 参数的时间单位。</span><br><span class="line">                              workQueue - 执行前用于保持任务的队列。此队列仅保持由 execute 方法提交的 Runnable 任务。</span><br><span class="line">                              threadFactory - 执行程序创建新线程时使用的工厂。</span><br><span class="line">                              handler - 由于超出线程范围和队列容量而使执行被阻塞时所使用的处理程序。</span><br></pre></td></tr></table></figure>
 
 <ul>
