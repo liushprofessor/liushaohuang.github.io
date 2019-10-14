@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.3.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.3.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.3.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.3.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.3.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.3.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="简介之前的文章中提到了使用sharding-jdbc进行读写分离和分库分表，本文将使用sharding-jdbc并且使用-《使用sharding-jdbc实现mysql的分库分表》这篇文章中的代码，将分库分表和读写分离结结合起来。">
+<meta name="keywords" content="sharding-jdbc,mysql分库分表,mysql读写分离">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用sharding-jdbc实现mysql的分库分表并主从读写分离">
+<meta property="og:url" content="http://www.liushaohuang.cn/2019/10/14/使用sharding-jdbc实现mysql的分库分表并主从读写分离/index.html">
+<meta property="og:site_name" content="刘绍煌">
+<meta property="og:description" content="简介之前的文章中提到了使用sharding-jdbc进行读写分离和分库分表，本文将使用sharding-jdbc并且使用-《使用sharding-jdbc实现mysql的分库分表》这篇文章中的代码，将分库分表和读写分离结结合起来。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-10-14T01:54:53.572Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用sharding-jdbc实现mysql的分库分表并主从读写分离">
+<meta name="twitter:description" content="简介之前的文章中提到了使用sharding-jdbc进行读写分离和分库分表，本文将使用sharding-jdbc并且使用-《使用sharding-jdbc实现mysql的分库分表》这篇文章中的代码，将分库分表和读写分离结结合起来。">
+  <link rel="canonical" href="http://www.liushaohuang.cn/2019/10/14/使用sharding-jdbc实现mysql的分库分表并主从读写分离/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>使用sharding-jdbc实现mysql的分库分表并主从读写分离 | 刘绍煌</title>
+  <meta name="generator" content="Hexo 3.9.0">
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">刘绍煌</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2019/10/14/使用sharding-jdbc实现mysql的分库分表并主从读写分离/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="刘绍煌">
+      <meta itemprop="description" content="刘绍煌的个人博客">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="刘绍煌">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">使用sharding-jdbc实现mysql的分库分表并主从读写分离
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2019-10-14 09:11:36 / 修改时间：09:54:53" itemprop="dateCreated datePublished" datetime="2019-10-14T09:11:36+08:00">2019-10-14</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/并发/" itemprop="url" rel="index"><span itemprop="name">并发</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>之前的文章中提到了使用sharding-jdbc进行读写分离和分库分表，本文将使用sharding-jdbc并且使用-《使用sharding-jdbc实现mysql的分库分表》这篇文章中的代码，将分库分表和读写分离结结合起来。</p>
+<a id="more"></a>
+
+
+<h4 id="配置mysql从库"><a href="#配置mysql从库" class="headerlink" title="配置mysql从库"></a>配置mysql从库</h4><p>具体步骤依照《hive mysql元数据表单的主从备份》一文配置好主备,举例一下是主库配置,复制主库的test,user_1,user_2数据库到</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">server-id=1</span><br><span class="line">log-bin=mysql-bin</span><br><span class="line">binlog-do-db=test</span><br><span class="line">binlog-do-db=user_1</span><br><span class="line">binlog-do-db=user_2</span><br><span class="line">log-slave-updates=1</span><br></pre></td></tr></table></figure>
+
+<p>从库配置,复制主库的test,user_1,user_2数据库</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">server-id=2</span><br><span class="line">#read_only=1</span><br><span class="line">replicate-do-db=test</span><br><span class="line">replicate-do-db=user_1</span><br><span class="line">replicate-do-db=user_2</span><br></pre></td></tr></table></figure>
+
+<h4 id="修改application-properties配置文件"><a href="#修改application-properties配置文件" class="headerlink" title="修改application.properties配置文件"></a>修改application.properties配置文件</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br></pre></td><td class="code"><pre><span class="line">spring.shardingsphere.datasource.names=master0,master1,master0slave0,master1slave0</span><br><span class="line"></span><br><span class="line">spring.shardingsphere.datasource.master0.type=com.zaxxer.hikari.HikariDataSource</span><br><span class="line">spring.shardingsphere.datasource.master0.driver-class-name=com.mysql.jdbc.Driver</span><br><span class="line">spring.shardingsphere.datasource.master0.jdbc-url=jdbc:mysql://192.168.171.76:3306/user_1?serverTimezone=UTC&amp;useSSL=false&amp;useUnicode=true&amp;characterEncoding=UTF-8</span><br><span class="line">spring.shardingsphere.datasource.master0.username=root</span><br><span class="line">spring.shardingsphere.datasource.master0.password=Liush123!@#</span><br><span class="line">spring.shardingsphere.datasource.master0.minimum-idle=10</span><br><span class="line">spring.shardingsphere.datasource.master0.maximum-pool-size=10</span><br><span class="line">spring.shardingsphere.datasource.master0.pool-name=masterHikariCP</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">spring.shardingsphere.datasource.master1.type=com.zaxxer.hikari.HikariDataSource</span><br><span class="line">spring.shardingsphere.datasource.master1.driver-class-name=com.mysql.jdbc.Driver</span><br><span class="line">spring.shardingsphere.datasource.master1.jdbc-url=jdbc:mysql://192.168.171.76:3306/user_2?serverTimezone=UTC&amp;useSSL=false&amp;useUnicode=true&amp;characterEncoding=UTF-8</span><br><span class="line">spring.shardingsphere.datasource.master1.username=root</span><br><span class="line">spring.shardingsphere.datasource.master1.password=Liush123!@#</span><br><span class="line">spring.shardingsphere.datasource.master1.minimum-idle=10</span><br><span class="line">spring.shardingsphere.datasource.master1.maximum-pool-size=10</span><br><span class="line">spring.shardingsphere.datasource.master1.pool-name=masterHikariCP2</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">spring.shardingsphere.datasource.master0slave0.type=com.zaxxer.hikari.HikariDataSource</span><br><span class="line">spring.shardingsphere.datasource.master0slave0.driver-class-name=com.mysql.jdbc.Driver</span><br><span class="line">spring.shardingsphere.datasource.master0slave0.jdbc-url=jdbc:mysql://192.168.171.77:3306/user_1?serverTimezone=UTC&amp;useSSL=false&amp;useUnicode=true&amp;characterEncoding=UTF-8</span><br><span class="line">spring.shardingsphere.datasource.master0slave0.username=root</span><br><span class="line">spring.shardingsphere.datasource.master0slave0.password=Liush123!@#</span><br><span class="line">spring.shardingsphere.datasource.master0slave0.minimum-idle=10</span><br><span class="line">spring.shardingsphere.datasource.master0slave0.maximum-pool-size=10</span><br><span class="line">spring.shardingsphere.datasource.master0slave0.pool-name=slaveHikariCP</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">spring.shardingsphere.datasource.master1slave0.type=com.zaxxer.hikari.HikariDataSource</span><br><span class="line">spring.shardingsphere.datasource.master1slave0.driver-class-name=com.mysql.jdbc.Driver</span><br><span class="line">spring.shardingsphere.datasource.master1slave0.jdbc-url=jdbc:mysql://192.168.171.77:3306/user_2?serverTimezone=UTC&amp;useSSL=false&amp;useUnicode=true&amp;characterEncoding=UTF-8</span><br><span class="line">spring.shardingsphere.datasource.master1slave0.username=root</span><br><span class="line">spring.shardingsphere.datasource.master1slave0.password=Liush123!@#</span><br><span class="line">spring.shardingsphere.datasource.master1slave0.minimum-idle=10</span><br><span class="line">spring.shardingsphere.datasource.master1slave0.maximum-pool-size=10</span><br><span class="line">spring.shardingsphere.datasource.master1slave0.pool-name=slaveHikariCP2</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">spring.shardingsphere.sharding.default-database-strategy.inline.sharding-column=user_id_</span><br><span class="line">spring.shardingsphere.sharding.default-database-strategy.inline.algorithm-expression=master$-&gt;&#123;user_id_ % 2&#125;</span><br><span class="line">#如果不#如果不设置此参数，会产生笛卡尔积查询，使效率大大减慢（表间绑定，比如这里相同的orderID的t_order和t_order_item会划分到同一分片下，这样就不会产生笛卡尔积查询）</span><br><span class="line">spring.shardingsphere.sharding.binding-tables=t_order,t_order_item</span><br><span class="line">spring.shardingsphere.sharding.broadcast-tables=t_address</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">spring.shardingsphere.sharding.tables.t_user.actual-data-nodes=master$-&gt;&#123;0..1&#125;.t_user_$-&gt;&#123;0..1&#125;</span><br><span class="line">spring.shardingsphere.sharding.tables.t_user.table-strategy.inline.sharding-column=user_id_</span><br><span class="line">spring.shardingsphere.sharding.tables.t_user.table-strategy.inline.algorithm-expression=t_user_$-&gt;&#123;user_id_ % 2&#125;</span><br><span class="line">spring.shardingsphere.sharding.tables.t_user.key-generator.column=user_id_</span><br><span class="line">spring.shardingsphere.sharding.tables.t_user.key-generator.type=SNOWFLAKE</span><br><span class="line">spring.shardingsphere.sharding.tables.t_user.key-generator.props.worker.id=123</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">spring.shardingsphere.sharding.tables.t_order.actual-data-nodes=master$-&gt;&#123;0..1&#125;.t_order_$-&gt;&#123;0..1&#125;</span><br><span class="line">spring.shardingsphere.sharding.tables.t_order.table-strategy.inline.sharding-column=order_id_</span><br><span class="line">spring.shardingsphere.sharding.tables.t_order.table-strategy.inline.algorithm-expression=t_order_$-&gt;&#123;order_id_ % 2&#125;</span><br><span class="line">spring.shardingsphere.sharding.tables.t_order.key-generator.column=order_id_</span><br><span class="line">spring.shardingsphere.sharding.tables.t_order.key-generator.type=SNOWFLAKE</span><br><span class="line">spring.shardingsphere.sharding.tables.t_order.key-generator.props.worker.id=123</span><br><span class="line"></span><br><span class="line">spring.shardingsphere.sharding.tables.t_order_item.actual-data-nodes=master$-&gt;&#123;0..1&#125;.t_order_item_$-&gt;&#123;0..1&#125;</span><br><span class="line">spring.shardingsphere.sharding.tables.t_order_item.table-strategy.inline.sharding-column=order_id_</span><br><span class="line">spring.shardingsphere.sharding.tables.t_order_item.table-strategy.inline.algorithm-expression=t_order_item_$-&gt;&#123;order_id_ % 2&#125;</span><br><span class="line">spring.shardingsphere.sharding.tables.t_order_item.key-generator.column=order_item_id_</span><br><span class="line">spring.shardingsphere.sharding.tables.t_order_item.key-generator.type=SNOWFLAKE</span><br><span class="line">spring.shardingsphere.sharding.tables.t_order_item.key-generator.props.worker.id=123</span><br><span class="line"></span><br><span class="line"># 显示执行sql</span><br><span class="line">spring.shardingsphere.props.sql.show=true</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">## 注意这段代码和官方提供的日志不一致，官方提供的配置文件中master0，master1并没有使用，spring.shardingsphere.datasource.names中配置的源，但是实测中不使用spring.shardingsphere.datasource.names中配置的源配置的数据源会报 org.apache.shardingsphere.core.exception.ShardingException: Cannot find data source in sharding rule, invalid actual data node</span><br><span class="line">spring.shardingsphere.sharding.master-slave-rules.master0.master-data-source-name=master0</span><br><span class="line">spring.shardingsphere.sharding.master-slave-rules.master0.slave-data-source-names=master0slave0</span><br><span class="line">spring.shardingsphere.sharding.master-slave-rules.master1.master-data-source-name=master1</span><br><span class="line">spring.shardingsphere.sharding.master-slave-rules.master1.slave-data-source-names=master1slave0</span><br></pre></td></tr></table></figure>
+
+<h4 id="测试方法"><a href="#测试方法" class="headerlink" title="测试方法"></a>测试方法</h4><p>执行使用sharding-jdbc实现mysql的分库分表中的findOrderItem方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">@Select(&quot;select item_name_ from t_order t1 inner join t_order_item t2 on t1.order_id_=t2.order_id_ where t1.order_id_ in ( #&#123;orderId1&#125;,#&#123;orderId2&#125; )&quot;)</span><br><span class="line">  List&lt;String&gt; findOrderItem(@Param(&quot;orderId1&quot;)long orderId1,@Param(&quot;orderId2&quot;)long orderId2);</span><br></pre></td></tr></table></figure>
+
+<p>查看打印代码,发现所有的读都已经分发到配置的读节点中了</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">2019-10-14 09:50:04.045  INFO 12276 --- [           main] ShardingSphere-SQL                       : Actual SQL: master0slave0 ::: select item_name_ from t_order_0 t1 inner join t_order_item_0 t2 on t1.order_id_=t2.order_id_ where t1.order_id_ in ( ?,? ) ::: [389458016099348480, 389458016128708608]</span><br><span class="line">2019-10-14 09:50:04.046  INFO 12276 --- [           main] ShardingSphere-SQL                       : Actual SQL: master1slave0 ::: select item_name_ from t_order_0 t1 inner join t_order_item_0 t2 on t1.order_id_=t2.order_id_ where t1.order_id_ in ( ?,? ) ::: [389458016099348480, 389458016128708608]</span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+        
+      
+        <div id="reward-container">
+  <div></div>
+  <button id="reward-button" disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/赞赏码.png" alt="刘绍煌 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/sharding-jdbc/" rel="tag"># sharding-jdbc</a>
+            
+              <a href="/tags/mysql分库分表/" rel="tag"># mysql分库分表</a>
+            
+              <a href="/tags/mysql读写分离/" rel="tag"># mysql读写分离</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2019/10/11/使用sharding-jdbc实现mysql的分库分表/" rel="next" title="使用sharding-jdbc实现mysql的分库分表">
+                  <i class="fa fa-chevron-left"></i> 使用sharding-jdbc实现mysql的分库分表
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#配置mysql从库"><span class="nav-number">2.</span> <span class="nav-text">配置mysql从库</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#修改application-properties配置文件"><span class="nav-number">3.</span> <span class="nav-text">修改application.properties配置文件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#测试方法"><span class="nav-number">4.</span> <span class="nav-text">测试方法</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">刘绍煌</p>
+  <div class="site-description" itemprop="description">刘绍煌的个人博客</div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">27</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">34</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">刘绍煌</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.3.0</div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.3.0"></script><script src="/js/motion.js?v=7.3.0"></script>
+<script src="/js/schemes/pisces.js?v=7.3.0"></script>
+<script src="/js/next-boot.js?v=7.3.0"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
