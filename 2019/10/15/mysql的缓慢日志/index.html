@@ -63,7 +63,7 @@
 <meta property="og:site_name" content="刘绍煌">
 <meta property="og:description" content="简介mysql有4种日志，分别为错误日志，一般查询日志，慢查询日志，二进制日志">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-10-15T06:53:11.019Z">
+<meta property="og:updated_time" content="2019-10-15T08:44:54.643Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="mysql的缓慢日志">
 <meta name="twitter:description" content="简介mysql有4种日志，分别为错误日志，一般查询日志，慢查询日志，二进制日志">
@@ -247,7 +247,7 @@
                 
               
 
-              <time title="创建时间：2019-10-15 14:07:22 / 修改时间：14:53:11" itemprop="dateCreated datePublished" datetime="2019-10-15T14:07:22+08:00">2019-10-15</time>
+              <time title="创建时间：2019-10-15 14:07:22 / 修改时间：16:44:54" itemprop="dateCreated datePublished" datetime="2019-10-15T14:07:22+08:00">2019-10-15</time>
             </span>
           
             
@@ -309,6 +309,33 @@
 <p>否则查询 ,语句状态一直未on</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">show variables like &apos;%slow_query_log%&apos;;</span><br></pre></td></tr></table></figure>
 
+<h4 id="设置会话基本缓慢日志"><a href="#设置会话基本缓慢日志" class="headerlink" title="设置会话基本缓慢日志"></a>设置会话基本缓慢日志</h4><p>以上设置的缓慢日志，或者当缓慢日志过大清理时，需要重启数据库，但是在生产环境中是不允许这样做的，所以我们采用SET变量的方法去设置缓慢日志。</p>
+<ul>
+<li>关闭缓慢日志服务</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">set global slow_query_log=OFF;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>查看缓慢日志时候关闭</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">show variables like &apos;%slow%&apos;;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>迁移缓慢日志</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">直接用linux mv命令或者其它方法迁移缓慢日志</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>重新设置缓慢日志路径</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">set global slow_query_log_file=&apos;/路径&apos;;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>重新开启缓慢日志</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">set global slow_query_log=ON;</span><br></pre></td></tr></table></figure>
+
+<h5 id="实际操作方案"><a href="#实际操作方案" class="headerlink" title="实际操作方案"></a>实际操作方案</h5><p>实际生产环境中可以采用上述方案，每天编写脚本完成缓慢日志迁移.</p>
 
     </div>
 
@@ -408,7 +435,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#错误日志"><span class="nav-number">2.</span> <span class="nav-text">错误日志</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#一般查询日志"><span class="nav-number">3.</span> <span class="nav-text">一般查询日志</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二进制日志"><span class="nav-number">4.</span> <span class="nav-text">二进制日志</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#慢查询日志"><span class="nav-number">5.</span> <span class="nav-text">慢查询日志</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#慢查询日志配置"><span class="nav-number">5.1.</span> <span class="nav-text">慢查询日志配置</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#慢语句分析"><span class="nav-number">5.2.</span> <span class="nav-text">慢语句分析</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#注意"><span class="nav-number">5.3.</span> <span class="nav-text">注意</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#错误日志"><span class="nav-number">2.</span> <span class="nav-text">错误日志</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#一般查询日志"><span class="nav-number">3.</span> <span class="nav-text">一般查询日志</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二进制日志"><span class="nav-number">4.</span> <span class="nav-text">二进制日志</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#慢查询日志"><span class="nav-number">5.</span> <span class="nav-text">慢查询日志</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#慢查询日志配置"><span class="nav-number">5.1.</span> <span class="nav-text">慢查询日志配置</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#慢语句分析"><span class="nav-number">5.2.</span> <span class="nav-text">慢语句分析</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#注意"><span class="nav-number">5.3.</span> <span class="nav-text">注意</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#设置会话基本缓慢日志"><span class="nav-number">6.</span> <span class="nav-text">设置会话基本缓慢日志</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#实际操作方案"><span class="nav-number">6.1.</span> <span class="nav-text">实际操作方案</span></a></li></ol></li></ol></div>
         
       </div>
       <!--/noindex-->
