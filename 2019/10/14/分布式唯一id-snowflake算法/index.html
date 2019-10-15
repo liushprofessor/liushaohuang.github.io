@@ -55,19 +55,19 @@
   };
 </script>
 
-  <meta name="description" content="简介项目中大家喜欢用java自带的UUID工具类去生成唯一的数据库主键，这样做的原因是简单。但mysql的innodb存储引擎对索引采用的是b+树结构，树是排序的，其会把相邻主键的数据安放在相邻的物理存储上。如果主键不是自增，而是随机的，那么频繁的插入会使 innodb 频繁地移动磁盘块，而影响写入性能,但是如果使用mysql的自增，则在分库分表下无法保证主键id的唯一性，因此我们采用twitte">
+  <meta name="description" content="简介项目中大家喜欢用java自带的UUID工具类去生成唯一的数据库主键，这样做的原因是简单。但mysql的innodb存储引擎的主键是聚簇索引（一种索引类型，数据与索引数据放在一起），既然数据和索引数据放在一起，那么在数据插入或者更新的时候，那么在数据插入或者更新的时候，我们需要找到要插入的位置，再把数据写到特定的位置上，这就产生了随机的 IO，而innodb存储引擎采用的是B+树的结果存储索引，">
 <meta name="keywords" content="snowflake,唯一id,数据库主键">
 <meta property="og:type" content="article">
 <meta property="og:title" content="分布式唯一id(数据库主键):snowflake算法">
 <meta property="og:url" content="http://www.liushaohuang.cn/2019/10/14/分布式唯一id-snowflake算法/index.html">
 <meta property="og:site_name" content="刘绍煌">
-<meta property="og:description" content="简介项目中大家喜欢用java自带的UUID工具类去生成唯一的数据库主键，这样做的原因是简单。但mysql的innodb存储引擎对索引采用的是b+树结构，树是排序的，其会把相邻主键的数据安放在相邻的物理存储上。如果主键不是自增，而是随机的，那么频繁的插入会使 innodb 频繁地移动磁盘块，而影响写入性能,但是如果使用mysql的自增，则在分库分表下无法保证主键id的唯一性，因此我们采用twitte">
+<meta property="og:description" content="简介项目中大家喜欢用java自带的UUID工具类去生成唯一的数据库主键，这样做的原因是简单。但mysql的innodb存储引擎的主键是聚簇索引（一种索引类型，数据与索引数据放在一起），既然数据和索引数据放在一起，那么在数据插入或者更新的时候，那么在数据插入或者更新的时候，我们需要找到要插入的位置，再把数据写到特定的位置上，这就产生了随机的 IO，而innodb存储引擎采用的是B+树的结果存储索引，">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://www.liushaohuang.cn/images/2dee7e8e227a339f8f3cb6e7b47c0c8d.jpg">
-<meta property="og:updated_time" content="2019-10-14T06:56:47.865Z">
+<meta property="og:updated_time" content="2019-10-14T07:06:14.024Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="分布式唯一id(数据库主键):snowflake算法">
-<meta name="twitter:description" content="简介项目中大家喜欢用java自带的UUID工具类去生成唯一的数据库主键，这样做的原因是简单。但mysql的innodb存储引擎对索引采用的是b+树结构，树是排序的，其会把相邻主键的数据安放在相邻的物理存储上。如果主键不是自增，而是随机的，那么频繁的插入会使 innodb 频繁地移动磁盘块，而影响写入性能,但是如果使用mysql的自增，则在分库分表下无法保证主键id的唯一性，因此我们采用twitte">
+<meta name="twitter:description" content="简介项目中大家喜欢用java自带的UUID工具类去生成唯一的数据库主键，这样做的原因是简单。但mysql的innodb存储引擎的主键是聚簇索引（一种索引类型，数据与索引数据放在一起），既然数据和索引数据放在一起，那么在数据插入或者更新的时候，那么在数据插入或者更新的时候，我们需要找到要插入的位置，再把数据写到特定的位置上，这就产生了随机的 IO，而innodb存储引擎采用的是B+树的结果存储索引，">
 <meta name="twitter:image" content="http://www.liushaohuang.cn/images/2dee7e8e227a339f8f3cb6e7b47c0c8d.jpg">
   <link rel="canonical" href="http://www.liushaohuang.cn/2019/10/14/分布式唯一id-snowflake算法/">
 
@@ -249,7 +249,7 @@
                 
               
 
-              <time title="创建时间：2019-10-14 14:18:17 / 修改时间：14:56:47" itemprop="dateCreated datePublished" datetime="2019-10-14T14:18:17+08:00">2019-10-14</time>
+              <time title="创建时间：2019-10-14 14:18:17 / 修改时间：15:06:14" itemprop="dateCreated datePublished" datetime="2019-10-14T14:18:17+08:00">2019-10-14</time>
             </span>
           
             
@@ -281,7 +281,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>项目中大家喜欢用java自带的UUID工具类去生成唯一的数据库主键，这样做的原因是简单。但mysql的innodb存储引擎对索引采用的是b+树结构，树是排序的，其会把相邻主键的数据安放在相邻的物理存储上。如果主键不是自增，而是随机的，那么频繁的插入会使 innodb 频繁地移动磁盘块，而影响写入性能,但是如果使用mysql的自增，则在分库分表下无法保证主键id的唯一性，因此我们采用twitter的snowflake算法来生成分布式的唯一id。</p>
+        <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>项目中大家喜欢用java自带的UUID工具类去生成唯一的数据库主键，这样做的原因是简单。但mysql的innodb存储引擎的主键是聚簇索引（一种索引类型，数据与索引数据放在一起），既然数据和索引数据放在一起，那么在数据插入或者更新的时候，那么在数据插入或者更新的时候，我们需要找到要插入的位置，再把数据写到特定的位置上，这就产生了随机的 IO，而innodb存储引擎采用的是B+树的结果存储索引，一旦发生了页分裂，就不可避免会做数据的移动，也会极大地损耗写入性能,但是如果使用mysql的自增，则在分库分表下无法保证主键id的唯一性，因此我们采用twitter的snowflake算法来生成分布式的唯一id。</p>
 <a id="more"></a>
 
 <h4 id="snowflake算法"><a href="#snowflake算法" class="headerlink" title="snowflake算法"></a>snowflake算法</h4><p>snowflake是Twitter开源的分布式ID生成算法，结果是一个long型的ID。其核心思想是：使用41bit作为毫秒数，10bit作为机器的ID（5个bit是数据中心，5个bit的机器ID），12bit作为毫秒内的流水号（意味着每个节点在每毫秒可以产生 4096 个 ID），最后还有一个符号位，永远是0。41为的时间戳大概可以生成69年((2^41)/1000/60/60/24/365),10bit的工作机器id可以支持1024(2^10)台机器，序列号支持1毫秒产生4096(2^12)个自增序列id<br><img src="/images/2dee7e8e227a339f8f3cb6e7b47c0c8d.jpg" alt="snowflake"></p>
@@ -343,6 +343,10 @@
             <span class="post-nav-divider"></span>
 
             <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2019/10/15/mysql的缓慢日志/" rel="prev" title="mysql的缓慢日志">
+                  mysql的缓慢日志 <i class="fa fa-chevron-right"></i>
+                </a>
               
             </div>
           </div>
@@ -406,7 +410,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">28</span>
+          <span class="site-state-item-count">29</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -532,7 +536,9 @@
         
           
         
-        <span class="site-state-item-count">37</span>
+          
+        
+        <span class="site-state-item-count">38</span>
         <span class="site-state-item-name">标签</span>
         </a>
       </div>
