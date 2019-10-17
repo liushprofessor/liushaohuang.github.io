@@ -64,7 +64,7 @@
 <meta property="og:description" content="简介数据库事务需要满足ACID（原子性、一致性、隔离性、持久性）四个特性。  原子性（Atomicity）指事务作为整体来执行，要么全部执行，要么全不执行。 一致性（Consistency）指事务应确保数据从一个一致的状态转变为另一个一致的状态。 隔离性（Isolation）指多个事务并发执行时，一个事务的执行不应影响其他事务的执行。 持久性（Durability）指已提交的事务修改数据会被持久保">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://www.liushaohuang.cn/images/20170417115728906.jpg">
-<meta property="og:updated_time" content="2019-10-17T05:59:58.886Z">
+<meta property="og:updated_time" content="2019-10-17T06:02:42.202Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="分布式事务简介">
 <meta name="twitter:description" content="简介数据库事务需要满足ACID（原子性、一致性、隔离性、持久性）四个特性。  原子性（Atomicity）指事务作为整体来执行，要么全部执行，要么全不执行。 一致性（Consistency）指事务应确保数据从一个一致的状态转变为另一个一致的状态。 隔离性（Isolation）指多个事务并发执行时，一个事务的执行不应影响其他事务的执行。 持久性（Durability）指已提交的事务修改数据会被持久保">
@@ -249,7 +249,7 @@
                 
               
 
-              <time title="创建时间：2019-10-17 09:49:41 / 修改时间：13:59:58" itemprop="dateCreated datePublished" datetime="2019-10-17T09:49:41+08:00">2019-10-17</time>
+              <time title="创建时间：2019-10-17 09:49:41 / 修改时间：14:02:42" itemprop="dateCreated datePublished" datetime="2019-10-17T09:49:41+08:00">2019-10-17</time>
             </span>
           
             
@@ -352,7 +352,7 @@
 <li><p>二阶段无法解决的问题：协调者再发出commit消息之后宕机，而唯一接收到这条消息的参与者同时也宕机了。那么即使协调者通过选举协议产生了新的协调者，这条事务的状态也是不确定的，没人知道事务是否被已经提交。</p>
 </li>
 </ol>
-<h4 id="3pc"><a href="#3pc" class="headerlink" title="3pc"></a>3pc</h4><p>由于二阶段提交存在着诸如同步阻塞、单点问题、脑裂等缺陷，所以，研究者们在二阶段提交的基础上做了改进，提出了三阶段提交。</p>
+<h5 id="3pc"><a href="#3pc" class="headerlink" title="3pc"></a>3pc</h5><p>由于二阶段提交存在着诸如同步阻塞、单点问题、脑裂等缺陷，所以，研究者们在二阶段提交的基础上做了改进，提出了三阶段提交。</p>
 <p>三阶段提交（Three-phase commit），也叫三阶段提交协议（Three-phase commit protocol），是二阶段提交（2PC）的改进版本。</p>
 <p>与两阶段提交不同的是，三阶段提交有两个改动点。</p>
 <ol>
@@ -540,7 +540,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#本地事务"><span class="nav-number">2.</span> <span class="nav-text">本地事务</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#分布式事务XA"><span class="nav-number">3.</span> <span class="nav-text">分布式事务XA</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#XA的刚性实现"><span class="nav-number">3.1.</span> <span class="nav-text">XA的刚性实现</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#XA的柔性实现"><span class="nav-number">3.2.</span> <span class="nav-text">XA的柔性实现</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2PC"><span class="nav-number">3.3.</span> <span class="nav-text">2PC</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3pc"><span class="nav-number">4.</span> <span class="nav-text">3pc</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#2PC与3PC的区别"><span class="nav-number">4.1.</span> <span class="nav-text">2PC与3PC的区别</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#柔性事务的理论基础-BASE理论"><span class="nav-number">4.2.</span> <span class="nav-text">柔性事务的理论基础-BASE理论</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#柔性事务的实现"><span class="nav-number">4.3.</span> <span class="nav-text">柔性事务的实现</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#参考资料"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#本地事务"><span class="nav-number">2.</span> <span class="nav-text">本地事务</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#分布式事务XA"><span class="nav-number">3.</span> <span class="nav-text">分布式事务XA</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#XA的刚性实现"><span class="nav-number">3.1.</span> <span class="nav-text">XA的刚性实现</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#XA的柔性实现"><span class="nav-number">3.2.</span> <span class="nav-text">XA的柔性实现</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2PC"><span class="nav-number">3.3.</span> <span class="nav-text">2PC</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3pc"><span class="nav-number">3.4.</span> <span class="nav-text">3pc</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2PC与3PC的区别"><span class="nav-number">3.5.</span> <span class="nav-text">2PC与3PC的区别</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#柔性事务的理论基础-BASE理论"><span class="nav-number">3.6.</span> <span class="nav-text">柔性事务的理论基础-BASE理论</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#柔性事务的实现"><span class="nav-number">3.7.</span> <span class="nav-text">柔性事务的实现</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#参考资料"><span class="nav-number">4.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
         
       </div>
       <!--/noindex-->
