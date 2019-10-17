@@ -64,7 +64,7 @@
 <meta property="og:description" content="简介数据库事务需要满足ACID（原子性、一致性、隔离性、持久性）四个特性。  原子性（Atomicity）指事务作为整体来执行，要么全部执行，要么全不执行。 一致性（Consistency）指事务应确保数据从一个一致的状态转变为另一个一致的状态。 隔离性（Isolation）指多个事务并发执行时，一个事务的执行不应影响其他事务的执行。 持久性（Durability）指已提交的事务修改数据会被持久保">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://www.liushaohuang.cn/images/20170417115728906.jpg">
-<meta property="og:updated_time" content="2019-10-17T06:02:42.202Z">
+<meta property="og:updated_time" content="2019-10-17T06:22:53.887Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="分布式事务简介">
 <meta name="twitter:description" content="简介数据库事务需要满足ACID（原子性、一致性、隔离性、持久性）四个特性。  原子性（Atomicity）指事务作为整体来执行，要么全部执行，要么全不执行。 一致性（Consistency）指事务应确保数据从一个一致的状态转变为另一个一致的状态。 隔离性（Isolation）指多个事务并发执行时，一个事务的执行不应影响其他事务的执行。 持久性（Durability）指已提交的事务修改数据会被持久保">
@@ -249,7 +249,7 @@
                 
               
 
-              <time title="创建时间：2019-10-17 09:49:41 / 修改时间：14:02:42" itemprop="dateCreated datePublished" datetime="2019-10-17T09:49:41+08:00">2019-10-17</time>
+              <time title="创建时间：2019-10-17 09:49:41 / 修改时间：14:22:53" itemprop="dateCreated datePublished" datetime="2019-10-17T09:49:41+08:00">2019-10-17</time>
             </span>
           
             
@@ -270,6 +270,14 @@
             </span>
           
 
+          
+            <span class="post-meta-item" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
           
 
         </div>
@@ -303,6 +311,7 @@
 <p>开启XA全局事务后，所有子事务会按照本地默认的隔离级别锁定资源，并记录undo和redo日志，然后由TM发起prepare投票，询问所有的子事务是否可以进行提交：当所有子事务反馈的结果为“yes”时，TM再发起commit；若其中任何一个子事务反馈的结果为“no”，TM则发起rollback；如果在prepare阶段的反馈结果为yes，而commit的过程中出现宕机等异常时，则在节点服务重启后，可根据XA recover再次进行commit补偿，以保证数据的一致性。</p>
 <p>2PC模型中，在prepare阶段需要等待所有参与子事务的反馈，因此可能造成数据库资源锁定时间过长，不适合并发高以及子事务生命周长较长的业务场景。</p>
 <p>Sharding-Sphere支持基于XA的强一致性事务解决方案，可以通过SPI注入不同的第三方组件作为事务管理器实现XA协议，如Atomikos和Narayana。</p>
+<p>XA 协议它依赖的是数据库层面来保障事务的一致性，也即是说 XA 的各个分支事务是在数据库层面上驱动的，由于 XA 的各个分支事务需要有 XA 的驱动程序，一方面会导致数据库与 XA 驱动耦合，另一方面它会导致各个分支的事务资源锁定周期长，这也是它没有在互联网公司流行的重要因素。</p>
 <h5 id="XA的柔性实现"><a href="#XA的柔性实现" class="headerlink" title="XA的柔性实现"></a>XA的柔性实现</h5><p>柔性实现牺牲了数据的一致性，在刚性实现中，所有节点在完成提交确认时都需要锁定数据库资源，这样在网络不稳定，或者节点故障时很容易发生死锁，或者等待锁资源过长，因此柔性实现中，采用最终一致性原则，先提交，并将执行数据写入日志，如果发现其它节点发生故障，则根据日志回滚数据即可。</p>
 <h5 id="2PC"><a href="#2PC" class="headerlink" title="2PC"></a>2PC</h5><p>二阶段提交(Two-phaseCommit)是指，在计算机网络以及数据库领域内，为了使基于分布式系统架构下的所有节点在进行事务提交时保持一致性而设计的一种算法(Algorithm)。通常，二阶段提交也被称为是一种协议(Protocol))。在分布式系统中，每个节点虽然可以知晓自己的操作时成功或者失败，却无法知道其他节点的操作的成功或失败。当一个事务跨越多个节点时，为了保持事务的ACID特性，需要引入一个作为协调者的组件来统一掌控所有节点(称作参与者)的操作结果并最终指示这些节点是否要把操作结果进行真正的提交(比如将更新后的数据写入磁盘等等)。因此，二阶段提交的算法思路可以概括为：参与者将操作成败通知协调者，再由协调者根据所有参与者的反馈情报决定各参与者是否要提交操作还是中止操作。</p>
 <p>所谓的两个阶段是指：第一阶段：准备阶段(投票阶段)和第二阶段：提交阶段（执行阶段）。</p>
@@ -717,6 +726,25 @@
   <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.3.0</div>
 
         
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
 
 
 
