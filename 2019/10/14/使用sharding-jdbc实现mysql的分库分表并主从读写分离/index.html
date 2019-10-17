@@ -56,14 +56,14 @@
 </script>
 
   <meta name="description" content="简介之前的文章中提到了使用sharding-jdbc进行读写分离和分库分表，本文将使用sharding-jdbc并且使用-《使用sharding-jdbc实现mysql的分库分表》这篇文章中的代码，将分库分表和读写分离结结合起来。">
-<meta name="keywords" content="sharding-jdbc,mysql分库分表,mysql读写分离">
+<meta name="keywords" content="sharding-jdbc,mysql读写分离,mysql分库分表">
 <meta property="og:type" content="article">
 <meta property="og:title" content="使用sharding-jdbc实现mysql的分库分表并主从读写分离">
 <meta property="og:url" content="http://www.liushaohuang.cn/2019/10/14/使用sharding-jdbc实现mysql的分库分表并主从读写分离/index.html">
 <meta property="og:site_name" content="刘绍煌">
 <meta property="og:description" content="简介之前的文章中提到了使用sharding-jdbc进行读写分离和分库分表，本文将使用sharding-jdbc并且使用-《使用sharding-jdbc实现mysql的分库分表》这篇文章中的代码，将分库分表和读写分离结结合起来。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-10-14T01:54:53.572Z">
+<meta property="og:updated_time" content="2019-10-16T07:35:10.577Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="使用sharding-jdbc实现mysql的分库分表并主从读写分离">
 <meta name="twitter:description" content="简介之前的文章中提到了使用sharding-jdbc进行读写分离和分库分表，本文将使用sharding-jdbc并且使用-《使用sharding-jdbc实现mysql的分库分表》这篇文章中的代码，将分库分表和读写分离结结合起来。">
@@ -247,11 +247,19 @@
                 
               
 
-              <time title="创建时间：2019-10-14 09:11:36 / 修改时间：09:54:53" itemprop="dateCreated datePublished" datetime="2019-10-14T09:11:36+08:00">2019-10-14</time>
+              <time title="创建时间：2019-10-14 09:11:36" itemprop="dateCreated datePublished" datetime="2019-10-14T09:11:36+08:00">2019-10-14</time>
             </span>
           
             
 
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-10-16 15:35:10" itemprop="dateModified" datetime="2019-10-16T15:35:10+08:00">2019-10-16</time>
+              </span>
             
           
             <span class="post-meta-item">
@@ -297,6 +305,18 @@
 <p>查看打印代码,发现所有的读都已经分发到配置的读节点中了</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">2019-10-14 09:50:04.045  INFO 12276 --- [           main] ShardingSphere-SQL                       : Actual SQL: master0slave0 ::: select item_name_ from t_order_0 t1 inner join t_order_item_0 t2 on t1.order_id_=t2.order_id_ where t1.order_id_ in ( ?,? ) ::: [389458016099348480, 389458016128708608]</span><br><span class="line">2019-10-14 09:50:04.046  INFO 12276 --- [           main] ShardingSphere-SQL                       : Actual SQL: master1slave0 ::: select item_name_ from t_order_0 t1 inner join t_order_item_0 t2 on t1.order_id_=t2.order_id_ where t1.order_id_ in ( ?,? ) ::: [389458016099348480, 389458016128708608]</span><br></pre></td></tr></table></figure>
 
+<h4 id="事务"><a href="#事务" class="headerlink" title="事务"></a>事务</h4><h5 id="本地事务"><a href="#本地事务" class="headerlink" title="本地事务"></a>本地事务</h5><p>在不开启任何分布式事务管理器的前提下，让每个数据节点各自管理自己的事务。 它们之间没有协调以及通信的能力，也并不互相知晓其他数据节点事务的成功与否。 本地事务在性能方面无任何损耗，但在强一致性以及最终一致性方面则力不从心。</p>
+<ul>
+<li><p>完全支持非跨库事务，例如：仅分表，或分库但是路由的结果在单库中。</p>
+</li>
+<li><p>完全支持因逻辑异常导致的跨库事务。例如：同一事务中，跨两个库更新。更新完毕后，抛出空指针，则两个库的内容都能回滚。</p>
+</li>
+<li><p>不支持因网络、硬件异常导致的跨库事务。例如：同一事务中，跨两个库更新，更新完毕后、未提交之前，第一个库宕机，则只有第二个库数据提交。</p>
+</li>
+</ul>
+<p><strong>我们查看本地事务提交代码就可看到，如果我们的事务是在commit阶段发生异常，则事务不会生效，如果是发生在预编译PreparedStatement阶段，也就是语句错误，或者业务逻辑异常，这些异常在进入commit方法前就已经跑出则事务生效,所以在不引入分布式事务时，应该保证一次事务提交是在单库中进行的，比如订单，和订单明细都分片到一个库中</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">public abstract class AbstractConnectionAdapter extends AbstractUnsupportedOperationConnection &#123;</span><br><span class="line">    @Override</span><br><span class="line">    public final void commit() throws SQLException &#123;</span><br><span class="line">        Collection&lt;SQLException&gt; exceptions = new LinkedList&lt;&gt;();</span><br><span class="line">        for (Connection each : cachedConnections.values()) &#123;</span><br><span class="line">            try &#123;</span><br><span class="line">                each.commit();</span><br><span class="line">            &#125; catch (final SQLException ex) &#123;</span><br><span class="line">                exceptions.add(ex);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        throwSQLExceptionIfNecessary(exceptions);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 
     </div>
 
@@ -331,9 +351,9 @@
             
               <a href="/tags/sharding-jdbc/" rel="tag"># sharding-jdbc</a>
             
-              <a href="/tags/mysql分库分表/" rel="tag"># mysql分库分表</a>
-            
               <a href="/tags/mysql读写分离/" rel="tag"># mysql读写分离</a>
+            
+              <a href="/tags/mysql分库分表/" rel="tag"># mysql分库分表</a>
             
           </div>
         
@@ -404,7 +424,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#配置mysql从库"><span class="nav-number">2.</span> <span class="nav-text">配置mysql从库</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#修改application-properties配置文件"><span class="nav-number">3.</span> <span class="nav-text">修改application.properties配置文件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#测试方法"><span class="nav-number">4.</span> <span class="nav-text">测试方法</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#配置mysql从库"><span class="nav-number">2.</span> <span class="nav-text">配置mysql从库</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#修改application-properties配置文件"><span class="nav-number">3.</span> <span class="nav-text">修改application.properties配置文件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#测试方法"><span class="nav-number">4.</span> <span class="nav-text">测试方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#事务"><span class="nav-number">5.</span> <span class="nav-text">事务</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#本地事务"><span class="nav-number">5.1.</span> <span class="nav-text">本地事务</span></a></li></ol></li></ol></div>
         
       </div>
       <!--/noindex-->
@@ -419,7 +439,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">29</span>
+          <span class="site-state-item-count">30</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -547,7 +567,9 @@
         
           
         
-        <span class="site-state-item-count">38</span>
+          
+        
+        <span class="site-state-item-count">39</span>
         <span class="site-state-item-name">标签</span>
         </a>
       </div>
