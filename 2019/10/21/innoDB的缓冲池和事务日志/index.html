@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.3.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.3.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.3.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.3.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.3.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.3.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="简介mysql的innoDB存储引擎提供了缓冲池innodb_buffer_pool_size来设置缓冲池的大小，其可以缓存索引，行数据，自适应哈希索引，插入缓冲等数据，InnoDB还使用缓冲池来帮助延迟写入，这样就能合并多个写入操作，然后一起顺序地回写。之前与另一个配置query_cache_size混淆，query_cache_size在8.0中已经废除，因为如果查询缓存中使用了很大的内存，缓">
+<meta name="keywords" content="mysql,innoDB">
+<meta property="og:type" content="article">
+<meta property="og:title" content="innoDB的缓冲池和事务日志(为什么innoDB无法存储大数据)">
+<meta property="og:url" content="http://www.liushaohuang.cn/2019/10/21/innoDB的缓冲池和事务日志/index.html">
+<meta property="og:site_name" content="刘绍煌">
+<meta property="og:description" content="简介mysql的innoDB存储引擎提供了缓冲池innodb_buffer_pool_size来设置缓冲池的大小，其可以缓存索引，行数据，自适应哈希索引，插入缓冲等数据，InnoDB还使用缓冲池来帮助延迟写入，这样就能合并多个写入操作，然后一起顺序地回写。之前与另一个配置query_cache_size混淆，query_cache_size在8.0中已经废除，因为如果查询缓存中使用了很大的内存，缓">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.liushaohuang.cn/images/1571649777.png">
+<meta property="og:image" content="http://www.liushaohuang.cn/images/1571650583.png">
+<meta property="og:updated_time" content="2019-10-21T10:13:26.489Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="innoDB的缓冲池和事务日志(为什么innoDB无法存储大数据)">
+<meta name="twitter:description" content="简介mysql的innoDB存储引擎提供了缓冲池innodb_buffer_pool_size来设置缓冲池的大小，其可以缓存索引，行数据，自适应哈希索引，插入缓冲等数据，InnoDB还使用缓冲池来帮助延迟写入，这样就能合并多个写入操作，然后一起顺序地回写。之前与另一个配置query_cache_size混淆，query_cache_size在8.0中已经废除，因为如果查询缓存中使用了很大的内存，缓">
+<meta name="twitter:image" content="http://www.liushaohuang.cn/images/1571649777.png">
+  <link rel="canonical" href="http://www.liushaohuang.cn/2019/10/21/innoDB的缓冲池和事务日志/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>innoDB的缓冲池和事务日志(为什么innoDB无法存储大数据) | 刘绍煌</title>
+  <meta name="generator" content="Hexo 3.9.0">
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">刘绍煌</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2019/10/21/innoDB的缓冲池和事务日志/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="刘绍煌">
+      <meta itemprop="description" content="刘绍煌的个人博客">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="刘绍煌">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">innoDB的缓冲池和事务日志(为什么innoDB无法存储大数据)
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2019-10-21 16:09:40 / 修改时间：18:13:26" itemprop="dateCreated datePublished" datetime="2019-10-21T16:09:40+08:00">2019-10-21</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/mysql/" itemprop="url" rel="index"><span itemprop="name">mysql</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span class="post-meta-item" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>mysql的innoDB存储引擎提供了缓冲池innodb_buffer_pool_size来设置缓冲池的大小，其可以缓存索引，行数据，自适应哈希索引，插入缓冲等数据，InnoDB还使用缓冲池来帮助延迟写入，这样就能合并多个写入操作，然后一起顺序地回写。之前与另一个配置query_cache_size混淆，query_cache_size在8.0中已经废除，因为如果查询缓存中使用了很大的内存，缓存失效操作会成为一个严重的问题瓶颈导致系统僵死一会(更新表中的数据会导致该表的缓存失效)，因为这个操作是靠一个全局锁保护的，所有需要该操作的查询都要等待这个锁，而且无论是检测是否命中缓存，还是缓存失效检测都需要等待这个全局锁。以下是网上找的对于这两个缓存的定义.</p>
+<ul>
+<li><p>Qcacche缓存的是SQL语句及对应的结果集，缓存在内存，最简单的情况是SQL一直不重复，那Qcache的命令率肯定是0</p>
+</li>
+<li><p>buffer pool中缓存的是整张表中的数据，缓存在内存，SQL再变只要数据都在内存，那么命中率就是100%。</p>
+</li>
+</ul>
+<h4 id="事务日志"><a href="#事务日志" class="headerlink" title="事务日志"></a>事务日志</h4><p>事务修改的数据和索引通常会映射到表空间的随机位置，这导致大量随机I/O，对机械硬盘来说，随机I/O伴随着磁盘大量寻址操作。InnoDB使用日志把随机I/O变成顺序I/O，一旦日志安全写到磁盘，事务就持久化了，即使变更的数据还没写入到数据文件，一旦系统发生崩溃，InnoDB可以重放日志并且恢复已经提交的事务，当然InnoDB最后必须把日志里的变更数据写入到数据文件当中，因为日志有固定大小。可以通过innodb_log_file_size来设置日志文件大小，在8.0中默认是48M，对于高性能工作来说这太小，至少需要几百M，还有一种说法是能存储1-2个小时的时间.</p>
+<h4 id="innodb-buffer-pool-size的大小设置"><a href="#innodb-buffer-pool-size的大小设置" class="headerlink" title="innodb_buffer_pool_size的大小设置"></a>innodb_buffer_pool_size的大小设置</h4><p>缓冲池一般设置为服务器内存的75%-80%(前提是该服务器只部署mysql，如果还部署其它应用需扣除其它应用使用的内存)</p>
+<h4 id="大innodb-log-file-size和innodb-buffer-pool-size导致的问题"><a href="#大innodb-log-file-size和innodb-buffer-pool-size导致的问题" class="headerlink" title="大innodb_log_file_size和innodb_buffer_pool_size导致的问题"></a>大innodb_log_file_size和innodb_buffer_pool_size导致的问题</h4><p>数据大小和访问模式也将影响恢复时间。假设有一个1TB的数据和16G的缓冲池，并且日志大小是128M，如果缓冲池里有很多脏页(例如数据写入了日志文件，但是没有写入数据文件),并且这些数据均匀的分布在1TB数据中，系统崩溃后恢复将需要相当长的一段时间，InnoDB必须从头到尾扫描日志，检查数据文件，并且将事务日志中的数据写到数据文件当中。</p>
+<h4 id="日志缓冲刷新到持久化系统（innodb-flush-log-at-trx-commit）"><a href="#日志缓冲刷新到持久化系统（innodb-flush-log-at-trx-commit）" class="headerlink" title="日志缓冲刷新到持久化系统（innodb_flush_log_at_trx_commit）"></a>日志缓冲刷新到持久化系统（innodb_flush_log_at_trx_commit）</h4><p>当InnoDB变更任何数据时，会写入一条变更记录到内存的日志缓冲区，在缓冲满的时候，或者每一秒中，或者事务提交时—-无论上述三个条件哪个先到，日志缓冲区默认1M，通过innodb_log_buffer_size配置，如果有大事务，将其配置大一些可以帮助减少磁盘I/O，通常不需要设置的很大1M-9M即可。</p>
+<p>innodb_flush_log_at_trx_commit有3个值</p>
+<ul>
+<li>0：把日志缓冲写到日志文件，并且每秒刷新一次</li>
+<li>1: 将日志缓冲写到日志文件，并且每次事务提交都刷新到持久化系统，这是默认的，并且是最安全的，该设置保证不会丢失任何已经提交的事务，除非磁盘或者系统是伪刷新。</li>
+<li>2：每次提交时把日志缓冲写到日志文件，但是不刷新，InnoDB每秒刷新一次。0和2的区别是如果mysql挂了，2不会丢失任何事务，因为2会自动刷新缓存到日志文件在事务提交的时候，但是如果整个服务挂了，则还是可能会丢失一部分事务。这个很好理解，如果我提交了事务，数据已经写入了日志文件所以不会丢失，但是缓存区里未提交的事务，且时间还没到1秒，则会丢失这一秒的数据</li>
+</ul>
+<p>因此如果设置0或者2另一个以mysql崩溃或者断电会导致最多丢失一秒的数据。</p>
+<h4 id="innodb怎样打开和刷新日志文件和数据文件-innodb-flush-method"><a href="#innodb怎样打开和刷新日志文件和数据文件-innodb-flush-method" class="headerlink" title="(innodb怎样打开和刷新日志文件和数据文件)innodb_flush_method"></a>(innodb怎样打开和刷新日志文件和数据文件)innodb_flush_method</h4><p>这个配置既影响日志文件，也影响数据文件</p>
+<p>将innodb_flush_method设置为O_DIRECT以避免双重缓冲.唯一一种情况你不应该使用O_DIRECT是当你操作系统不支持时。但如果你运行的是Linux，使用O_DIRECT来激活直接IO。<br>不用直接IO，双重缓冲将会发生，因为所有的数据库更改首先会写入到OS缓存然后才同步到硬盘 – 所以InnoDB缓冲池和OS缓存会同时持有一份相同的数据。特别是如果你的缓冲池限制为总内存的50%，那意味着在写密集的环境中你可能会浪费高达50%的内存。如果没有限制为50%，服务器可能由于OS缓存的高压力会使用到swap。<br>简单地说，设置为innodb_flush_method=O_DIRECT。</p>
+<p>以下是InnoDB的缓存和文件的流程图</p>
+<p><img src="/images/1571649777.png" alt="图"></p>
+<p>Buffer pool中将变更写入Log Buffer，Log Buffer将数据写入事务日志文件，InnoDB使用一个后台线程智能的刷新这些变更到数据文件，实际上，事务日志把数据文件的随机I/O转换成为几乎顺序的日志文件和数据文件I/O。把刷新操作转移到后台使查询可以更快完成,并且缓和查询高峰时I/O系统的压力，这个也很好理解，数据更新后将数据存放在Buffer pool中为了保证数据不丢失，并且降低I/O损耗采用日志顺序I/O记录这些变更，在系统崩溃时采用日志恢复，并且后台定时将日志文件刷新到数据文件，查询缓存直接查询Buffer pool中的数据即可。</p>
+<h4 id="为什么innoDB无法存储大数据量"><a href="#为什么innoDB无法存储大数据量" class="headerlink" title="为什么innoDB无法存储大数据量"></a>为什么innoDB无法存储大数据量</h4><p>说白了主要就是innodb_buffer_pool_size缓存不够引起的原因</p>
+<p>缓存池可以被认为一条长LRU链表，该链表又分为2个子链表，一个子链表存放old pages(里面存放的是长时间未被访问的数据页)，另一个子链接存放new pages（里面存放的是最近被访问的数据页面）。old pages 默认占整个列表大小的37%（这个值对应my.conf 的 innoDB_old_blocks_pct 参数的默认值为37，取值范围是5~95），其余为new pages占用。</p>
+<p>如图下图所示。靠近LRU链表头部的数据页表示最近被访问，靠近LRU链表尾部的数据页表示长时间未被访问，而这两个部分交汇处成为midpoint。</p>
+<p><img src="/images/1571650583.png" alt="图"></p>
+<p>当系统查询数据时当innodb_buffer_pool_size已满时会将排在old pages中的数据挤出缓存，导致innodb_buffer_pool中找不到查询数据，导致磁盘的I/O操作。</p>
+<p>另外请参考<a href="https://www.cnblogs.com/leefreeman/p/8315844.html" target="_blank" rel="noopener">https://www.cnblogs.com/leefreeman/p/8315844.html</a></p>
+<h4 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h4><p>高性能Mysql</p>
+<p><a href="https://www.centos.bz/2016/11/mysql-performance-tuning-15-config-item/" target="_blank" rel="noopener">https://www.centos.bz/2016/11/mysql-performance-tuning-15-config-item/</a></p>
+<p><a href="http://xiaorui.cc/2016/12/08/%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E5%BB%BA%E8%AE%AEinnodb%E4%BD%BF%E7%94%A8%E4%BA%BF%E7%BA%A7%E5%A4%A7%E8%A1%A8/" target="_blank" rel="noopener">http://xiaorui.cc/2016/12/08/%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E5%BB%BA%E8%AE%AEinnodb%E4%BD%BF%E7%94%A8%E4%BA%BF%E7%BA%A7%E5%A4%A7%E8%A1%A8/</a></p>
+<p><a href="https://www.cnblogs.com/leefreeman/p/8315844.html" target="_blank" rel="noopener">https://www.cnblogs.com/leefreeman/p/8315844.html</a></p>
+
+    </div>
+
+    
+    
+    
+        
+      
+        <div id="reward-container">
+  <div></div>
+  <button id="reward-button" disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/赞赏码.png" alt="刘绍煌 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/mysql/" rel="tag"># mysql</a>
+            
+              <a href="/tags/innoDB/" rel="tag"># innoDB</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2019/10/17/分布式事务简介/" rel="next" title="分布式事务简介">
+                  <i class="fa fa-chevron-left"></i> 分布式事务简介
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#事务日志"><span class="nav-number">2.</span> <span class="nav-text">事务日志</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#innodb-buffer-pool-size的大小设置"><span class="nav-number">3.</span> <span class="nav-text">innodb_buffer_pool_size的大小设置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#大innodb-log-file-size和innodb-buffer-pool-size导致的问题"><span class="nav-number">4.</span> <span class="nav-text">大innodb_log_file_size和innodb_buffer_pool_size导致的问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#日志缓冲刷新到持久化系统（innodb-flush-log-at-trx-commit）"><span class="nav-number">5.</span> <span class="nav-text">日志缓冲刷新到持久化系统（innodb_flush_log_at_trx_commit）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#innodb怎样打开和刷新日志文件和数据文件-innodb-flush-method"><span class="nav-number">6.</span> <span class="nav-text">(innodb怎样打开和刷新日志文件和数据文件)innodb_flush_method</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#为什么innoDB无法存储大数据量"><span class="nav-number">7.</span> <span class="nav-text">为什么innoDB无法存储大数据量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#参考资料"><span class="nav-number">8.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">刘绍煌</p>
+  <div class="site-description" itemprop="description">刘绍煌的个人博客</div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">31</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">刘绍煌</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.3.0</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.3.0"></script><script src="/js/motion.js?v=7.3.0"></script>
+<script src="/js/schemes/pisces.js?v=7.3.0"></script>
+<script src="/js/next-boot.js?v=7.3.0"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
