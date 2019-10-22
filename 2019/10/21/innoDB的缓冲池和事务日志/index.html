@@ -65,7 +65,7 @@
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://www.liushaohuang.cn/images/1571649777.png">
 <meta property="og:image" content="http://www.liushaohuang.cn/images/1571650583.png">
-<meta property="og:updated_time" content="2019-10-21T10:13:26.489Z">
+<meta property="og:updated_time" content="2019-10-22T00:56:06.354Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="innoDB的缓冲池和事务日志(为什么innoDB无法存储大数据)">
 <meta name="twitter:description" content="简介mysql的innoDB存储引擎提供了缓冲池innodb_buffer_pool_size来设置缓冲池的大小，其可以缓存索引，行数据，自适应哈希索引，插入缓冲等数据，InnoDB还使用缓冲池来帮助延迟写入，这样就能合并多个写入操作，然后一起顺序地回写。之前与另一个配置query_cache_size混淆，query_cache_size在8.0中已经废除，因为如果查询缓存中使用了很大的内存，缓">
@@ -250,11 +250,19 @@
                 
               
 
-              <time title="创建时间：2019-10-21 16:09:40 / 修改时间：18:13:26" itemprop="dateCreated datePublished" datetime="2019-10-21T16:09:40+08:00">2019-10-21</time>
+              <time title="创建时间：2019-10-21 16:09:40" itemprop="dateCreated datePublished" datetime="2019-10-21T16:09:40+08:00">2019-10-21</time>
             </span>
           
             
 
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-10-22 08:56:06" itemprop="dateModified" datetime="2019-10-22T08:56:06+08:00">2019-10-22</time>
+              </span>
             
           
             <span class="post-meta-item">
@@ -297,6 +305,9 @@
 <li><p>buffer pool中缓存的是整张表中的数据，缓存在内存，SQL再变只要数据都在内存，那么命中率就是100%。</p>
 </li>
 </ul>
+<a id="more"></a>
+
+
 <h4 id="事务日志"><a href="#事务日志" class="headerlink" title="事务日志"></a>事务日志</h4><p>事务修改的数据和索引通常会映射到表空间的随机位置，这导致大量随机I/O，对机械硬盘来说，随机I/O伴随着磁盘大量寻址操作。InnoDB使用日志把随机I/O变成顺序I/O，一旦日志安全写到磁盘，事务就持久化了，即使变更的数据还没写入到数据文件，一旦系统发生崩溃，InnoDB可以重放日志并且恢复已经提交的事务，当然InnoDB最后必须把日志里的变更数据写入到数据文件当中，因为日志有固定大小。可以通过innodb_log_file_size来设置日志文件大小，在8.0中默认是48M，对于高性能工作来说这太小，至少需要几百M，还有一种说法是能存储1-2个小时的时间.</p>
 <h4 id="innodb-buffer-pool-size的大小设置"><a href="#innodb-buffer-pool-size的大小设置" class="headerlink" title="innodb_buffer_pool_size的大小设置"></a>innodb_buffer_pool_size的大小设置</h4><p>缓冲池一般设置为服务器内存的75%-80%(前提是该服务器只部署mysql，如果还部署其它应用需扣除其它应用使用的内存)</p>
 <h4 id="大innodb-log-file-size和innodb-buffer-pool-size导致的问题"><a href="#大innodb-log-file-size和innodb-buffer-pool-size导致的问题" class="headerlink" title="大innodb_log_file_size和innodb_buffer_pool_size导致的问题"></a>大innodb_log_file_size和innodb_buffer_pool_size导致的问题</h4><p>数据大小和访问模式也将影响恢复时间。假设有一个1TB的数据和16G的缓冲池，并且日志大小是128M，如果缓冲池里有很多脏页(例如数据写入了日志文件，但是没有写入数据文件),并且这些数据均匀的分布在1TB数据中，系统崩溃后恢复将需要相当长的一段时间，InnoDB必须从头到尾扫描日志，检查数据文件，并且将事务日志中的数据写到数据文件当中。</p>
