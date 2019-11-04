@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.3.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.3.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.3.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.3.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.3.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.3.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="简介在项目中往往应用内存来做缓存，这样做是为了避免磁盘I/O，特别是随机磁盘I/O，这里梳理了磁盘的基础知识，和mysql 如何避免磁盘随机I/O">
+<meta name="keywords" content="磁盘">
+<meta property="og:type" content="article">
+<meta property="og:title" content="平衡内存和磁盘资源">
+<meta property="og:url" content="http://www.liushaohuang.cn/2019/11/04/平衡内存和磁盘资源/index.html">
+<meta property="og:site_name" content="刘绍煌">
+<meta property="og:description" content="简介在项目中往往应用内存来做缓存，这样做是为了避免磁盘I/O，特别是随机磁盘I/O，这里梳理了磁盘的基础知识，和mysql 如何避免磁盘随机I/O">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.liushaohuang.cn/2019/11/04/平衡内存和磁盘资源/images/1572834698.png">
+<meta property="og:image" content="http://www.liushaohuang.cn/2019/11/04/平衡内存和磁盘资源/images/1572834842.png">
+<meta property="og:image" content="http://www.liushaohuang.cn/2019/11/04/平衡内存和磁盘资源/images/1572835732.png">
+<meta property="og:updated_time" content="2019-11-04T03:37:43.115Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="平衡内存和磁盘资源">
+<meta name="twitter:description" content="简介在项目中往往应用内存来做缓存，这样做是为了避免磁盘I/O，特别是随机磁盘I/O，这里梳理了磁盘的基础知识，和mysql 如何避免磁盘随机I/O">
+<meta name="twitter:image" content="http://www.liushaohuang.cn/2019/11/04/平衡内存和磁盘资源/images/1572834698.png">
+  <link rel="canonical" href="http://www.liushaohuang.cn/2019/11/04/平衡内存和磁盘资源/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>平衡内存和磁盘资源 | 刘绍煌</title>
+  <meta name="generator" content="Hexo 3.9.0">
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">刘绍煌</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2019/11/04/平衡内存和磁盘资源/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="刘绍煌">
+      <meta itemprop="description" content="刘绍煌的个人博客">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="刘绍煌">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">平衡内存和磁盘资源
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2019-11-04 10:26:11 / 修改时间：11:37:43" itemprop="dateCreated datePublished" datetime="2019-11-04T10:26:11+08:00">2019-11-04</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/mysql/" itemprop="url" rel="index"><span itemprop="name">mysql</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span class="post-meta-item" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>在项目中往往应用内存来做缓存，这样做是为了避免磁盘I/O，特别是随机磁盘I/O，这里梳理了磁盘的基础知识，和mysql 如何避免磁盘随机I/O</p>
+<a id="more"></a>
+<h4 id="磁盘的物理结构"><a href="#磁盘的物理结构" class="headerlink" title="磁盘的物理结构"></a>磁盘的物理结构</h4><p>硬盘内部主要部件为磁盘盘片、传动手臂、读写磁头和主轴马达。实际数据都是写在盘片上，读写主要是通过传动手臂上的读写磁头来完成。实际运行时，主轴让磁盘盘片转动，然后传动手臂可伸展让读取头在盘片上进行读写操作。磁盘物理结构如下图所示：、</p>
+<p><img src="images/1572834698.png" alt="图片"></p>
+<p>由于单一盘片容量有限，一般硬盘都有两张以上的盘片，每个盘片有两面，都可记录信息，所以一张盘片对应着两个磁头。盘片被分为许多扇形的区域，每个区域叫一个扇区，硬盘中每个扇区的大小固定为512字节。盘片表面上以盘片中心为圆心，不同半径的同心圆称为磁道，不同盘片相同半径的磁道所组成的圆柱称为柱面。磁道与柱面都是表示不同半径的圆，在许多场合，磁道和柱面可以互换使用。磁盘盘片垂直视角如下图所示：</p>
+<p><img src="images/1572834842.png" alt="图片"></p>
+<h4 id="影响硬盘性能的因素"><a href="#影响硬盘性能的因素" class="headerlink" title="影响硬盘性能的因素"></a>影响硬盘性能的因素</h4><h5 id="寻道时间"><a href="#寻道时间" class="headerlink" title="寻道时间"></a>寻道时间</h5><p>Tseek是指将读写磁头移动至正确的磁道上所需要的时间。寻道时间越短，I/O操作越快，目前磁盘的平均寻道时间一般在3-15ms。</p>
+<h5 id="旋转延迟"><a href="#旋转延迟" class="headerlink" title="旋转延迟"></a>旋转延迟</h5><p>Trotation是指盘片旋转将请求数据所在的扇区移动到读写磁盘下方所需要的时间。旋转延迟取决于磁盘转速，通常用磁盘旋转一周所需时间的1/2表示。比如：7200rpm的磁盘平均旋转延迟大约为60*1000/7200/2 = 4.17ms，而转速为15000rpm的磁盘其平均旋转延迟为2ms。</p>
+<h5 id="数据传输时间"><a href="#数据传输时间" class="headerlink" title="数据传输时间"></a>数据传输时间</h5><p>Ttransfer是指完成传输所请求的数据所需要的时间，它取决于数据传输率，其值等于数据大小除以数据传输率。目前IDE/ATA能达到133MB/s，SATA II可达到300MB/s的接口数据传输率，数据传输时间通常远小于前两部分消耗时间。简单计算时可忽略。</p>
+<h4 id="衡量性能的指标"><a href="#衡量性能的指标" class="headerlink" title="衡量性能的指标"></a>衡量性能的指标</h4><p>机械硬盘的连续读写性能很好，但随机读写性能很差，这主要是因为磁头移动到正确的磁道上需要时间，随机读写时，磁头需要不停的移动，时间都浪费在了磁头寻址上，所以性能不高。衡量磁盘的重要主要指标是IOPS和吞吐量。</p>
+<h5 id="IOPS"><a href="#IOPS" class="headerlink" title="IOPS"></a>IOPS</h5><p>IOPS（Input/Output Per Second）即每秒的输入输出量（或读写次数），即指每秒内系统能处理的I/O请求数量。随机读写频繁的应用，如小文件存储等，关注随机读写性能，IOPS是关键衡量指标。可以推算出磁盘的IOPS = 1000ms / (Tseek + Trotation + Transfer)，如果忽略数据传输时间，理论上可以计算出随机读写最大的IOPS。常见磁盘的随机读写最大IOPS为：</p>
+<ul>
+<li><p>7200rpm的磁盘 IOPS = 76 IOPS</p>
+</li>
+<li><p>10000rpm的磁盘IOPS = 111 IOPS</p>
+</li>
+<li><p>15000rpm的磁盘IOPS = 166 IOPS</p>
+</li>
+</ul>
+<h5 id="吞吐量"><a href="#吞吐量" class="headerlink" title="吞吐量"></a>吞吐量</h5><p>吞吐量（Throughput），指单位时间内可以成功传输的数据数量。顺序读写频繁的应用，如视频点播，关注连续读写性能、数据吞吐量是关键衡量指标。它主要取决于磁盘阵列的架构，通道的大小以及磁盘的个数。不同的磁盘阵列存在不同的架构，但他们都有自己的内部带宽，一般情况下，内部带宽都设计足够充足，不会存在瓶颈。磁盘阵列与服务器之间的数据通道对吞吐量影响很大，比如一个2Gbps的光纤通道，其所能支撑的最大流量仅为250MB/s。最后，当前面的瓶颈都不再存在时，硬盘越多的情况下吞吐量越大。</p>
+<h4 id="平和内存和磁盘资源"><a href="#平和内存和磁盘资源" class="headerlink" title="平和内存和磁盘资源"></a>平和内存和磁盘资源</h4><p>配置大量内存最大的原因其实不是因为可以在内存中保存大量数据:最终目的是避免磁盘I/O，因为磁盘I/O比在内存中访问数据要慢的多，计算机包含一个金字塔型的缓存体系，更小，更快更昂贵的缓存在顶端，如图</p>
+<p><img src="images/1572835732.png" alt="图片"></p>
+<p>在这个高速缓存层次中，最好是利用各级缓存来存放热点数据，以获取更快的访问速度，通常使用一些启发式的方法，如最近被使用的数据很可能会很快的再次使用，以及相邻的数据可能很快需要使用。设计良好的数据库缓存（如innoDB缓冲池），其效率通常超过操作系统的缓存，因为操作系统的缓存是为通用任务设计的，数据库缓存更了解数据库存储的需求，它包含特殊的用途和逻辑(例如写入顺序)一帮助满足这些需求。</p>
+<h5 id="随机I-O和顺序I-O"><a href="#随机I-O和顺序I-O" class="headerlink" title="随机I/O和顺序I/O"></a>随机I/O和顺序I/O</h5><p>数据库服务器同事使用顺序I/O和随机I/O，随机I/O从缓存中受益最多,因为缓存这些数据将有助于避免昂贵的磁盘寻道，相反顺序读取一般只需要扫描一次数据，所以缓存对它是没用的，除非能完全放在内存中缓存起来。</p>
+<p>顺序读取不能从缓中受益另一个原因是它们比随机读取快，有以下两个原因：</p>
+<ul>
+<li><p>顺序I/O比随机I/O快</p>
+<p>顺序操作的执行速度比随机操作快，无论是在内存还是在磁盘上。假设磁盘每秒可以做100个随机I/O操作，并且可以完成每秒50M的顺序读取（在大概是消费级磁盘现在能达到的水平）。如果每行100字节，随机读取可以每秒读取100行，相比之下顺序读取可以读取每秒500000行这个是随机读取的5000倍，或几个数量级的差异，因此这种情况下随机I/O可以从缓冲中获得很多好处。（注：因为随机读取受到IOPS的限制—100个随机I/O，而顺序读取受到吞吐量的限制—这里是每秒50M）</p>
+<p>顺序访问内存行的数据也快于随机访问。现在的内存芯片通常每秒可以随机访问约250000次100字节的行，或者每秒500万次的顺序访问。请注意，内存随机访问速度比磁盘随机访问快了2500倍，而内存中顺序访问通常只有磁盘的10倍的数据。</p>
+</li>
+<li><p>存储引擎执行顺序读取比随机快</p>
+<p>一个随机读取一般意味着存储引擎必须执行索引操作，通常需要通过B树的数据结构查找，并且和其它值比较（innoDB中如果不是覆盖索引则需要回表查询主键索引的B树查询全部数据）。相反，连续读取一般需要遍历一个简单的数据结构，如链表。这样就少了很多工作，反复这样操作，连续读取的速度就比随机读取要快了。</p>
+<p>最后随机读取通常只要查找特定的行，但不仅仅只读取一样–而是要读取一整页的数据(因为页数数据再磁盘中存储的最小单位，innodbDB中也可以配置相应的最小页的大小)，其中大部分都是不需要的，这浪费了很多工作。另一方方面，顺序读取数据，通常发生在想要的页面上的所有行，所以更符合成本效益。</p>
+</li>
+</ul>
+<h5 id="缓存，读和写"><a href="#缓存，读和写" class="headerlink" title="缓存，读和写"></a>缓存，读和写</h5><p>  如果有足够的内存，就完全可以避免磁盘读取请求，如果所有数据文件都可以放在内存中，一旦服务器缓存热起来，所有读取都可以在缓存中命中，虽然有逻辑读取，但是物理读取就没有了。但是写入是不同的问题，写入可以像读一样在内存中完成，但是迟早要写入到磁盘中，所以它需要持久化，换一句话说，缓存可以延迟写入，但是不能像消除读取一样消除写入。</p>
+<p>  主要通过以下两个方法解决</p>
+<ul>
+<li><p>多次写入，一次刷新</p>
+<p>一片数据可以在内存中改变很多次，而不需要吧所有新值写到磁盘，当数据最终被刷新到磁盘后，最后一次物理写入之前发生的所有修改都被持久化了，例如许多语句可以更新内存中的计数器，如果计数器递增100次，然后写入磁盘，100次修改就被合并成一次写入。</p>
+</li>
+<li><p>I/O合并</p>
+<p>许多不同部分的数据可以在内存中修改，并且这些修改可以合并在一起，通过一次磁盘操作完成物理写入。</p>
+<p>这就是为什么许多交易系统使用预写日志(WAL)策略。预写日志采用在内存中变更页面，而不是马上刷新到磁盘上的策略，因为刷新磁盘通常需要随机I/O，这非常慢。相反，如果吧变化记录写到一个连续的日志文件中，这就很快了。后台线程可以稍后把修改的页面刷新到磁盘，并且在刷新过程中优化写操作，写入操作从缓冲中受益很大，因为它把随机I/O更多的转换到连续I/O.（注：innodb的事务日志就是这样做的，innodb用日志把随机I/O变为顺序I/O，每次事务的变化将其顺序的写入到日志文件中，后续再由后台进程将数据写入到数据文件中）。</p>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+      
+        <div id="reward-container">
+  <div></div>
+  <button id="reward-button" disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/赞赏码.png" alt="刘绍煌 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/磁盘/" rel="tag"># 磁盘</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2019/10/21/innoDB的缓冲池和事务日志/" rel="next" title="innoDB的缓冲池和事务日志(为什么innoDB无法存储大数据)">
+                  <i class="fa fa-chevron-left"></i> innoDB的缓冲池和事务日志(为什么innoDB无法存储大数据)
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#磁盘的物理结构"><span class="nav-number">2.</span> <span class="nav-text">磁盘的物理结构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#影响硬盘性能的因素"><span class="nav-number">3.</span> <span class="nav-text">影响硬盘性能的因素</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#寻道时间"><span class="nav-number">3.1.</span> <span class="nav-text">寻道时间</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#旋转延迟"><span class="nav-number">3.2.</span> <span class="nav-text">旋转延迟</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#数据传输时间"><span class="nav-number">3.3.</span> <span class="nav-text">数据传输时间</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#衡量性能的指标"><span class="nav-number">4.</span> <span class="nav-text">衡量性能的指标</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#IOPS"><span class="nav-number">4.1.</span> <span class="nav-text">IOPS</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#吞吐量"><span class="nav-number">4.2.</span> <span class="nav-text">吞吐量</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#平和内存和磁盘资源"><span class="nav-number">5.</span> <span class="nav-text">平和内存和磁盘资源</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#随机I-O和顺序I-O"><span class="nav-number">5.1.</span> <span class="nav-text">随机I/O和顺序I/O</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#缓存，读和写"><span class="nav-number">5.2.</span> <span class="nav-text">缓存，读和写</span></a></li></ol></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">刘绍煌</p>
+  <div class="site-description" itemprop="description">刘绍煌的个人博客</div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">32</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">42</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">刘绍煌</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.3.0</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.3.0"></script><script src="/js/motion.js?v=7.3.0"></script>
+<script src="/js/schemes/pisces.js?v=7.3.0"></script>
+<script src="/js/next-boot.js?v=7.3.0"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
