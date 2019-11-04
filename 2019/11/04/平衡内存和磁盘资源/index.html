@@ -66,7 +66,7 @@
 <meta property="og:image" content="http://www.liushaohuang.cn/images/1572834698.png">
 <meta property="og:image" content="http://www.liushaohuang.cn/images/1572834842.png">
 <meta property="og:image" content="http://www.liushaohuang.cn/images/1572835732.png">
-<meta property="og:updated_time" content="2019-11-04T03:40:44.884Z">
+<meta property="og:updated_time" content="2019-11-04T03:44:00.505Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="平衡内存和磁盘资源">
 <meta name="twitter:description" content="简介在项目中往往应用内存来做缓存，这样做是为了避免磁盘I/O，特别是随机磁盘I/O，这里梳理了磁盘的基础知识，和mysql 如何避免磁盘随机I/O">
@@ -251,7 +251,7 @@
                 
               
 
-              <time title="创建时间：2019-11-04 10:26:11 / 修改时间：11:40:44" itemprop="dateCreated datePublished" datetime="2019-11-04T10:26:11+08:00">2019-11-04</time>
+              <time title="创建时间：2019-11-04 10:26:11 / 修改时间：11:44:00" itemprop="dateCreated datePublished" datetime="2019-11-04T10:26:11+08:00">2019-11-04</time>
             </span>
           
             
@@ -336,6 +336,10 @@
 <p>许多不同部分的数据可以在内存中修改，并且这些修改可以合并在一起，通过一次磁盘操作完成物理写入。</p>
 <p>这就是为什么许多交易系统使用预写日志(WAL)策略。预写日志采用在内存中变更页面，而不是马上刷新到磁盘上的策略，因为刷新磁盘通常需要随机I/O，这非常慢。相反，如果吧变化记录写到一个连续的日志文件中，这就很快了。后台线程可以稍后把修改的页面刷新到磁盘，并且在刷新过程中优化写操作，写入操作从缓冲中受益很大，因为它把随机I/O更多的转换到连续I/O.（注：innodb的事务日志就是这样做的，innodb用日志把随机I/O变为顺序I/O，每次事务的变化将其顺序的写入到日志文件中，后续再由后台进程将数据写入到数据文件中）。</p>
 </li>
+</ul>
+<h4 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h4><ul>
+<li>高性能Mysql</li>
+<li><a href="https://tech.meituan.com/2017/05/19/about-desk-io.html" target="_blank" rel="noopener">https://tech.meituan.com/2017/05/19/about-desk-io.html</a></li>
 </ul>
 
     </div>
@@ -436,7 +440,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#磁盘的物理结构"><span class="nav-number">2.</span> <span class="nav-text">磁盘的物理结构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#影响硬盘性能的因素"><span class="nav-number">3.</span> <span class="nav-text">影响硬盘性能的因素</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#寻道时间"><span class="nav-number">3.1.</span> <span class="nav-text">寻道时间</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#旋转延迟"><span class="nav-number">3.2.</span> <span class="nav-text">旋转延迟</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#数据传输时间"><span class="nav-number">3.3.</span> <span class="nav-text">数据传输时间</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#衡量性能的指标"><span class="nav-number">4.</span> <span class="nav-text">衡量性能的指标</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#IOPS"><span class="nav-number">4.1.</span> <span class="nav-text">IOPS</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#吞吐量"><span class="nav-number">4.2.</span> <span class="nav-text">吞吐量</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#平和内存和磁盘资源"><span class="nav-number">5.</span> <span class="nav-text">平和内存和磁盘资源</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#随机I-O和顺序I-O"><span class="nav-number">5.1.</span> <span class="nav-text">随机I/O和顺序I/O</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#缓存，读和写"><span class="nav-number">5.2.</span> <span class="nav-text">缓存，读和写</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#磁盘的物理结构"><span class="nav-number">2.</span> <span class="nav-text">磁盘的物理结构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#影响硬盘性能的因素"><span class="nav-number">3.</span> <span class="nav-text">影响硬盘性能的因素</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#寻道时间"><span class="nav-number">3.1.</span> <span class="nav-text">寻道时间</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#旋转延迟"><span class="nav-number">3.2.</span> <span class="nav-text">旋转延迟</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#数据传输时间"><span class="nav-number">3.3.</span> <span class="nav-text">数据传输时间</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#衡量性能的指标"><span class="nav-number">4.</span> <span class="nav-text">衡量性能的指标</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#IOPS"><span class="nav-number">4.1.</span> <span class="nav-text">IOPS</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#吞吐量"><span class="nav-number">4.2.</span> <span class="nav-text">吞吐量</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#平和内存和磁盘资源"><span class="nav-number">5.</span> <span class="nav-text">平和内存和磁盘资源</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#随机I-O和顺序I-O"><span class="nav-number">5.1.</span> <span class="nav-text">随机I/O和顺序I/O</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#缓存，读和写"><span class="nav-number">5.2.</span> <span class="nav-text">缓存，读和写</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#参考资料"><span class="nav-number">6.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
         
       </div>
       <!--/noindex-->
