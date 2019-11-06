@@ -55,18 +55,18 @@
   };
 </script>
 
-  <meta name="description" content="简介之前在网上找到的关于主备节点的数据大多是要在主节点停机或者限制写入，然后将数据拷贝到从节点，然后再进行主从节点的日志同步，其实mysql下提供了mysqldump工具可以在不停机下进行主从数据的辅助，将主节点的数据复制到从节点，即使这时候主节点仍在写入数据，将数据导入到从节点后，再将从节点的binlog日志节点指向拷贝主节点数据时的binlog日志位置，最后再由系统追上主节点的数据进度。">
+  <meta name="description" content="简介之前在网上找到的关于主备节点的同步数据大多是要在主节点停机或者限制写入，然后将数据拷贝到从节点，然后再进行主从节点的日志同步，其实mysql下提供了mysqldump工具可以在不停机下进行主从数据的同步，将主节点的数据复制到从节点，即使这时候主节点仍在写入数据，将数据导入到从节点后，再将从节点的binlog日志节点指向拷贝主节点数据时的binlog日志位置，最后再由系统追上主节点的数据进度。">
 <meta name="keywords" content="主从备份">
 <meta property="og:type" content="article">
 <meta property="og:title" content="mysql不停机主备复制">
 <meta property="og:url" content="http://www.liushaohuang.cn/2019/11/06/mysql不停机主备复制/index.html">
 <meta property="og:site_name" content="刘绍煌">
-<meta property="og:description" content="简介之前在网上找到的关于主备节点的数据大多是要在主节点停机或者限制写入，然后将数据拷贝到从节点，然后再进行主从节点的日志同步，其实mysql下提供了mysqldump工具可以在不停机下进行主从数据的辅助，将主节点的数据复制到从节点，即使这时候主节点仍在写入数据，将数据导入到从节点后，再将从节点的binlog日志节点指向拷贝主节点数据时的binlog日志位置，最后再由系统追上主节点的数据进度。">
+<meta property="og:description" content="简介之前在网上找到的关于主备节点的同步数据大多是要在主节点停机或者限制写入，然后将数据拷贝到从节点，然后再进行主从节点的日志同步，其实mysql下提供了mysqldump工具可以在不停机下进行主从数据的同步，将主节点的数据复制到从节点，即使这时候主节点仍在写入数据，将数据导入到从节点后，再将从节点的binlog日志节点指向拷贝主节点数据时的binlog日志位置，最后再由系统追上主节点的数据进度。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-11-06T07:33:01.987Z">
+<meta property="og:updated_time" content="2019-11-06T07:42:24.053Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="mysql不停机主备复制">
-<meta name="twitter:description" content="简介之前在网上找到的关于主备节点的数据大多是要在主节点停机或者限制写入，然后将数据拷贝到从节点，然后再进行主从节点的日志同步，其实mysql下提供了mysqldump工具可以在不停机下进行主从数据的辅助，将主节点的数据复制到从节点，即使这时候主节点仍在写入数据，将数据导入到从节点后，再将从节点的binlog日志节点指向拷贝主节点数据时的binlog日志位置，最后再由系统追上主节点的数据进度。">
+<meta name="twitter:description" content="简介之前在网上找到的关于主备节点的同步数据大多是要在主节点停机或者限制写入，然后将数据拷贝到从节点，然后再进行主从节点的日志同步，其实mysql下提供了mysqldump工具可以在不停机下进行主从数据的同步，将主节点的数据复制到从节点，即使这时候主节点仍在写入数据，将数据导入到从节点后，再将从节点的binlog日志节点指向拷贝主节点数据时的binlog日志位置，最后再由系统追上主节点的数据进度。">
   <link rel="canonical" href="http://www.liushaohuang.cn/2019/11/06/mysql不停机主备复制/">
 
 
@@ -247,7 +247,7 @@
                 
               
 
-              <time title="创建时间：2019-11-06 15:07:05 / 修改时间：15:33:01" itemprop="dateCreated datePublished" datetime="2019-11-06T15:07:05+08:00">2019-11-06</time>
+              <time title="创建时间：2019-11-06 15:07:05 / 修改时间：15:42:24" itemprop="dateCreated datePublished" datetime="2019-11-06T15:07:05+08:00">2019-11-06</time>
             </span>
           
             
@@ -287,7 +287,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>之前在网上找到的关于主备节点的数据大多是要在主节点停机或者限制写入，然后将数据拷贝到从节点，然后再进行主从节点的日志同步，其实mysql下提供了mysqldump工具可以在不停机下进行主从数据的辅助，将主节点的数据复制到从节点，即使这时候主节点仍在写入数据，将数据导入到从节点后，再将从节点的binlog日志节点指向拷贝主节点数据时的binlog日志位置，最后再由系统追上主节点的数据进度。</p>
+        <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>之前在网上找到的关于主备节点的同步数据大多是要在主节点停机或者限制写入，然后将数据拷贝到从节点，然后再进行主从节点的日志同步，其实mysql下提供了mysqldump工具可以在不停机下进行主从数据的同步，将主节点的数据复制到从节点，即使这时候主节点仍在写入数据，将数据导入到从节点后，再将从节点的binlog日志节点指向拷贝主节点数据时的binlog日志位置，最后再由系统追上主节点的数据进度。</p>
 <a id="more"></a>
 
 <h4 id="搭建主备"><a href="#搭建主备" class="headerlink" title="搭建主备"></a>搭建主备</h4><p>如何搭建主备参考hive分类下的—hive mysql元数据表单的主从备份这篇文章</p>
