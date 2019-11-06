@@ -55,19 +55,19 @@
   };
 </script>
 
-  <meta name="description" content="C2 CompilerThread1 线程 C2 Compiler 线程 是JVM在server模式下字节码编译器，JVM启动的时候所有代码都处于解释执行模式，当某些代码被执行到一定阈值次数，这些代码(称为热点代码)就会被 C2 Compiler编译成机器码，编译成机器码后执行效率会得到大幅提升。流量进来后，大部分代码成为热点代码，这个过程中C2 Compiler需要频繁占用CPU来运行，当大部分">
-<meta name="keywords" content="java常见线程">
+  <meta name="description" content="简介之前在网上找到的关于主备节点的数据大多是要在主节点停机或者限制写入，然后将数据拷贝到从节点，然后再进行主从节点的日志同步，其实mysql下提供了mysqldump工具可以在不停机下进行主从数据的辅助，将主节点的数据复制到从节点，即使这时候主节点仍在写入数据，将数据导入到从节点后，再将从节点的binlog日志节点指向拷贝主节点数据时的binlog日志位置，最后再由系统追上主节点的数据进度。">
+<meta name="keywords" content="主从备份">
 <meta property="og:type" content="article">
-<meta property="og:title" content="C2 CompilerThread1">
-<meta property="og:url" content="http://www.liushaohuang.cn/2019/09/18/java-常见线程说明/index.html">
+<meta property="og:title" content="mysql不停机主备复制">
+<meta property="og:url" content="http://www.liushaohuang.cn/2019/11/06/mysql不停机主备复制/index.html">
 <meta property="og:site_name" content="刘绍煌">
-<meta property="og:description" content="C2 CompilerThread1 线程 C2 Compiler 线程 是JVM在server模式下字节码编译器，JVM启动的时候所有代码都处于解释执行模式，当某些代码被执行到一定阈值次数，这些代码(称为热点代码)就会被 C2 Compiler编译成机器码，编译成机器码后执行效率会得到大幅提升。流量进来后，大部分代码成为热点代码，这个过程中C2 Compiler需要频繁占用CPU来运行，当大部分">
+<meta property="og:description" content="简介之前在网上找到的关于主备节点的数据大多是要在主节点停机或者限制写入，然后将数据拷贝到从节点，然后再进行主从节点的日志同步，其实mysql下提供了mysqldump工具可以在不停机下进行主从数据的辅助，将主节点的数据复制到从节点，即使这时候主节点仍在写入数据，将数据导入到从节点后，再将从节点的binlog日志节点指向拷贝主节点数据时的binlog日志位置，最后再由系统追上主节点的数据进度。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-09-18T06:15:24.135Z">
+<meta property="og:updated_time" content="2019-11-06T07:33:01.987Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="C2 CompilerThread1">
-<meta name="twitter:description" content="C2 CompilerThread1 线程 C2 Compiler 线程 是JVM在server模式下字节码编译器，JVM启动的时候所有代码都处于解释执行模式，当某些代码被执行到一定阈值次数，这些代码(称为热点代码)就会被 C2 Compiler编译成机器码，编译成机器码后执行效率会得到大幅提升。流量进来后，大部分代码成为热点代码，这个过程中C2 Compiler需要频繁占用CPU来运行，当大部分">
-  <link rel="canonical" href="http://www.liushaohuang.cn/2019/09/18/java-常见线程说明/">
+<meta name="twitter:title" content="mysql不停机主备复制">
+<meta name="twitter:description" content="简介之前在网上找到的关于主备节点的数据大多是要在主节点停机或者限制写入，然后将数据拷贝到从节点，然后再进行主从节点的日志同步，其实mysql下提供了mysqldump工具可以在不停机下进行主从数据的辅助，将主节点的数据复制到从节点，即使这时候主节点仍在写入数据，将数据导入到从节点后，再将从节点的binlog日志节点指向拷贝主节点数据时的binlog日志位置，最后再由系统追上主节点的数据进度。">
+  <link rel="canonical" href="http://www.liushaohuang.cn/2019/11/06/mysql不停机主备复制/">
 
 
 <script id="page-configurations">
@@ -81,7 +81,7 @@
   };
 </script>
 
-  <title>C2 CompilerThread1 | 刘绍煌</title>
+  <title>mysql不停机主备复制 | 刘绍煌</title>
   <meta name="generator" content="Hexo 3.9.0">
   
 
@@ -219,7 +219,7 @@
   
   
   <div class="post-block post">
-    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2019/09/18/java-常见线程说明/">
+    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2019/11/06/mysql不停机主备复制/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="刘绍煌">
@@ -231,7 +231,7 @@
       <meta itemprop="name" content="刘绍煌">
     </span>
       <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">C2 CompilerThread1
+        <h1 class="post-title" itemprop="name headline">mysql不停机主备复制
 
           
         </h1>
@@ -247,7 +247,7 @@
                 
               
 
-              <time title="创建时间：2019-09-18 09:34:09 / 修改时间：14:15:24" itemprop="dateCreated datePublished" datetime="2019-09-18T09:34:09+08:00">2019-09-18</time>
+              <time title="创建时间：2019-11-06 15:07:05 / 修改时间：15:33:01" itemprop="dateCreated datePublished" datetime="2019-11-06T15:07:05+08:00">2019-11-06</time>
             </span>
           
             
@@ -260,7 +260,7 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/性能测试和监控/" itemprop="url" rel="index"><span itemprop="name">性能测试和监控</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/mysql/" itemprop="url" rel="index"><span itemprop="name">mysql</span></a></span>
 
                 
                 
@@ -287,9 +287,67 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h4 id="C2-CompilerThread1-线程"><a href="#C2-CompilerThread1-线程" class="headerlink" title="C2 CompilerThread1 线程"></a>C2 CompilerThread1 线程</h4><blockquote>
-<p>C2 Compiler 线程 是JVM在server模式下字节码编译器，JVM启动的时候所有代码都处于解释执行模式，当某些代码被执行到一定阈值次数，这些代码(称为热点代码)就会被 C2 Compiler编译成机器码，编译成机器码后执行效率会得到大幅提升。流量进来后，大部分代码成为热点代码，这个过程中C2 Compiler需要频繁占用CPU来运行，当大部分热点代码被编译成机器代码后，C2 Compiler就不再长期占用CPU了，这个过程也可以看作抖动。解决C2 CompilerThread1抖动方法,可以使用Jmeter等压测工具模拟线上访问流量，让C2 Compiler预先将热点代码编译成机器码, 减少对正式环境流量的影响。</p>
-</blockquote>
+        <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>之前在网上找到的关于主备节点的数据大多是要在主节点停机或者限制写入，然后将数据拷贝到从节点，然后再进行主从节点的日志同步，其实mysql下提供了mysqldump工具可以在不停机下进行主从数据的辅助，将主节点的数据复制到从节点，即使这时候主节点仍在写入数据，将数据导入到从节点后，再将从节点的binlog日志节点指向拷贝主节点数据时的binlog日志位置，最后再由系统追上主节点的数据进度。</p>
+<a id="more"></a>
+
+<h4 id="搭建主备"><a href="#搭建主备" class="headerlink" title="搭建主备"></a>搭建主备</h4><p>如何搭建主备参考hive分类下的—hive mysql元数据表单的主从备份这篇文章</p>
+<h4 id="导出主库数据"><a href="#导出主库数据" class="headerlink" title="导出主库数据"></a>导出主库数据</h4><ul>
+<li>single-transaction保证在innodb引擎下导出数据的一致性</li>
+<li>master-data=2表示在导出的文件中现实binlog的名字和position，后续在从节点中根据这里的参数指向主节点的binlog日志</li>
+<li>-A表示导出所有数据库，一般导出所有数据库。<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/bin/mysqldump  --single-transaction --master-data=2 -u root -p -A&gt;/mysql/qwe.sql</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p>关于mysqldump的用法参考</p>
+<p><a href="https://www.centos.bz/2018/02/mysqldump-%E5%8F%82%E6%95%B0%E5%92%8C%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95%E4%BB%8B%E7%BB%8D/" target="_blank" rel="noopener">https://www.centos.bz/2018/02/mysqldump-%E5%8F%82%E6%95%B0%E5%92%8C%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95%E4%BB%8B%E7%BB%8D/</a></p>
+<h4 id="模拟主从不一致"><a href="#模拟主从不一致" class="headerlink" title="模拟主从不一致"></a>模拟主从不一致</h4><p>我们需要手动同步主备数据往往就是因为数据库出现异常，导致主从节点数据不一样，这里我们模型主从数据库不一致的情况，然后将主库数据导入到备库中</p>
+<ul>
+<li><p>停止从库</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">stop SLAVE</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>将主库数据导入到从库，qwe.sql是之前主库中导出的数据</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql -u root -p&lt;qwe.sql</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>导入成功后主从的数据已经一致</p>
+</li>
+<li><p>我们在主库中随意插入几条数据，由于未开启同步，从库中并没有同步新插入的数据，这里模拟了主从数据不同步的问题，在线数据迁移中往往会出现这个问题，在备份过程中，又有新的数据插入到数据库中</p>
+</li>
+</ul>
+<h4 id="开启从节点同步"><a href="#开启从节点同步" class="headerlink" title="开启从节点同步"></a>开启从节点同步</h4><ul>
+<li>首先查看我们之前导出的sql数据的binlog的位置和postion  </li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">head -n 30 qwe.sql</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>查看到如下数据</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-- CHANGE MASTER TO MASTER_LOG_FILE=&apos;mysql-bin.000004&apos;, MASTER_LOG_POS=785;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>查看主节点的binlog</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">show master status</span><br></pre></td></tr></table></figure>
+
+<p>发现其binlog位置已经和导出数据时发生了改变</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql-bin.000004     1410</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>将从节点的binlog指向主节点</li>
+</ul>
+<p>注意我们在这里使用的是导出数据时候的binlog，也就是导出sql里显示的binlog</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">change master to master_host=&apos;192.168.1.10&apos;, master_user=&apos;slave&apos;, master_password=&apos;mysql&apos;, master_log_file=&apos;mysql-bin.000004&apos;, master_log_pos=785;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>开启从节点同步</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">start slave;</span><br></pre></td></tr></table></figure>
+
+<p>执行以下语句，发现现在主从的binlog已经同步，查询从库数据发现已经存在之前插入的数据</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">show slave status;</span><br></pre></td></tr></table></figure>
+
+<h4 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h4><ul>
+<li>最好保证主从数据库版本的一致，至少主库的数据库版本要大于从库的版本</li>
+</ul>
 
     </div>
 
@@ -322,7 +380,7 @@
           
           <div class="post-tags">
             
-              <a href="/tags/java常见线程/" rel="tag"># java常见线程</a>
+              <a href="/tags/主从备份/" rel="tag"># 主从备份</a>
             
           </div>
         
@@ -332,8 +390,8 @@
           <div class="post-nav">
             <div class="post-nav-next post-nav-item">
               
-                <a href="/2019/09/18/常见线程说明/" rel="next" title="常见线程说明">
-                  <i class="fa fa-chevron-left"></i> 常见线程说明
+                <a href="/2019/11/04/平衡内存和磁盘资源/" rel="next" title="平衡内存和磁盘资源">
+                  <i class="fa fa-chevron-left"></i> 平衡内存和磁盘资源
                 </a>
               
             </div>
@@ -341,10 +399,6 @@
             <span class="post-nav-divider"></span>
 
             <div class="post-nav-prev post-nav-item">
-              
-                <a href="/2019/09/18/java在linux中占用资源过多的排查/" rel="prev" title="java应用在linux中性能和堆栈信息的排查">
-                  java应用在linux中性能和堆栈信息的排查 <i class="fa fa-chevron-right"></i>
-                </a>
               
             </div>
           </div>
@@ -393,7 +447,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#C2-CompilerThread1-线程"><span class="nav-number">1.</span> <span class="nav-text">C2 CompilerThread1 线程</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#搭建主备"><span class="nav-number">2.</span> <span class="nav-text">搭建主备</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#导出主库数据"><span class="nav-number">3.</span> <span class="nav-text">导出主库数据</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#模拟主从不一致"><span class="nav-number">4.</span> <span class="nav-text">模拟主从不一致</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#开启从节点同步"><span class="nav-number">5.</span> <span class="nav-text">开启从节点同步</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#问题"><span class="nav-number">6.</span> <span class="nav-text">问题</span></a></li></ol></div>
         
       </div>
       <!--/noindex-->
