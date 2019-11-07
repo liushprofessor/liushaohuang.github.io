@@ -55,17 +55,19 @@
   };
 </script>
 
-  <meta name="description" content="刘绍煌的个人博客">
-<meta property="og:type" content="website">
-<meta property="og:title" content="刘绍煌">
-<meta property="og:url" content="http://www.liushaohuang.cn/tags/mybatis/index.html">
+  <meta name="description" content="简介有时候我们会误删mysql中的数据，如果有开启binlog日志，那么我们可以通过mysql提供的mysqlbinlog工具来读取出操作日志，并且重新执行操作日志达到恢复数据的效果">
+<meta name="keywords" content="mysqlbinlog">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用mysqlbinlog和mysql日志恢复数据">
+<meta property="og:url" content="http://www.liushaohuang.cn/2019/11/07/使用mysqlbinlog和mysql日志恢复数据/index.html">
 <meta property="og:site_name" content="刘绍煌">
-<meta property="og:description" content="刘绍煌的个人博客">
+<meta property="og:description" content="简介有时候我们会误删mysql中的数据，如果有开启binlog日志，那么我们可以通过mysql提供的mysqlbinlog工具来读取出操作日志，并且重新执行操作日志达到恢复数据的效果">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-11-07T07:53:12.918Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="刘绍煌">
-<meta name="twitter:description" content="刘绍煌的个人博客">
-  <link rel="canonical" href="http://www.liushaohuang.cn/tags/mybatis/">
+<meta name="twitter:title" content="使用mysqlbinlog和mysql日志恢复数据">
+<meta name="twitter:description" content="简介有时候我们会误删mysql中的数据，如果有开启binlog日志，那么我们可以通过mysql提供的mysqlbinlog工具来读取出操作日志，并且重新执行操作日志达到恢复数据的效果">
+  <link rel="canonical" href="http://www.liushaohuang.cn/2019/11/07/使用mysqlbinlog和mysql日志恢复数据/">
 
 
 <script id="page-configurations">
@@ -73,13 +75,13 @@
   CONFIG.page = {
     sidebar: "",
     isHome: false,
-    isPost: false,
+    isPost: true,
     isPage: false,
     isArchive: false
   };
 </script>
 
-  <title>标签: mybatis | 刘绍煌</title>
+  <title>使用mysqlbinlog和mysql日志恢复数据 | 刘绍煌</title>
   <meta name="generator" content="Hexo 3.9.0">
   
 
@@ -208,81 +210,162 @@
         <div class="content-wrap">
             
 
-    
-    
-      
-      
-    
-      
-      
-    
-      
-      
-    
-      
-      
-    
-    
-
-  
-
           <div id="content" class="content">
             
 
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
   
   
   
-  <div class="post-block tag">
-    <div id="posts" class="posts-collapse">
-      <div class="collection-title">
-        <h1 class="collection-header">mybatis<small>标签</small>
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2019/11/07/使用mysqlbinlog和mysql日志恢复数据/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="刘绍煌">
+      <meta itemprop="description" content="刘绍煌的个人博客">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="刘绍煌">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">使用mysqlbinlog和mysql日志恢复数据
+
+          
         </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2019-11-07 15:37:47 / 修改时间：15:53:12" itemprop="dateCreated datePublished" datetime="2019-11-07T15:37:47+08:00">2019-11-07</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/mysql/" itemprop="url" rel="index"><span itemprop="name">mysql</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span class="post-meta-item" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>有时候我们会误删mysql中的数据，如果有开启binlog日志，那么我们可以通过mysql提供的mysqlbinlog工具来读取出操作日志，并且重新执行操作日志达到恢复数据的效果</p>
+<a id="more"></a>
+
+<h4 id="备份"><a href="#备份" class="headerlink" title="备份"></a>备份</h4><p>我们通常会在数据达到一个节点去备份一次数据库使用mysqldump工具可以完成备份,以下输出的备份中会包含当前备份所指向的日志文件和日志position，这个是我们恢复日志的关键</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/bin/mysqldump  --single-transaction --master-data=2 -u root -p -A&gt;/mysql/qwe.sql</span><br></pre></td></tr></table></figure>
+
+<h4 id="查看日志事件"><a href="#查看日志事件" class="headerlink" title="查看日志事件"></a>查看日志事件</h4><p>执行一下语句，把对应的日志换成自己mysql的日志文件的名字，可以查看到该文件的日志详情，其中Pos字段表示执行语句的开始positon，end_log_position表示改语句执行结束时的position，如果是从备份中恢复数据，那么这里要对应上备份sql文件中的position，找到需要恢复数据的日志positon</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">show BINLOG EVENTS in &apos;mysql-bin.000004&apos;</span><br></pre></td></tr></table></figure>
+
+<h4 id="回放日志内容"><a href="#回放日志内容" class="headerlink" title="回放日志内容"></a>回放日志内容</h4><p>以下语句将需要回放日志的开始position和结束position输入，并且传入对应的日志文件，并将结果输出到一个文件中</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysqlbinlog --start-position 1487 --stop-position 2207 /var/lib/mysql/mysql-bin.000004&gt; /liu/mysql/ppp.sql</span><br></pre></td></tr></table></figure>
+
+<h4 id="重新执行语句恢复数据"><a href="#重新执行语句恢复数据" class="headerlink" title="重新执行语句恢复数据"></a>重新执行语句恢复数据</h4><p>将上一步导出的日志操作步骤导入mysql中重新执行，即可完成数据恢复</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql -u root -p&lt;/liu/mysql/ppp.sql</span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+        
+      
+        <div id="reward-container">
+  <div></div>
+  <button id="reward-button" disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/赞赏码.png" alt="刘绍煌 微信支付">
+        <p>微信支付</p>
       </div>
+
+  </div>
+</div>
 
       
 
-  
-  
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/mysqlbinlog/" rel="tag"># mysqlbinlog</a>
+            
+          </div>
+        
 
-  
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2019/11/06/mysql不停机主备复制/" rel="next" title="mysql不停机主备复制">
+                  <i class="fa fa-chevron-left"></i> mysql不停机主备复制
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+            </div>
+          </div>
+        
+      </footer>
     
-    <div class="collection-year">
-      <h1 class="collection-header">2019</h1>
-    </div>
-  
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-          <a class="post-title-link" href="/2019/09/04/mybatis的缓存机制/" itemprop="url">
-            <span itemprop="name">mybatis的缓存机制</span>
-          </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2019-09-04T15:28:01+08:00"
-              content="2019-09-04">
-          09-04
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-    </div>
   </div>
   
   
   
+  </article>
 
-  
-
+  </div>
 
 
           </div>
@@ -301,6 +384,11 @@
 
   <aside class="sidebar">
     <div class="sidebar-inner">
+        
+        
+        
+        
+      
 
       <ul class="sidebar-nav motion-element">
         <li class="sidebar-nav-toc">
@@ -313,6 +401,8 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#备份"><span class="nav-number">2.</span> <span class="nav-text">备份</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#查看日志事件"><span class="nav-number">3.</span> <span class="nav-text">查看日志事件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#回放日志内容"><span class="nav-number">4.</span> <span class="nav-text">回放日志内容</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#重新执行语句恢复数据"><span class="nav-number">5.</span> <span class="nav-text">重新执行语句恢复数据</span></a></li></ol></div>
+        
       </div>
       <!--/noindex-->
 
