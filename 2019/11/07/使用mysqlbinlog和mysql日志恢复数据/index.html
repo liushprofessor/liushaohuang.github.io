@@ -63,7 +63,7 @@
 <meta property="og:site_name" content="刘绍煌">
 <meta property="og:description" content="简介有时候我们会误删mysql中的数据，如果有开启binlog日志，那么我们可以通过mysql提供的mysqlbinlog工具来读取出操作日志，并且重新执行操作日志达到恢复数据的效果">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-11-07T07:53:12.918Z">
+<meta property="og:updated_time" content="2019-11-07T07:58:55.895Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="使用mysqlbinlog和mysql日志恢复数据">
 <meta name="twitter:description" content="简介有时候我们会误删mysql中的数据，如果有开启binlog日志，那么我们可以通过mysql提供的mysqlbinlog工具来读取出操作日志，并且重新执行操作日志达到恢复数据的效果">
@@ -247,7 +247,7 @@
                 
               
 
-              <time title="创建时间：2019-11-07 15:37:47 / 修改时间：15:53:12" itemprop="dateCreated datePublished" datetime="2019-11-07T15:37:47+08:00">2019-11-07</time>
+              <time title="创建时间：2019-11-07 15:37:47 / 修改时间：15:58:55" itemprop="dateCreated datePublished" datetime="2019-11-07T15:37:47+08:00">2019-11-07</time>
             </span>
           
             
@@ -293,7 +293,7 @@
 <h4 id="备份"><a href="#备份" class="headerlink" title="备份"></a>备份</h4><p>我们通常会在数据达到一个节点去备份一次数据库使用mysqldump工具可以完成备份,以下输出的备份中会包含当前备份所指向的日志文件和日志position，这个是我们恢复日志的关键</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/bin/mysqldump  --single-transaction --master-data=2 -u root -p -A&gt;/mysql/qwe.sql</span><br></pre></td></tr></table></figure>
 
-<h4 id="查看日志事件"><a href="#查看日志事件" class="headerlink" title="查看日志事件"></a>查看日志事件</h4><p>执行一下语句，把对应的日志换成自己mysql的日志文件的名字，可以查看到该文件的日志详情，其中Pos字段表示执行语句的开始positon，end_log_position表示改语句执行结束时的position，如果是从备份中恢复数据，那么这里要对应上备份sql文件中的position，找到需要恢复数据的日志positon</p>
+<h4 id="查看日志事件"><a href="#查看日志事件" class="headerlink" title="查看日志事件"></a>查看日志事件</h4><p>执行以下语句，把对应的日志换成自己mysql的日志文件的名字，可以查看到该文件的日志详情，其中Pos字段表示执行语句的开始positon，end_log_position表示改语句执行结束时的position，如果是从备份中恢复数据，那么这里要对应上备份sql文件中的position，找到需要恢复数据的日志positon</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">show BINLOG EVENTS in &apos;mysql-bin.000004&apos;</span><br></pre></td></tr></table></figure>
 
 <h4 id="回放日志内容"><a href="#回放日志内容" class="headerlink" title="回放日志内容"></a>回放日志内容</h4><p>以下语句将需要回放日志的开始position和结束position输入，并且传入对应的日志文件，并将结果输出到一个文件中</p>
@@ -353,6 +353,10 @@
             <span class="post-nav-divider"></span>
 
             <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2019/12/09/Spring-security的认证和鉴权/" rel="prev" title="Spring security的认证和鉴权">
+                  Spring security的认证和鉴权 <i class="fa fa-chevron-right"></i>
+                </a>
               
             </div>
           </div>
@@ -416,7 +420,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">34</span>
+          <span class="site-state-item-count">35</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -453,7 +457,9 @@
         
           
         
-        <span class="site-state-item-count">11</span>
+          
+        
+        <span class="site-state-item-count">12</span>
         <span class="site-state-item-name">分类</span>
         </a>
       </div>
@@ -556,7 +562,9 @@
         
           
         
-        <span class="site-state-item-count">44</span>
+          
+        
+        <span class="site-state-item-count">45</span>
         <span class="site-state-item-name">标签</span>
         </a>
       </div>
