@@ -55,18 +55,18 @@
   };
 </script>
 
-  <meta name="description" content="简介在编写SpringBoot stater时我们会在项目的resources目录下新建META-INF文件夹并且在该目录下新建spring.factories文件,该文件中配置了在SpringBoot开启时需要加载和配置的类，那为什么只要配置了这个文件Spring就能自动去加载这个类呢？这个是因为用到了java的SPI机制 SPI想象一下现在有两个项目A,B。他们之间存在依赖关系B依赖于项目A,">
+  <meta name="description" content="简介在编写SpringBoot stater时我们会在项目的resources目录下新建META-INF文件夹并且在该目录下新建spring.factories文件,该文件中配置了在SpringBoot开启时需要加载和配置的类，那为什么只要配置了这个文件Spring就能自动去加载这个类呢？这个是因为用到了java的SPI机制">
 <meta name="keywords" content="SPI">
 <meta property="og:type" content="article">
 <meta property="og:title" content="JAVA_SPI机制">
 <meta property="og:url" content="http://www.liushaohuang.cn/2019/12/27/JAVA-SPI机制/index.html">
 <meta property="og:site_name" content="刘绍煌">
-<meta property="og:description" content="简介在编写SpringBoot stater时我们会在项目的resources目录下新建META-INF文件夹并且在该目录下新建spring.factories文件,该文件中配置了在SpringBoot开启时需要加载和配置的类，那为什么只要配置了这个文件Spring就能自动去加载这个类呢？这个是因为用到了java的SPI机制 SPI想象一下现在有两个项目A,B。他们之间存在依赖关系B依赖于项目A,">
+<meta property="og:description" content="简介在编写SpringBoot stater时我们会在项目的resources目录下新建META-INF文件夹并且在该目录下新建spring.factories文件,该文件中配置了在SpringBoot开启时需要加载和配置的类，那为什么只要配置了这个文件Spring就能自动去加载这个类呢？这个是因为用到了java的SPI机制">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-12-27T09:03:27.722Z">
+<meta property="og:updated_time" content="2019-12-27T09:05:18.643Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="JAVA_SPI机制">
-<meta name="twitter:description" content="简介在编写SpringBoot stater时我们会在项目的resources目录下新建META-INF文件夹并且在该目录下新建spring.factories文件,该文件中配置了在SpringBoot开启时需要加载和配置的类，那为什么只要配置了这个文件Spring就能自动去加载这个类呢？这个是因为用到了java的SPI机制 SPI想象一下现在有两个项目A,B。他们之间存在依赖关系B依赖于项目A,">
+<meta name="twitter:description" content="简介在编写SpringBoot stater时我们会在项目的resources目录下新建META-INF文件夹并且在该目录下新建spring.factories文件,该文件中配置了在SpringBoot开启时需要加载和配置的类，那为什么只要配置了这个文件Spring就能自动去加载这个类呢？这个是因为用到了java的SPI机制">
   <link rel="canonical" href="http://www.liushaohuang.cn/2019/12/27/JAVA-SPI机制/">
 
 
@@ -247,7 +247,7 @@
                 
               
 
-              <time title="创建时间：2019-12-27 16:25:08 / 修改时间：17:03:27" itemprop="dateCreated datePublished" datetime="2019-12-27T16:25:08+08:00">2019-12-27</time>
+              <time title="创建时间：2019-12-27 16:25:08 / 修改时间：17:05:18" itemprop="dateCreated datePublished" datetime="2019-12-27T16:25:08+08:00">2019-12-27</time>
             </span>
           
             
@@ -288,6 +288,7 @@
 
       
         <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>在编写SpringBoot stater时我们会在项目的resources目录下新建META-INF文件夹并且在该目录下新建spring.factories文件,该文件中配置了在SpringBoot开启时需要加载和配置的类，那为什么只要配置了这个文件Spring就能自动去加载这个类呢？这个是因为用到了java的SPI机制</p>
+<a id="more"></a>
 <h4 id="SPI"><a href="#SPI" class="headerlink" title="SPI"></a>SPI</h4><p>想象一下现在有两个项目A,B。他们之间存在依赖关系B依赖于项目A,也就是说B在A项目的上层，通常反映在我们需要在B的maven POM.xml文件中配置了A的依赖。那么现在处在下层的A工厂有一个抽象接口需要由下层应用去实现，（举个例子A工程是快递公司，B工程是一个电商客户，那么快递公司只要留一个统一的收快递的电话给电商客户，由电商客户去打电话叫快递公司去寄快递即可，对于快递公司它并不关心电商公司是寄送什么货物，快递公司只负责寄送即可，那么具体寄送什么货物的实现就由电商公司自行去实现），想象一下这个系统你会怎么写？我们只要实现快递公司提供的寄送货物的接口，然后再由电商公司调用寄送货物的接口即可，简单暴力完成解耦。那么现在有一个问题，由于快递公司和这家电商公司关系恶化，那么快递公司想把这家公司开除，然后和另外一家快递公司合作，那么我们要怎么做？是不是要修改代码，去掉这家被开除的电商公司的实现，然后加入新的电商公司的实现？有没有一个方法我们不需要修改代码只要修改一下配置文件即可？于是这里就延伸除了SPI机制,其实控制反转的实现依赖注入就是一个变相的SPI实现，我们只要配置Spring的xml文件就能完成替换我们不同的类的实现，这样我们就不要更改我们核心的代码，只要修改我们的配置类即可，这样大大降低了出错的可能和完成了解耦</p>
 <h4 id="JDK自带-SPI简单的代码实现"><a href="#JDK自带-SPI简单的代码实现" class="headerlink" title="JDK自带 SPI简单的代码实现"></a>JDK自带 SPI简单的代码实现</h4><h5 id="定义一个接口"><a href="#定义一个接口" class="headerlink" title="定义一个接口"></a>定义一个接口</h5><p>我们定义一个父类汽车,他有一个方法获取汽车名</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">package com.liu;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * @author Liush</span><br><span class="line"> * @description</span><br><span class="line"> * @date 2019/12/27 10:36</span><br><span class="line"> **/</span><br><span class="line">public interface CarI &#123;</span><br><span class="line"></span><br><span class="line">     String getName();</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
