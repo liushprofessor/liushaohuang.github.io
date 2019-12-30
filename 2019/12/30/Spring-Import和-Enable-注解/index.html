@@ -63,7 +63,7 @@
 <meta property="og:site_name" content="刘绍煌">
 <meta property="og:description" content="简介最近在写一些基于SpringBoot的jar供其它工程调用，学习了一些开源和了解了Spring的自动配置后做了以下总结">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-12-30T10:35:21.244Z">
+<meta property="og:updated_time" content="2019-12-30T10:36:56.181Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Spring @Import和@Enable*注解和Spring的SPI完成二方包的注入">
 <meta name="twitter:description" content="简介最近在写一些基于SpringBoot的jar供其它工程调用，学习了一些开源和了解了Spring的自动配置后做了以下总结">
@@ -247,7 +247,7 @@
                 
               
 
-              <time title="创建时间：2019-12-30 17:49:32 / 修改时间：18:35:21" itemprop="dateCreated datePublished" datetime="2019-12-30T17:49:32+08:00">2019-12-30</time>
+              <time title="创建时间：2019-12-30 17:49:32 / 修改时间：18:36:56" itemprop="dateCreated datePublished" datetime="2019-12-30T17:49:32+08:00">2019-12-30</time>
             </span>
           
             
@@ -384,8 +384,7 @@
 <h5 id="更进一步"><a href="#更进一步" class="headerlink" title="更进一步"></a>更进一步</h5><p>我们在调用开源工程的时候经常引入一些二方包，这些包中我们并不需要使用@Import注解，而是在启动类中使用@Enable* 注解即可完成二方包的注入，我们可以查看@EnableScheduling中的源码,发现其本质也是使用@Import注解完成二方包的注入</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">//</span><br><span class="line">// Source code recreated from a .class file by IntelliJ IDEA</span><br><span class="line">// (powered by Fernflower decompiler)</span><br><span class="line">//</span><br><span class="line"></span><br><span class="line">package org.springframework.scheduling.annotation;</span><br><span class="line"></span><br><span class="line">import java.lang.annotation.Documented;</span><br><span class="line">import java.lang.annotation.ElementType;</span><br><span class="line">import java.lang.annotation.Retention;</span><br><span class="line">import java.lang.annotation.RetentionPolicy;</span><br><span class="line">import java.lang.annotation.Target;</span><br><span class="line">import org.springframework.context.annotation.Import;</span><br><span class="line"></span><br><span class="line">@Target(&#123;ElementType.TYPE&#125;)</span><br><span class="line">@Retention(RetentionPolicy.RUNTIME)</span><br><span class="line">@Import(&#123;SchedulingConfiguration.class&#125;)</span><br><span class="line">@Documented</span><br><span class="line">public @interface EnableScheduling &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h4 id="基于Spring的SPI机制"><a href="#基于Spring的SPI机制" class="headerlink" title="基于Spring的SPI机制"></a>基于Spring的SPI机制</h4><p>1.</p>
-
+<h5 id="基于Spring的SPI机制"><a href="#基于Spring的SPI机制" class="headerlink" title="基于Spring的SPI机制"></a>基于Spring的SPI机制</h5>
     </div>
 
     
@@ -484,7 +483,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#将二方包注入到调用者的Spring容器中"><span class="nav-number">2.</span> <span class="nav-text">将二方包注入到调用者的Spring容器中</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#保持相同的目录结构"><span class="nav-number">2.1.</span> <span class="nav-text">保持相同的目录结构</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#总结"><span class="nav-number">2.1.1.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#使用-Import注解"><span class="nav-number">3.</span> <span class="nav-text">使用@Import注解</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#总结-1"><span class="nav-number">3.0.1.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#更进一步"><span class="nav-number">3.1.</span> <span class="nav-text">更进一步</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#基于Spring的SPI机制"><span class="nav-number">4.</span> <span class="nav-text">基于Spring的SPI机制</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#将二方包注入到调用者的Spring容器中"><span class="nav-number">2.</span> <span class="nav-text">将二方包注入到调用者的Spring容器中</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#保持相同的目录结构"><span class="nav-number">2.1.</span> <span class="nav-text">保持相同的目录结构</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#总结"><span class="nav-number">2.1.1.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#使用-Import注解"><span class="nav-number">3.</span> <span class="nav-text">使用@Import注解</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#总结-1"><span class="nav-number">3.0.1.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#更进一步"><span class="nav-number">3.1.</span> <span class="nav-text">更进一步</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#基于Spring的SPI机制"><span class="nav-number">3.2.</span> <span class="nav-text">基于Spring的SPI机制</span></a></li></ol></li></ol></div>
         
       </div>
       <!--/noindex-->
