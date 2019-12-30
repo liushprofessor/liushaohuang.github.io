@@ -55,18 +55,18 @@
   };
 </script>
 
-  <meta name="description" content="简介最近在写一些基于SpringBoot的jar供其它工程调用，学习了一些开源和了解了Spring的自动配置后做了以下总结 将二方包注入到调用者的Spring容器中我们都知道SpringBoot工程的入口需要有一个@SpringBootApplication注解，然后SpringBoot会自动扫描这个类同级或者子包的Spring注解然后注入到Spring容器中，但是我们编写的二方包往往和调用者有者">
+  <meta name="description" content="简介最近在写一些基于SpringBoot的jar供其它工程调用，学习了一些开源和了解了Spring的自动配置后做了以下总结">
 <meta name="keywords" content="Spring">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Spring @Import和@Enable*注解和Spring的SPI完成二方包的注入">
 <meta property="og:url" content="http://www.liushaohuang.cn/2019/12/30/Spring-Import和-Enable-注解/index.html">
 <meta property="og:site_name" content="刘绍煌">
-<meta property="og:description" content="简介最近在写一些基于SpringBoot的jar供其它工程调用，学习了一些开源和了解了Spring的自动配置后做了以下总结 将二方包注入到调用者的Spring容器中我们都知道SpringBoot工程的入口需要有一个@SpringBootApplication注解，然后SpringBoot会自动扫描这个类同级或者子包的Spring注解然后注入到Spring容器中，但是我们编写的二方包往往和调用者有者">
+<meta property="og:description" content="简介最近在写一些基于SpringBoot的jar供其它工程调用，学习了一些开源和了解了Spring的自动配置后做了以下总结">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-12-30T10:31:58.786Z">
+<meta property="og:updated_time" content="2019-12-30T10:33:11.916Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Spring @Import和@Enable*注解和Spring的SPI完成二方包的注入">
-<meta name="twitter:description" content="简介最近在写一些基于SpringBoot的jar供其它工程调用，学习了一些开源和了解了Spring的自动配置后做了以下总结 将二方包注入到调用者的Spring容器中我们都知道SpringBoot工程的入口需要有一个@SpringBootApplication注解，然后SpringBoot会自动扫描这个类同级或者子包的Spring注解然后注入到Spring容器中，但是我们编写的二方包往往和调用者有者">
+<meta name="twitter:description" content="简介最近在写一些基于SpringBoot的jar供其它工程调用，学习了一些开源和了解了Spring的自动配置后做了以下总结">
   <link rel="canonical" href="http://www.liushaohuang.cn/2019/12/30/Spring-Import和-Enable-注解/">
 
 
@@ -247,7 +247,7 @@
                 
               
 
-              <time title="创建时间：2019-12-30 17:49:32 / 修改时间：18:31:58" itemprop="dateCreated datePublished" datetime="2019-12-30T17:49:32+08:00">2019-12-30</time>
+              <time title="创建时间：2019-12-30 17:49:32 / 修改时间：18:33:11" itemprop="dateCreated datePublished" datetime="2019-12-30T17:49:32+08:00">2019-12-30</time>
             </span>
           
             
@@ -288,6 +288,8 @@
 
       
         <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>最近在写一些基于SpringBoot的jar供其它工程调用，学习了一些开源和了解了Spring的自动配置后做了以下总结</p>
+<a id="more"></a>
+
 <h4 id="将二方包注入到调用者的Spring容器中"><a href="#将二方包注入到调用者的Spring容器中" class="headerlink" title="将二方包注入到调用者的Spring容器中"></a>将二方包注入到调用者的Spring容器中</h4><p>我们都知道SpringBoot工程的入口需要有一个@SpringBootApplication注解，然后SpringBoot会自动扫描这个类同级或者子包的Spring注解然后注入到Spring容器中，但是我们编写的二方包往往和调用者有者不同的目录结构，如何才能将我们提供的二方包注入到调用者的容器中呢？这里有3中方法。</p>
 <h5 id="保持相同的目录结构"><a href="#保持相同的目录结构" class="headerlink" title="保持相同的目录结构"></a>保持相同的目录结构</h5><p>简单粗暴的方法就是调用者和被调用者有着相同的目录结构，使二方包中的配置类在调用者启动类如果的同级包或者子包下，那么这样SpringBoot在扫描时就会扫描到二方包中的Spring配置自动注入到容器中。</p>
 <ul>
