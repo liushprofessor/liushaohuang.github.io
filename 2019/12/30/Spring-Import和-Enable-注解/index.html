@@ -63,7 +63,7 @@
 <meta property="og:site_name" content="刘绍煌">
 <meta property="og:description" content="简介最近在写一些基于SpringBoot的jar供其它工程调用，学习了一些开源和了解了Spring的自动配置后做了以下总结">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-12-31T05:43:26.236Z">
+<meta property="og:updated_time" content="2019-12-31T05:47:36.575Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Spring @Import和@Enable*注解和Spring的SPI完成二方包的注入">
 <meta name="twitter:description" content="简介最近在写一些基于SpringBoot的jar供其它工程调用，学习了一些开源和了解了Spring的自动配置后做了以下总结">
@@ -258,7 +258,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-12-31 13:43:26" itemprop="dateModified" datetime="2019-12-31T13:43:26+08:00">2019-12-31</time>
+                <time title="修改时间：2019-12-31 13:47:36" itemprop="dateModified" datetime="2019-12-31T13:47:36+08:00">2019-12-31</time>
               </span>
             
           
@@ -422,7 +422,7 @@
 <p>现在再根据方法名我们发现this.getCandidateConfigurations方法可能使获取配置类发生的地方我们进入该方法查看一下<br>这里我们发现了SpringFactoriesLoader类的身影，熟悉Spring spi的知道spring spi就是通过这个类来加载配置文件中的类来达成自动配置的目的的，我们在进入SpringFactoriesLoader查看一下,发现其中又一个属性为FACTORIES_RESOURCE_LOCATION ，这里就说明了我们建配置文件为什么必须目录为META-INF/spring.factories</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">public final class SpringFactoriesLoader &#123;</span><br><span class="line">    public static final String FACTORIES_RESOURCE_LOCATION = &quot;META-INF/spring.factories&quot;;</span><br><span class="line"></span><br><span class="line">....</span><br><span class="line"></span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
 
-<p>那么这里逻辑就已经清晰<br>** 我们在META-INF/spring.factories中配置SpringBoot需要自动注入的类，org.springframework.boot.autoconfigure.EnableAutoConfiguration是Spring帮我们封装好的一个注解我们在其后配置我们需要自动注入的类，那么SpringBoot就会使用AutoConfigurationImportSelector来帮助我们将我们配置的类一个个注入到Spring中**</p>
+<p>那么这里逻辑就已经清晰<br><strong>我们在META-INF/spring.factories中配置SpringBoot需要自动注入的类，org.springframework.boot.autoconfigure.EnableAutoConfiguration是Spring帮我们封装好的一个注解我们在其后配置我们需要自动注入的类，那么SpringBoot就会使用AutoConfigurationImportSelector来帮助我们将我们配置的类一个个注入到Spring中</strong></p>
 
     </div>
 
