@@ -216,6 +216,100 @@
   
   
   <div class="post-block home">
+    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2019/09/24/mysql存储过程游标的嵌套和使用/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="刘绍煌">
+      <meta itemprop="description" content="刘绍煌的个人博客">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="刘绍煌">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+            
+            <a href="/2019/09/24/mysql存储过程游标的嵌套和使用/" class="post-title-link" itemprop="url">mysql存储过程游标的嵌套和使用(统计局地区维度表的创建)</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2019-09-24 16:34:45 / 修改时间：16:55:13" itemprop="dateCreated datePublished" datetime="2019-09-24T16:34:45+08:00">2019-09-24</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/mysql/" itemprop="url" rel="index"><span itemprop="name">mysql</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>之前主要使用oracle来实现存储过程,今天在写mysql存储过程时发现mysql并没有类似oracle的for循环语法,因此通过游标方式来实现类似功能,本过程通过正则切割地区id将统计局的全国到村和街道的数据装换成供数据仓库使用的宽表结构 (因为统计局提供的地区层次是通过id来区分的,code字段共有12个字符，第1、2位标识省份，第3、4位标识地市、第5、6位标识县区，第7-9位标识乡镇、第10-12位标识村。其数据来自<a href="http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/" target="_blank" rel="noopener">http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/</a>), 转化后的表结构如下 <strong>注意这里多了一列当前正在使用的id,这是为了应对后续存在的地区名字或结构变化,这里本人采用的是维度变化的类型6的变种,如果id和正在使用的id相同则代表当前地区是最新结构,否则通过子查询去寻找当前的正在使用的地区id,因为这张表中目前有70多万条数据,如果重新生成较为耗时,且这是一个通用维度,历史数据还是关联就的地区状态,所以需要保留地区维度表的历史信息,且地区信息是拉平的(数据仓库维度表中数据都是拉平的,以此表来说如果有些数据是关联在福建省下则,需要创建,福建省,福建市,福建县,福建镇,福建乡),因为如果维度不拉平则在统计分析时会漏掉直接关联在福建省下的数据.</strong></p>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2019/09/24/mysql存储过程游标的嵌套和使用/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+          <div class="post-eof"></div>
+        
+      </footer>
+  </div>
+  
+  
+  
+  </article>
+
+    
+        <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block home">
     <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2019/09/19/简单实现热部署/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1109,101 +1203,6 @@
   </article>
 
     
-        <article itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2019/09/04/COLA-复杂项目领域驱动设计框架源码和架构解析/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="刘绍煌">
-      <meta itemprop="description" content="刘绍煌的个人博客">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="刘绍煌">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-            
-            <a href="/2019/09/04/COLA-复杂项目领域驱动设计框架源码和架构解析/" class="post-title-link" itemprop="url">COLA-复杂项目领域驱动设计框架源码和架构解析</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2019-09-04 10:48:16 / 修改时间：14:23:03" itemprop="dateCreated datePublished" datetime="2019-09-04T10:48:16+08:00">2019-09-04</time>
-            </span>
-          
-            
-
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/领域驱动设计-DDD/" itemprop="url" rel="index"><span itemprop="name">领域驱动设计(DDD)</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h4 id="COLA简介"><a href="#COLA简介" class="headerlink" title="COLA简介"></a>COLA简介</h4><p>  可自行到github上查看md简介<br>  <a href="https://github.com/alibaba/COLA" target="_blank" rel="noopener">https://github.com/alibaba/COLA</a></p>
-<h4 id="目录结构分析"><a href="#目录结构分析" class="headerlink" title="目录结构分析"></a>目录结构分析</h4><p>COAL提供了一个很方便的maven生成模板，按照项目说明我们生成一个web项目，打开目录我们发现如下几个子模块</p>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2019/09/04/COLA-复杂项目领域驱动设计框架源码和架构解析/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-          <div class="post-eof"></div>
-        
-      </footer>
-  </div>
-  
-  
-  
-  </article>
-
-    
   </div>
 
   
@@ -1253,7 +1252,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">38</span>
+          <span class="site-state-item-count">39</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1296,7 +1295,9 @@
         
           
         
-        <span class="site-state-item-count">14</span>
+          
+        
+        <span class="site-state-item-count">15</span>
         <span class="site-state-item-name">分类</span>
         </a>
       </div>
@@ -1407,7 +1408,9 @@
         
           
         
-        <span class="site-state-item-count">48</span>
+          
+        
+        <span class="site-state-item-count">49</span>
         <span class="site-state-item-name">标签</span>
         </a>
       </div>
