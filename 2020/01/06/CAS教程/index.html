@@ -55,18 +55,18 @@
   };
 </script>
 
-  <meta name="description" content="参考博文地址https://github.com/X-rapido/CAS_SSO_Record 实践中的问题版本本人使用的是5.3.1版本 配置静态json客户单service问题本人使用的版本是5.3.1，在simple-sso包下实践简单SSO登录在CAS服务端application.properties中静态配置service客户端时比没有设置静态json service的路径，网上查找到">
+  <meta name="description" content="参考博文地址https://github.com/X-rapido/CAS_SSO_Record">
 <meta name="keywords" content="CAS">
 <meta property="og:type" content="article">
 <meta property="og:title" content="CAS教程">
 <meta property="og:url" content="http://www.liushaohuang.cn/2020/01/06/CAS教程/index.html">
 <meta property="og:site_name" content="刘绍煌">
-<meta property="og:description" content="参考博文地址https://github.com/X-rapido/CAS_SSO_Record 实践中的问题版本本人使用的是5.3.1版本 配置静态json客户单service问题本人使用的版本是5.3.1，在simple-sso包下实践简单SSO登录在CAS服务端application.properties中静态配置service客户端时比没有设置静态json service的路径，网上查找到">
+<meta property="og:description" content="参考博文地址https://github.com/X-rapido/CAS_SSO_Record">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-01-06T11:53:09.856Z">
+<meta property="og:updated_time" content="2020-01-06T12:23:13.178Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="CAS教程">
-<meta name="twitter:description" content="参考博文地址https://github.com/X-rapido/CAS_SSO_Record 实践中的问题版本本人使用的是5.3.1版本 配置静态json客户单service问题本人使用的版本是5.3.1，在simple-sso包下实践简单SSO登录在CAS服务端application.properties中静态配置service客户端时比没有设置静态json service的路径，网上查找到">
+<meta name="twitter:description" content="参考博文地址https://github.com/X-rapido/CAS_SSO_Record">
   <link rel="canonical" href="http://www.liushaohuang.cn/2020/01/06/CAS教程/">
 
 
@@ -247,7 +247,7 @@
                 
               
 
-              <time title="创建时间：2020-01-06 15:43:04 / 修改时间：19:53:09" itemprop="dateCreated datePublished" datetime="2020-01-06T15:43:04+08:00">2020-01-06</time>
+              <time title="创建时间：2020-01-06 15:43:04 / 修改时间：20:23:13" itemprop="dateCreated datePublished" datetime="2020-01-06T15:43:04+08:00">2020-01-06</time>
             </span>
           
             
@@ -288,10 +288,18 @@
 
       
         <h4 id="参考博文地址"><a href="#参考博文地址" class="headerlink" title="参考博文地址"></a>参考博文地址</h4><p><a href="https://github.com/X-rapido/CAS_SSO_Record" target="_blank" rel="noopener">https://github.com/X-rapido/CAS_SSO_Record</a></p>
+<a id="more"></a>
+
 <h4 id="实践中的问题"><a href="#实践中的问题" class="headerlink" title="实践中的问题"></a>实践中的问题</h4><h5 id="版本"><a href="#版本" class="headerlink" title="版本"></a>版本</h5><p>本人使用的是5.3.1版本</p>
 <h5 id="配置静态json客户单service问题"><a href="#配置静态json客户单service问题" class="headerlink" title="配置静态json客户单service问题"></a>配置静态json客户单service问题</h5><p>本人使用的版本是5.3.1，在simple-sso包下实践简单SSO登录在CAS服务端application.properties中静态配置service客户端时比没有设置静态json service的路径，<br>网上查找到如果不配置默认在resources/services下，但是如果不配置此参数在5.3.1版本中无法识别到客户端json配置，所以需要手动加上以下配置<br>cas.serviceRegistry.json.location=classpath:/services<br>博文中–Service 配置介绍中(<a href="http://www.ibloger.net/article/3122.html)给定的配置如下，但是将配置配成下面时，CAS" target="_blank" rel="noopener">http://www.ibloger.net/article/3122.html)给定的配置如下，但是将配置配成下面时，CAS</a> 服务端无法开启  </p>
 <p>#cas.serviceRegistry.config.location=classpath:/services</p>
 <h5 id="如果不使用https的情况下在CAS服务端application-properties中关闭SSL，如果不关闭会导致无法跨域单点登录"><a href="#如果不使用https的情况下在CAS服务端application-properties中关闭SSL，如果不关闭会导致无法跨域单点登录" class="headerlink" title="如果不使用https的情况下在CAS服务端application.properties中关闭SSL，如果不关闭会导致无法跨域单点登录"></a>如果不使用https的情况下在CAS服务端application.properties中关闭SSL，如果不关闭会导致无法跨域单点登录</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">server.ssl.enabled=false</span><br><span class="line">#解决http下登录状态不互通，无法跨域问题</span><br><span class="line">cas.tgc.secure=false</span><br><span class="line">cas.warningCookie.secure=false</span><br></pre></td></tr></table></figure>
+
+<h5 id="解决http下代理模式无法回调成功"><a href="#解决http下代理模式无法回调成功" class="headerlink" title="解决http下代理模式无法回调成功"></a>解决http下代理模式无法回调成功</h5><p>在http模式下代理模式调用代理端回调函数时会报</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">org.jasig.cas.client.validation.TicketValidationException: 所提供的代理回调网址&apos;https://xxxx&apos;不能提供认证。</span><br></pre></td></tr></table></figure>
+
+<p><strong>这是因为CAS默认代理回调函数只支持https</strong><br>我们需要在CAS服务端中的service注册json文件中添加proxyPolicy属性来增加对http的支持</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;@class&quot; : &quot;org.apereo.cas.services.RegexRegisteredService&quot;,</span><br><span class="line">  &quot;serviceId&quot; : &quot;^(https|http|imaps)://.*&quot;,</span><br><span class="line">  &quot;name&quot; : &quot;HTTPS and HTTP and IMAPS&quot;,</span><br><span class="line">  &quot;id&quot; : 10000001,</span><br><span class="line">  &quot;description&quot; : &quot;This service definition authorizes all application urls that support HTTPS and HTTP and IMAPS protocols.&quot;,</span><br><span class="line">  &quot;evaluationOrder&quot; : 10000,</span><br><span class="line">  &quot;proxyPolicy&quot;: &#123;</span><br><span class="line">    &quot;@class&quot;: &quot;org.apereo.cas.services.RegexMatchingRegisteredServiceProxyPolicy&quot;,</span><br><span class="line">    &quot;pattern&quot;: &quot;^(https|http)?://.*&quot;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
     </div>
@@ -392,7 +400,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#参考博文地址"><span class="nav-number">1.</span> <span class="nav-text">参考博文地址</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#实践中的问题"><span class="nav-number">2.</span> <span class="nav-text">实践中的问题</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#版本"><span class="nav-number">2.1.</span> <span class="nav-text">版本</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#配置静态json客户单service问题"><span class="nav-number">2.2.</span> <span class="nav-text">配置静态json客户单service问题</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#如果不使用https的情况下在CAS服务端application-properties中关闭SSL，如果不关闭会导致无法跨域单点登录"><span class="nav-number">2.3.</span> <span class="nav-text">如果不使用https的情况下在CAS服务端application.properties中关闭SSL，如果不关闭会导致无法跨域单点登录</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#参考博文地址"><span class="nav-number">1.</span> <span class="nav-text">参考博文地址</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#实践中的问题"><span class="nav-number">2.</span> <span class="nav-text">实践中的问题</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#版本"><span class="nav-number">2.1.</span> <span class="nav-text">版本</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#配置静态json客户单service问题"><span class="nav-number">2.2.</span> <span class="nav-text">配置静态json客户单service问题</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#如果不使用https的情况下在CAS服务端application-properties中关闭SSL，如果不关闭会导致无法跨域单点登录"><span class="nav-number">2.3.</span> <span class="nav-text">如果不使用https的情况下在CAS服务端application.properties中关闭SSL，如果不关闭会导致无法跨域单点登录</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#解决http下代理模式无法回调成功"><span class="nav-number">2.4.</span> <span class="nav-text">解决http下代理模式无法回调成功</span></a></li></ol></li></ol></div>
         
       </div>
       <!--/noindex-->

@@ -245,7 +245,7 @@
                 
               
 
-              <time title="创建时间：2020-01-06 15:43:04 / 修改时间：19:53:09" itemprop="dateCreated datePublished" datetime="2020-01-06T15:43:04+08:00">2020-01-06</time>
+              <time title="创建时间：2020-01-06 15:43:04 / 修改时间：20:23:13" itemprop="dateCreated datePublished" datetime="2020-01-06T15:43:04+08:00">2020-01-06</time>
             </span>
           
             
@@ -278,12 +278,15 @@
 
       
           <h4 id="参考博文地址"><a href="#参考博文地址" class="headerlink" title="参考博文地址"></a>参考博文地址</h4><p><a href="https://github.com/X-rapido/CAS_SSO_Record" target="_blank" rel="noopener">https://github.com/X-rapido/CAS_SSO_Record</a></p>
-<h4 id="实践中的问题"><a href="#实践中的问题" class="headerlink" title="实践中的问题"></a>实践中的问题</h4><h5 id="版本"><a href="#版本" class="headerlink" title="版本"></a>版本</h5><p>本人使用的是5.3.1版本</p>
-<h5 id="配置静态json客户单service问题"><a href="#配置静态json客户单service问题" class="headerlink" title="配置静态json客户单service问题"></a>配置静态json客户单service问题</h5><p>本人使用的版本是5.3.1，在simple-sso包下实践简单SSO登录在CAS服务端application.properties中静态配置service客户端时比没有设置静态json service的路径，<br>网上查找到如果不配置默认在resources/services下，但是如果不配置此参数在5.3.1版本中无法识别到客户端json配置，所以需要手动加上以下配置<br>cas.serviceRegistry.json.location=classpath:/services<br>博文中–Service 配置介绍中(<a href="http://www.ibloger.net/article/3122.html)给定的配置如下，但是将配置配成下面时，CAS" target="_blank" rel="noopener">http://www.ibloger.net/article/3122.html)给定的配置如下，但是将配置配成下面时，CAS</a> 服务端无法开启  </p>
-<p>#cas.serviceRegistry.config.location=classpath:/services</p>
-<h5 id="如果不使用https的情况下在CAS服务端application-properties中关闭SSL，如果不关闭会导致无法跨域单点登录"><a href="#如果不使用https的情况下在CAS服务端application-properties中关闭SSL，如果不关闭会导致无法跨域单点登录" class="headerlink" title="如果不使用https的情况下在CAS服务端application.properties中关闭SSL，如果不关闭会导致无法跨域单点登录"></a>如果不使用https的情况下在CAS服务端application.properties中关闭SSL，如果不关闭会导致无法跨域单点登录</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">server.ssl.enabled=false</span><br><span class="line">#解决http下登录状态不互通，无法跨域问题</span><br><span class="line">cas.tgc.secure=false</span><br><span class="line">cas.warningCookie.secure=false</span><br></pre></td></tr></table></figure>
-
-
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2020/01/06/CAS教程/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
         
       
     </div>
