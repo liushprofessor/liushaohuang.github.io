@@ -55,13 +55,13 @@
   };
 </script>
 
-  <meta name="description" content="简介CAS解决了单点登录的问题，网上有很多关于CAS是如何实现单点的文章，但是很少有对详细认证流程做解释，这里做一下梳理。 &amp;lt;! –more –&amp;gt; 核心概念 TGC：Ticket Granting CookieCAS 会将生成的 TGT 放在 session 中，而 TGC 就是这个 session 的唯一标识(sessionId)，可以认为是 TGT 的key，为 TGT 就是 TG">
+  <meta name="description" content="简介CAS解决了单点登录的问题，网上有很多关于CAS是如何实现单点的文章，但是很少有对详细认证流程做解释，这里做一下梳理。">
 <meta name="keywords" content="CAS">
 <meta property="og:type" content="article">
 <meta property="og:title" content="CAS详细认证流程">
 <meta property="og:url" content="http://www.liushaohuang.cn/2020/01/07/CAS详细认证流程/index.html">
 <meta property="og:site_name" content="刘绍煌">
-<meta property="og:description" content="简介CAS解决了单点登录的问题，网上有很多关于CAS是如何实现单点的文章，但是很少有对详细认证流程做解释，这里做一下梳理。 &amp;lt;! –more –&amp;gt; 核心概念 TGC：Ticket Granting CookieCAS 会将生成的 TGT 放在 session 中，而 TGC 就是这个 session 的唯一标识(sessionId)，可以认为是 TGT 的key，为 TGT 就是 TG">
+<meta property="og:description" content="简介CAS解决了单点登录的问题，网上有很多关于CAS是如何实现单点的文章，但是很少有对详细认证流程做解释，这里做一下梳理。">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://www.liushaohuang.cn/images/DF2DF1DE-2BAF-433e-966A-E7ED69F0D39C.png">
 <meta property="og:image" content="http://www.liushaohuang.cn/images/DB0B938A-0957-42fb-8709-ADBCE74DE660.png">
@@ -74,10 +74,10 @@
 <meta property="og:image" content="http://www.liushaohuang.cn/images/A5CB4840-6E92-46eb-811C-7E557ECE80F9.png">
 <meta property="og:image" content="http://www.liushaohuang.cn/images/C41A7388-2CB5-41b8-9ED5-3EA422B5B1D3.png">
 <meta property="og:image" content="http://www.liushaohuang.cn/images/28278BBD-037F-4f3e-A08F-686D7FE81DCF.png">
-<meta property="og:updated_time" content="2020-01-07T07:03:05.826Z">
+<meta property="og:updated_time" content="2020-01-07T07:06:38.584Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="CAS详细认证流程">
-<meta name="twitter:description" content="简介CAS解决了单点登录的问题，网上有很多关于CAS是如何实现单点的文章，但是很少有对详细认证流程做解释，这里做一下梳理。 &amp;lt;! –more –&amp;gt; 核心概念 TGC：Ticket Granting CookieCAS 会将生成的 TGT 放在 session 中，而 TGC 就是这个 session 的唯一标识(sessionId)，可以认为是 TGT 的key，为 TGT 就是 TG">
+<meta name="twitter:description" content="简介CAS解决了单点登录的问题，网上有很多关于CAS是如何实现单点的文章，但是很少有对详细认证流程做解释，这里做一下梳理。">
 <meta name="twitter:image" content="http://www.liushaohuang.cn/images/DF2DF1DE-2BAF-433e-966A-E7ED69F0D39C.png">
   <link rel="canonical" href="http://www.liushaohuang.cn/2020/01/07/CAS详细认证流程/">
 
@@ -259,7 +259,7 @@
                 
               
 
-              <time title="创建时间：2020-01-07 11:09:14 / 修改时间：15:03:05" itemprop="dateCreated datePublished" datetime="2020-01-07T11:09:14+08:00">2020-01-07</time>
+              <time title="创建时间：2020-01-07 11:09:14 / 修改时间：15:06:38" itemprop="dateCreated datePublished" datetime="2020-01-07T11:09:14+08:00">2020-01-07</time>
             </span>
           
             
@@ -300,7 +300,7 @@
 
       
         <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>CAS解决了单点登录的问题，网上有很多关于CAS是如何实现单点的文章，但是很少有对详细认证流程做解释，这里做一下梳理。</p>
-<p>&lt;! –more –&gt;</p>
+<a id="more"></a>
 <h4 id="核心概念"><a href="#核心概念" class="headerlink" title="核心概念"></a>核心概念</h4><ul>
 <li><p>TGC：Ticket Granting Cookie<br>CAS 会将生成的 TGT 放在 session 中，而 TGC 就是这个 session 的唯一标识(sessionId)，可以认为是 TGT 的key，为 TGT 就是 TGC 的 value，TGC 以 cookie 的形式保存在浏览器中，每个请求都会尝试携带 TGC。（每个服务都会在 session 和 cookie 中保存对应的 TGT 和 TGC）</p>
 </li>
