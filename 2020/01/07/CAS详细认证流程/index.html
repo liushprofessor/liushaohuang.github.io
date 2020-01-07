@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.3.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.3.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.3.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.3.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.3.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.3.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="简介CAS解决了单点登录的问题，网上有很多关于CAS是如何实现单点的文章，但是很少有对详细认证流程做解释，这里做一下梳理。 &amp;lt;! –more –&amp;gt; 核心概念 TGC：Ticket Granting CookieCAS 会将生成的 TGT 放在 session 中，而 TGC 就是这个 session 的唯一标识(sessionId)，可以认为是 TGT 的key，为 TGT 就是 TG">
+<meta name="keywords" content="CAS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CAS详细认证流程">
+<meta property="og:url" content="http://www.liushaohuang.cn/2020/01/07/CAS详细认证流程/index.html">
+<meta property="og:site_name" content="刘绍煌">
+<meta property="og:description" content="简介CAS解决了单点登录的问题，网上有很多关于CAS是如何实现单点的文章，但是很少有对详细认证流程做解释，这里做一下梳理。 &amp;lt;! –more –&amp;gt; 核心概念 TGC：Ticket Granting CookieCAS 会将生成的 TGT 放在 session 中，而 TGC 就是这个 session 的唯一标识(sessionId)，可以认为是 TGT 的key，为 TGT 就是 TG">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.liushaohuang.cn/images/DF2DF1DE-2BAF-433e-966A-E7ED69F0D39C.png">
+<meta property="og:image" content="http://www.liushaohuang.cn/images/DB0B938A-0957-42fb-8709-ADBCE74DE660.png">
+<meta property="og:image" content="http://www.liushaohuang.cn/images/45379EFD-77B3-494e-B42A-19BBFA6785EB.png">
+<meta property="og:image" content="http://www.liushaohuang.cn/images/5DCCD66E-2FE4-45f7-BFF0-E522829D6973.png">
+<meta property="og:image" content="http://www.liushaohuang.cn/images/0575484B-0275-4ec7-A739-5821EB71E76C.png">
+<meta property="og:image" content="http://www.liushaohuang.cn/images/6AD1D5D4-4186-4563-99D3-14D82EF80C8A.png">
+<meta property="og:image" content="http://www.liushaohuang.cn/images/E547994D-18F7-49bd-9B87-C1CE732CC268.png">
+<meta property="og:image" content="http://www.liushaohuang.cn/images/563DBE70-FB49-452d-9F92-427BE4CA2FE2.png">
+<meta property="og:image" content="http://www.liushaohuang.cn/images/A5CB4840-6E92-46eb-811C-7E557ECE80F9.png">
+<meta property="og:image" content="http://www.liushaohuang.cn/images/C41A7388-2CB5-41b8-9ED5-3EA422B5B1D3.png">
+<meta property="og:image" content="http://www.liushaohuang.cn/images/28278BBD-037F-4f3e-A08F-686D7FE81DCF.png">
+<meta property="og:updated_time" content="2020-01-07T07:03:05.826Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="CAS详细认证流程">
+<meta name="twitter:description" content="简介CAS解决了单点登录的问题，网上有很多关于CAS是如何实现单点的文章，但是很少有对详细认证流程做解释，这里做一下梳理。 &amp;lt;! –more –&amp;gt; 核心概念 TGC：Ticket Granting CookieCAS 会将生成的 TGT 放在 session 中，而 TGC 就是这个 session 的唯一标识(sessionId)，可以认为是 TGT 的key，为 TGT 就是 TG">
+<meta name="twitter:image" content="http://www.liushaohuang.cn/images/DF2DF1DE-2BAF-433e-966A-E7ED69F0D39C.png">
+  <link rel="canonical" href="http://www.liushaohuang.cn/2020/01/07/CAS详细认证流程/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>CAS详细认证流程 | 刘绍煌</title>
+  <meta name="generator" content="Hexo 3.9.0">
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">刘绍煌</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2020/01/07/CAS详细认证流程/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="刘绍煌">
+      <meta itemprop="description" content="刘绍煌的个人博客">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="刘绍煌">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">CAS详细认证流程
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-01-07 11:09:14 / 修改时间：15:03:05" itemprop="dateCreated datePublished" datetime="2020-01-07T11:09:14+08:00">2020-01-07</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/CAS/" itemprop="url" rel="index"><span itemprop="name">CAS</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span class="post-meta-item" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>CAS解决了单点登录的问题，网上有很多关于CAS是如何实现单点的文章，但是很少有对详细认证流程做解释，这里做一下梳理。</p>
+<p>&lt;! –more –&gt;</p>
+<h4 id="核心概念"><a href="#核心概念" class="headerlink" title="核心概念"></a>核心概念</h4><ul>
+<li><p>TGC：Ticket Granting Cookie<br>CAS 会将生成的 TGT 放在 session 中，而 TGC 就是这个 session 的唯一标识(sessionId)，可以认为是 TGT 的key，为 TGT 就是 TGC 的 value，TGC 以 cookie 的形式保存在浏览器中，每个请求都会尝试携带 TGC。（每个服务都会在 session 和 cookie 中保存对应的 TGT 和 TGC）</p>
+</li>
+<li><p>TGT：Ticket Granting Ticket<br>TGT 是CAS 为用户签发的登录 ticket，也是用于验证用户登录成功的唯一方式。 TGT 封装了 Cookie 值以及 Cookie 值对应的用户信息，CAS 通过 Cookie 值（TGC）为 key 查询缓存中有无 TGT（TGC:TGT（key:value）），如果有的话就说明用户已经登录成。</p>
+</li>
+<li><p>ST：Service Ticket<br>ST 是当用户访问某一服务时提供的 ticket。用户在访问其他服务时，发现没有 cookie 或 ST ，那么就会302到 CAS 服务器获取 ST。然后会携带着 ST 302 回来。</p>
+</li>
+</ul>
+<h4 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h4><p>我们这里准备了3台节点来测试,1和2服务分别对应接入单点的2个系统，我们开启这3个服务</p>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>域名</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>app1.com</td>
+<td>应用1</td>
+</tr>
+<tr>
+<td>2</td>
+<td>app2.com</td>
+<td>应用2</td>
+</tr>
+<tr>
+<td>3</td>
+<td>localhost/cas</td>
+<td>CAS单点登录服务器</td>
+</tr>
+</tbody></table>
+<h4 id="第一次访问app1"><a href="#第一次访问app1" class="headerlink" title="第一次访问app1"></a>第一次访问app1</h4><p>我们访问app1下的接口<a href="http://app1.com:8181/book/books" target="_blank" rel="noopener">http://app1.com:8181/book/books</a> ，由于此时浏览器第一次访问app1，之前并没登录，在CAS的client中会做一次跳转，将我们访问的地址重新定向到cas单点登录服务器,我们可以看到此时浏览器一共做了2次操作，第一次如下图，服务器返回302，在respone中返回Location:来标明接下来要重定向的地址，在url中带了一个service的参数，这个参数用来标明在Cas认证完成后，要调转回原来服务的地址<br><img src="/images/DF2DF1DE-2BAF-433e-966A-E7ED69F0D39C.png" alt="图片"><br>接下来浏览器根据上一步浏览器返回的地址进行跳转，跳转到CAS服务器，进行账号密码认证<br><img src="/images/DB0B938A-0957-42fb-8709-ADBCE74DE660.png" alt="图片">  </p>
+<h4 id="第一次认证"><a href="#第一次认证" class="headerlink" title="第一次认证"></a>第一次认证</h4><p>接上上一步，我们在CAS中输入账号和密码，我们可以看到浏览器进行了如下操作<br>提交账号密码并返回302进行重定向，<strong>我们可以注意一下在重定向的Location:中返回了一个临时票据ST，并且我们注意到当前在CAS服务器的这个域名下存入了cookieTGC,这里是跨域完成单点登录最重要的一步，因为传统模式下cookie是不能跨域的，但是我们单点登录不同系统往往是跨域名的，如果只将cooike存在当前系统下的不行的，因为不同域不能访问不同的cookie，于是CAS投机取巧的把cookie存放在了CAS所在的域名下，所有子系统在浏览器第一次访问时都要跳转的CAS服务器，那么这时候CAS就可以获取CAS服务端下的cookie，那么这时候CAS服务器只要查看本域名下时候有cookie就知道用户是否已经登陆过，如果登陆了再把信息存入到各个系统的session中，这样就不要每次访问都经过cas服务器，具体原理我们在下面查看</strong><br><img src="/images/45379EFD-77B3-494e-B42A-19BBFA6785EB.png" alt="图片">  </p>
+<p><img src="/images/5DCCD66E-2FE4-45f7-BFF0-E522829D6973.png" alt="图片">  </p>
+<p>访问重定向的地址，其中地址中带上ST临时票据来进行安全认证，并且返回302，重新定向到我们最开始访问的地址<br><img src="/images/0575484B-0275-4ec7-A739-5821EB71E76C.png" alt="图片"></p>
+<p>最后访问我们最开始要访问的地址<br><img src="/images/6AD1D5D4-4186-4563-99D3-14D82EF80C8A.png" alt="图片"></p>
+<p><strong>这时我们发现请求中已经没有带上任何cookie的信息了，那么CAS是如何知道我们已经完成过登录验证了呢？因为我们使用的CAS提供的client包已经将SESSION_ID存入服务器的SESSION，这里的原理就和我们使用SESSION来做登录原理一样了。</strong><br>我们来查看一下具体源码来证实一下我们的想法<br>CAS客户端主要是由Servlet拦截器去实现的，我们在上一篇提到的博文中在客户端中注册了Cas30ProxyReceivingTicketValidationFilter拦截器和AuthenticationFilter拦截器，而且规定Cas30ProxyReceivingTicketValidationFilter拦截器必须要在AuthenticationFilter的前面，这是为什么呢？<strong>因为前者是负责验证ticket的或者是用来做认证的(没有登录的话跳转到CAS服务器)，前者认证完ticket会把验证对象放入到session中，如果AuthenticationFilter发现session中存在验证对象则跳过拦截器。</strong><br>我们查看一下Cas30ProxyReceivingTicketValidationFilter拦截器的父类AbstractTicketValidationFilter，其中的doFilter方法实现了拦截器的主体逻辑，下面我的注释已经写出最主要的逻辑</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">public abstract class AbstractTicketValidationFilter extends AbstractCasFilter &#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  public final void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException &#123;</span><br><span class="line">    //此方法验证拦截器的前置条件在Cas30ProxyReceivingTicketValidationFilter中实现的是代理前置过滤，如果拦截器设置了代理地址则不进入拦截器</span><br><span class="line">    if (this.preFilter(servletRequest, servletResponse, filterChain)) &#123;</span><br><span class="line">        HttpServletRequest request = (HttpServletRequest)servletRequest;</span><br><span class="line">        HttpServletResponse response = (HttpServletResponse)servletResponse;</span><br><span class="line">        String ticket = this.retrieveTicketFromRequest(request);</span><br><span class="line">        if (CommonUtils.isNotBlank(ticket)) &#123;</span><br><span class="line">            this.logger.debug(&quot;Attempting to validate ticket: &#123;&#125;&quot;, ticket);</span><br><span class="line"></span><br><span class="line">            try &#123;</span><br><span class="line">                //此部分为远程调用CAS服务端接口来验证ticket是否合法，如果合法生成Assertion验证对象</span><br><span class="line">                Assertion assertion = this.ticketValidator.validate(ticket, this.constructServiceUrl(request, response));</span><br><span class="line">                this.logger.debug(&quot;Successfully authenticated user: &#123;&#125;&quot;, assertion.getPrincipal().getName());</span><br><span class="line">                request.setAttribute(&quot;_const_cas_assertion_&quot;, assertion);</span><br><span class="line">                //将验证对象存入session</span><br><span class="line">                if (this.useSession) &#123;</span><br><span class="line">                    request.getSession().setAttribute(&quot;_const_cas_assertion_&quot;, assertion);</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                this.onSuccessfulValidation(request, response, assertion);</span><br><span class="line">                if (this.redirectAfterValidation) &#123;</span><br><span class="line">                    this.logger.debug(&quot;Redirecting after successful ticket validation.&quot;);</span><br><span class="line">                    response.sendRedirect(this.constructServiceUrl(request, response));</span><br><span class="line">                    return;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; catch (TicketValidationException var8) &#123;</span><br><span class="line">                this.logger.debug(var8.getMessage(), var8);</span><br><span class="line">                this.onFailedValidation(request, response);</span><br><span class="line">                if (this.exceptionOnValidationFailure) &#123;</span><br><span class="line">                    throw new ServletException(var8);</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                response.sendError(403, var8.getMessage());</span><br><span class="line">                return;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        filterChain.doFilter(request, response);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面我们说到Cas30ProxyReceivingTicketValidationFilter必须要在AuthenticationFilter拦截器之前，我们现在看下AuthenticationFilter拦截器又做了什么<strong>最主要的逻辑就是从session中获取验证过滤器中放入的Assertion对象，如果存在则认为已经登陆过，没有则跳转到CAS服务器去登陆</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">public class AuthenticationFilter extends AbstractCasFilter &#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  public final void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException &#123;</span><br><span class="line">        HttpServletRequest request = (HttpServletRequest)servletRequest;</span><br><span class="line">        HttpServletResponse response = (HttpServletResponse)servletResponse;</span><br><span class="line">        //如果跳过验证，白名单</span><br><span class="line">        if (this.isRequestUrlExcluded(request)) &#123;</span><br><span class="line">            this.logger.debug(&quot;Request is ignored.&quot;);</span><br><span class="line">            filterChain.doFilter(request, response);</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            HttpSession session = request.getSession(false);</span><br><span class="line">            Assertion assertion = session != null ? (Assertion)session.getAttribute(&quot;_const_cas_assertion_&quot;) : null;</span><br><span class="line">            //如果session中存在值则跳出拦截器，认为此次访问已经登陆过</span><br><span class="line">            if (assertion != null) &#123;</span><br><span class="line">                filterChain.doFilter(request, response);</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                //如果session中没有值重定向到CAS服务器去登陆</span><br><span class="line">                String serviceUrl = this.constructServiceUrl(request, response);</span><br><span class="line">                String ticket = this.retrieveTicketFromRequest(request);</span><br><span class="line">                boolean wasGatewayed = this.gateway &amp;&amp; this.gatewayStorage.hasGatewayedAlready(request, serviceUrl);</span><br><span class="line">                if (!CommonUtils.isNotBlank(ticket) &amp;&amp; !wasGatewayed) &#123;</span><br><span class="line">                    this.logger.debug(&quot;no ticket and no assertion found&quot;);</span><br><span class="line">                    String modifiedServiceUrl;</span><br><span class="line">                    if (this.gateway) &#123;</span><br><span class="line">                        this.logger.debug(&quot;setting gateway attribute in session&quot;);</span><br><span class="line">                        modifiedServiceUrl = this.gatewayStorage.storeGatewayInformation(request, serviceUrl);</span><br><span class="line">                    &#125; else &#123;</span><br><span class="line">                        modifiedServiceUrl = serviceUrl;</span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                    this.logger.debug(&quot;Constructed service url: &#123;&#125;&quot;, modifiedServiceUrl);</span><br><span class="line">                    String urlToRedirectTo = CommonUtils.constructRedirectUrl(this.casServerLoginUrl, this.getProtocol().getServiceParameterName(), modifiedServiceUrl, this.renew, this.gateway);</span><br><span class="line">                    this.logger.debug(&quot;redirecting to \&quot;&#123;&#125;\&quot;&quot;, urlToRedirectTo);</span><br><span class="line">                    this.authenticationRedirectStrategy.redirect(request, response, urlToRedirectTo);</span><br><span class="line">                &#125; else &#123;</span><br><span class="line">                    filterChain.doFilter(request, response);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="接下来我们第一次访问APP2应用来证实我们上面所说的流程"><a href="#接下来我们第一次访问APP2应用来证实我们上面所说的流程" class="headerlink" title="接下来我们第一次访问APP2应用来证实我们上面所说的流程"></a>接下来我们第一次访问APP2应用来证实我们上面所说的流程</h4><p>在我们已经登陆过app1的情况下我们访问app2 <a href="http://app2.com:8282/book/books" target="_blank" rel="noopener">http://app2.com:8282/book/books</a>  ，我们看到服务器发出302请求跳转到CAS服务端</p>
+<p><img src="/images/E547994D-18F7-49bd-9B87-C1CE732CC268.png" alt="图片">  </p>
+<p>接下来浏览器自动跳转到CAS服务器的域名，这里我们看到这里带上了CAS域名localhost下的cookie<br><img src="/images/563DBE70-FB49-452d-9F92-427BE4CA2FE2.png" alt="图片">  </p>
+<p>这时CAS就用这个cookie从服务端中查找，发现已经登陆过了，继续发出302请求，并且在Location: 跳转地址中在url中下发st<br><img src="/images/A5CB4840-6E92-46eb-811C-7E557ECE80F9.png" alt="图片">  </p>
+<p>接下来又下发302请求要求浏览器使用st去验证时候是本人发起的访问，如果验证成功在respone中重新定向到我们之前要访问的地址<br><img src="/images/C41A7388-2CB5-41b8-9ED5-3EA422B5B1D3.png" alt="图片">  </p>
+<p>最后完成访问，这时候session_id已经存入到app2的session中，所以后续的访问不会再经过上面的逻辑，直接从App2服务端中获取session中就知道应用时候已经登陆<br><img src="/images/28278BBD-037F-4f3e-A08F-686D7FE81DCF.png" alt="图片">  </p>
+<h4 id="ticket时效总结"><a href="#ticket时效总结" class="headerlink" title="ticket时效总结"></a>ticket时效总结</h4><p><strong>由上述论证我们可以得到ticket时效，如果ticket（TGT）在CAS服务端中过期，但是应用中session没有过期，仍然有效的话，那么应用仍然可以登录，如果应用中session时效的话，CAS的ticket(TGT)未过期，那么应用仍然可以通过上述方式重新生成session，只有在CAS中的ticket和应用中的session同时失效的情况下，才需要重新登录</strong></p>
+
+    </div>
+
+    
+    
+    
+        
+      
+        <div id="reward-container">
+  <div></div>
+  <button id="reward-button" disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/赞赏码.png" alt="刘绍煌 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/CAS/" rel="tag"># CAS</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/01/06/CAS教程/" rel="next" title="CAS教程">
+                  <i class="fa fa-chevron-left"></i> CAS教程
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#核心概念"><span class="nav-number">2.</span> <span class="nav-text">核心概念</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#环境准备"><span class="nav-number">3.</span> <span class="nav-text">环境准备</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#第一次访问app1"><span class="nav-number">4.</span> <span class="nav-text">第一次访问app1</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#第一次认证"><span class="nav-number">5.</span> <span class="nav-text">第一次认证</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#接下来我们第一次访问APP2应用来证实我们上面所说的流程"><span class="nav-number">6.</span> <span class="nav-text">接下来我们第一次访问APP2应用来证实我们上面所说的流程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ticket时效总结"><span class="nav-number">7.</span> <span class="nav-text">ticket时效总结</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">刘绍煌</p>
+  <div class="site-description" itemprop="description">刘绍煌的个人博客</div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">40</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">49</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">刘绍煌</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.3.0</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.3.0"></script><script src="/js/motion.js?v=7.3.0"></script>
+<script src="/js/schemes/pisces.js?v=7.3.0"></script>
+<script src="/js/next-boot.js?v=7.3.0"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
