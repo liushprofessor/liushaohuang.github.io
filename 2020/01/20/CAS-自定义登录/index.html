@@ -55,18 +55,18 @@
   };
 </script>
 
-  <meta name="description" content="简介CAS提供了单点登录服务功能，但是默认只使用账号密码登录，在现实项目中往往需要添加各种验证因子比如短信和验证码等，通过对源码的跟踪和分析这边简介一下CAS登录验证逻辑的大致流程和如何定制登录代码.   前置学习条件CAS 是使用 Spring Web Flow 和 Thymeleaf来实现登录页面的  Thymeleaf  是一个模板渲染引擎，这部分和jsp有一点点类似，只要接触过 MVC 架">
+  <meta name="description" content="简介CAS提供了单点登录服务功能，但是默认只使用账号密码登录，在现实项目中往往需要添加各种验证因子比如短信和验证码等，通过对源码的跟踪和分析这边简介一下CAS登录验证逻辑的大致流程和如何定制登录代码.">
 <meta name="keywords" content="CAS">
 <meta property="og:type" content="article">
 <meta property="og:title" content="CAS 自定义登录">
 <meta property="og:url" content="http://www.liushaohuang.cn/2020/01/20/CAS-自定义登录/index.html">
 <meta property="og:site_name" content="刘绍煌">
-<meta property="og:description" content="简介CAS提供了单点登录服务功能，但是默认只使用账号密码登录，在现实项目中往往需要添加各种验证因子比如短信和验证码等，通过对源码的跟踪和分析这边简介一下CAS登录验证逻辑的大致流程和如何定制登录代码.   前置学习条件CAS 是使用 Spring Web Flow 和 Thymeleaf来实现登录页面的  Thymeleaf  是一个模板渲染引擎，这部分和jsp有一点点类似，只要接触过 MVC 架">
+<meta property="og:description" content="简介CAS提供了单点登录服务功能，但是默认只使用账号密码登录，在现实项目中往往需要添加各种验证因子比如短信和验证码等，通过对源码的跟踪和分析这边简介一下CAS登录验证逻辑的大致流程和如何定制登录代码.">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-01-20T08:36:05.579Z">
+<meta property="og:updated_time" content="2020-01-20T08:37:55.713Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="CAS 自定义登录">
-<meta name="twitter:description" content="简介CAS提供了单点登录服务功能，但是默认只使用账号密码登录，在现实项目中往往需要添加各种验证因子比如短信和验证码等，通过对源码的跟踪和分析这边简介一下CAS登录验证逻辑的大致流程和如何定制登录代码.   前置学习条件CAS 是使用 Spring Web Flow 和 Thymeleaf来实现登录页面的  Thymeleaf  是一个模板渲染引擎，这部分和jsp有一点点类似，只要接触过 MVC 架">
+<meta name="twitter:description" content="简介CAS提供了单点登录服务功能，但是默认只使用账号密码登录，在现实项目中往往需要添加各种验证因子比如短信和验证码等，通过对源码的跟踪和分析这边简介一下CAS登录验证逻辑的大致流程和如何定制登录代码.">
   <link rel="canonical" href="http://www.liushaohuang.cn/2020/01/20/CAS-自定义登录/">
 
 
@@ -247,7 +247,7 @@
                 
               
 
-              <time title="创建时间：2020-01-20 10:55:28 / 修改时间：16:36:05" itemprop="dateCreated datePublished" datetime="2020-01-20T10:55:28+08:00">2020-01-20</time>
+              <time title="创建时间：2020-01-20 10:55:28 / 修改时间：16:37:55" itemprop="dateCreated datePublished" datetime="2020-01-20T10:55:28+08:00">2020-01-20</time>
             </span>
           
             
@@ -288,7 +288,7 @@
 
       
         <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>CAS提供了单点登录服务功能，但是默认只使用账号密码登录，在现实项目中往往需要添加各种验证因子比如短信和验证码等，通过对源码的跟踪和分析这边简介一下CAS登录验证逻辑的大致流程和如何定制登录代码.</p>
-<!-- --more -->
+<a id="more"></a>
 
 <h4 id="前置学习条件"><a href="#前置学习条件" class="headerlink" title="前置学习条件"></a>前置学习条件</h4><p>CAS 是使用 Spring Web Flow 和 Thymeleaf来实现登录页面的  Thymeleaf  是一个模板渲染引擎，这部分和jsp有一点点类似，只要接触过 MVC 架构这一块就没有太大问题，在跟踪代码问题中主要问题在 Spring Web Flow 需要对Spring Web Flow的基础概念有一定的了解才能大致了解源码的运行流畅和自定义登录代码，Spring Web Flow的基础概念，只要了解了基础概念定制 CAS 的登录就不会有太大问题：一下是之前写的关于 Spring Web Flow  的基础概念的文档<br><a href="https://liushaohuang.cn/2020/01/17/Spring-Web-flow-%E6%A6%82%E5%BF%B5%E7%AE%80%E4%BB%8B/" target="_blank" rel="noopener">https://liushaohuang.cn/2020/01/17/Spring-Web-flow-%E6%A6%82%E5%BF%B5%E7%AE%80%E4%BB%8B/</a></p>
 <h4 id="找到入口Flow-入口"><a href="#找到入口Flow-入口" class="headerlink" title="找到入口Flow 入口"></a>找到入口Flow 入口</h4><ul>
