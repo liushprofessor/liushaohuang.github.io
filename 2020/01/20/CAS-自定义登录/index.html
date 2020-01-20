@@ -55,31 +55,33 @@
   };
 </script>
 
-  <meta name="description" content="刘绍煌的个人博客">
-<meta property="og:type" content="website">
-<meta property="og:title" content="刘绍煌">
-<meta property="og:url" content="http://www.liushaohuang.cn/index.html">
+  <meta name="description" content="简介CAS提供了单点登录服务功能，但是默认只使用账号密码登录，在现实项目中往往需要添加各种验证因子比如短信和验证码等，通过对源码的跟踪和分析这边简介一下CAS登录验证逻辑的大致流程和如何定制登录代码. &amp;lt;! –more –&amp;gt; 前置学习条件CAS 是使用 Spring Web Flow 和 Thymeleaf来实现登录页面的  Thymeleaf  是一个模板渲染引擎，这部分和jsp有一">
+<meta name="keywords" content="CAS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CAS 自定义登录">
+<meta property="og:url" content="http://www.liushaohuang.cn/2020/01/20/CAS-自定义登录/index.html">
 <meta property="og:site_name" content="刘绍煌">
-<meta property="og:description" content="刘绍煌的个人博客">
+<meta property="og:description" content="简介CAS提供了单点登录服务功能，但是默认只使用账号密码登录，在现实项目中往往需要添加各种验证因子比如短信和验证码等，通过对源码的跟踪和分析这边简介一下CAS登录验证逻辑的大致流程和如何定制登录代码. &amp;lt;! –more –&amp;gt; 前置学习条件CAS 是使用 Spring Web Flow 和 Thymeleaf来实现登录页面的  Thymeleaf  是一个模板渲染引擎，这部分和jsp有一">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-01-20T08:33:48.089Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="刘绍煌">
-<meta name="twitter:description" content="刘绍煌的个人博客">
-  <link rel="canonical" href="http://www.liushaohuang.cn/">
+<meta name="twitter:title" content="CAS 自定义登录">
+<meta name="twitter:description" content="简介CAS提供了单点登录服务功能，但是默认只使用账号密码登录，在现实项目中往往需要添加各种验证因子比如短信和验证码等，通过对源码的跟踪和分析这边简介一下CAS登录验证逻辑的大致流程和如何定制登录代码. &amp;lt;! –more –&amp;gt; 前置学习条件CAS 是使用 Spring Web Flow 和 Thymeleaf来实现登录页面的  Thymeleaf  是一个模板渲染引擎，这部分和jsp有一">
+  <link rel="canonical" href="http://www.liushaohuang.cn/2020/01/20/CAS-自定义登录/">
 
 
 <script id="page-configurations">
   // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
-    isHome: true,
-    isPost: false,
+    isHome: false,
+    isPost: true,
     isPage: false,
     isArchive: false
   };
 </script>
 
-  <title>刘绍煌</title>
+  <title>CAS 自定义登录 | 刘绍煌</title>
   <meta name="generator" content="Hexo 3.9.0">
   
 
@@ -210,12 +212,13 @@
 
           <div id="content" class="content">
             
+
   <div id="posts" class="posts-expand">
-        <article itemscope itemtype="http://schema.org/Article">
+      <article itemscope itemtype="http://schema.org/Article">
   
   
   
-  <div class="post-block home">
+  <div class="post-block post">
     <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2020/01/20/CAS-自定义登录/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -228,9 +231,8 @@
       <meta itemprop="name" content="刘绍煌">
     </span>
       <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-            
-            <a href="/2020/01/20/CAS-自定义登录/" class="post-title-link" itemprop="url">CAS 自定义登录</a>
+        <h1 class="post-title" itemprop="name headline">CAS 自定义登录
+
           
         </h1>
 
@@ -267,6 +269,14 @@
           
 
           
+            <span class="post-meta-item" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
 
         </div>
       </header>
@@ -277,7 +287,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>CAS提供了单点登录服务功能，但是默认只使用账号密码登录，在现实项目中往往需要添加各种验证因子比如短信和验证码等，通过对源码的跟踪和分析这边简介一下CAS登录验证逻辑的大致流程和如何定制登录代码.</p>
+        <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>CAS提供了单点登录服务功能，但是默认只使用账号密码登录，在现实项目中往往需要添加各种验证因子比如短信和验证码等，通过对源码的跟踪和分析这边简介一下CAS登录验证逻辑的大致流程和如何定制登录代码.</p>
 <p>&lt;! –more –&gt;</p>
 <h4 id="前置学习条件"><a href="#前置学习条件" class="headerlink" title="前置学习条件"></a>前置学习条件</h4><p>CAS 是使用 Spring Web Flow 和 Thymeleaf来实现登录页面的  Thymeleaf  是一个模板渲染引擎，这部分和jsp有一点点类似，只要接触过 MVC 架构这一块就没有太大问题，在跟踪代码问题中主要问题在 Spring Web Flow 需要对Spring Web Flow的基础概念有一定的了解才能大致了解源码的运行流畅和自定义登录代码，Spring Web Flow的基础概念，只要了解了基础概念定制 CAS 的登录就不会有太大问题：一下是之前写的关于 Spring Web Flow  的基础概念的文档<br><a href="https://liushaohuang.cn/2020/01/17/Spring-Web-flow-%E6%A6%82%E5%BF%B5%E7%AE%80%E4%BB%8B/" target="_blank" rel="noopener">https://liushaohuang.cn/2020/01/17/Spring-Web-flow-%E6%A6%82%E5%BF%B5%E7%AE%80%E4%BB%8B/</a></p>
 <h4 id="找到入口Flow-入口"><a href="#找到入口Flow-入口" class="headerlink" title="找到入口Flow 入口"></a>找到入口Flow 入口</h4><ul>
@@ -385,902 +395,69 @@
 </li>
 </ul>
 
-        
-      
     </div>
 
     
     
     
-      <footer class="post-footer">
-          <div class="post-eof"></div>
         
-      </footer>
+      
+        <div id="reward-container">
+  <div></div>
+  <button id="reward-button" disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/赞赏码.png" alt="刘绍煌 微信支付">
+        <p>微信支付</p>
+      </div>
+
   </div>
-  
-  
-  
-  </article>
-
-    
-        <article itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2020/01/17/Spring-Web-flow-概念简介/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="刘绍煌">
-      <meta itemprop="description" content="刘绍煌的个人博客">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="刘绍煌">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-            
-            <a href="/2020/01/17/Spring-Web-flow-概念简介/" class="post-title-link" itemprop="url">Spring Web flow 概念简介</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-01-17 14:50:36" itemprop="dateCreated datePublished" datetime="2020-01-17T14:50:36+08:00">2020-01-17</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-01-19 09:09:42" itemprop="dateModified" datetime="2020-01-19T09:09:42+08:00">2020-01-19</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Web-Flow/" itemprop="url" rel="index"><span itemprop="name">Web Flow</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
+</div>
 
       
-          <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>最近在搭建CAS单点登录，CAS中使用了Spring Web Flow来构建MVC 应用，需要对Web Flow的基本概念有一定的了解才能进行CAS登录的改造。</p>
-<h4 id="什么是Spring-Web-Flow"><a href="#什么是Spring-Web-Flow" class="headerlink" title="什么是Spring Web Flow"></a>什么是Spring Web Flow</h4><p>Flow字面上的意思为工作流，意思就是将一系列的操作进行编排，使用户较为直观的了解整个业务流程，比如OA系统中的工作流，IT管理人员在OA系统中编辑了一个请假的工作流，那么在员工在OA上提出请假单时，就可以直观的查看请假的流程是什么，现在流程进行到哪一步,Spring Web Flow对Spring MVC进行了再一次封装，使之前在Controller的页面和动作跳转已工作流的这种形式直观的体现出来，可以在xml中配置和查看某个业务具体的流程跳转(<strong>Spring Web Flow是基于SpringMVC的基础上开发的，允许web应用对flows实现。一个Flow封装了一些列的操作步骤，引导用户执行某些业务任务。Flows可以包含多个HTTP的请求，她有状态、能处理事务的数据，是可重用的，本质上是可以动态的长时间运行</strong>).  </p>
-<h4 id="Spring-Web-Flow-的基本配置"><a href="#Spring-Web-Flow-的基本配置" class="headerlink" title="Spring Web Flow 的基本配置"></a>Spring Web Flow 的基本配置</h4><p><strong>每个Flow可以包含多个如下的配置：</strong>  </p>
-<ul>
-<li>Actions: 一个可执行任务和有返回结果的组件  </li>
-<li>Transitions: 把Flow从一个状态转到另外一个状态；转换可能对整个FLow有全局影响。  </li>
-<li>Views: 把表示层展现到客户端显示的组件  </li>
-<li>Decisions: 路由到其他的Flow，可以有逻辑的判定组件  </li>
-</ul>
-<p>Flow 可看作是客户端与服务器的一次对话（ conversation ）。 Flow 的完成要由分多个步骤来实现，在 Spring Web Flow 的语义中，步骤指的就是 state 。 Spring Web Flow 提供了五种 state ，分别是 Action State 、 View State 、 Subflow State 、 Decision State 、 End State ，这些 state 可用于定义 flow 执行过程中的各个步骤。除了 End State 外，其他 state 都可以转换到别的 state ，一般通过在 state 中定义 transition 来实现到其他 state 的转换，转换的发生一般由事件（ event ）来触发</p>
-<h4 id="Spring-Web-Flow的核心类"><a href="#Spring-Web-Flow的核心类" class="headerlink" title="Spring Web Flow的核心类"></a>Spring Web Flow的核心类</h4><ul>
-<li><p>FlowRegistry  </p>
-<p>FlowRegistry 是存放 flow 的仓库，每个定义 flow 的 XML 文档被解析后，都会被分配一个唯一的 id ，并以 FlowDefinition 对象的形式存放在 FlowResigtry 中。</p>
-</li>
-<li><p>FlowExecutor</p>
-<p>FlowExecutor 是 Spring Web Flow 的一个核心接口，启动某个 flow ，都要通过这个接口来进行</p>
-</li>
-</ul>
-<ul>
-<li><p>FlowBuilder Services  </p>
-<p>flow-builder-services 属性的配置指明了在这个 flow-registry “仓库”里的 flow 的一些基本特性，例如，是用 Unified EL 还是 OGNL， model （模型）对象中的数据在显示之前是否需要先作转换，等等。比如我们需要在 flow-builder-services 属性中指明 Spring Web Flow 中所用到的 view ，由 Spring Web MVC 的“ View Resolver ”来查找，由 Spring Web MVC 的“ View Class”来解析，最后呈现给客户。  </p>
-</li>
-</ul>
-<h4 id="Flow-的xml配置"><a href="#Flow-的xml配置" class="headerlink" title="Flow 的xml配置"></a>Flow 的xml配置</h4><p>下面是CAS 的login-webflow.xmlw配置文件</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span><br><span class="line">&lt;flow xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span><br><span class="line">      xmlns=&quot;http://www.springframework.org/schema/webflow&quot;</span><br><span class="line">      xsi:schemaLocation=&quot;http://www.springframework.org/schema/webflow</span><br><span class="line">                          http://www.springframework.org/schema/webflow/spring-webflow.xsd&quot;&gt;</span><br><span class="line"></span><br><span class="line">    &lt;action-state id=&quot;initializeLoginForm&quot;&gt;</span><br><span class="line">        &lt;evaluate expression=&quot;initializeLoginAction&quot; /&gt;</span><br><span class="line">        &lt;transition on=&quot;success&quot; to=&quot;viewLoginForm&quot;/&gt;</span><br><span class="line">    &lt;/action-state&gt;</span><br><span class="line"></span><br><span class="line">    &lt;view-state id=&quot;viewLoginForm&quot; view=&quot;casLoginView&quot; model=&quot;credential&quot;&gt;</span><br><span class="line">        &lt;binder&gt;</span><br><span class="line">            &lt;binding property=&quot;username&quot; required=&quot;true&quot;/&gt;</span><br><span class="line">            &lt;binding property=&quot;password&quot; required=&quot;true&quot;/&gt;</span><br><span class="line">        &lt;/binder&gt;</span><br><span class="line">        &lt;transition on=&quot;submit&quot; bind=&quot;true&quot; validate=&quot;true&quot; to=&quot;realSubmit&quot; history=&quot;invalidate&quot;/&gt;</span><br><span class="line">    &lt;/view-state&gt;</span><br><span class="line"></span><br><span class="line">    &lt;action-state id=&quot;realSubmit&quot;&gt;</span><br><span class="line">        &lt;evaluate expression=&quot;authenticationViaFormAction&quot;/&gt;</span><br><span class="line">        &lt;transition on=&quot;warn&quot; to=&quot;warn&quot;/&gt;</span><br><span class="line">        &lt;transition on=&quot;success&quot; to=&quot;createTicketGrantingTicket&quot;/&gt;</span><br><span class="line">        &lt;transition on=&quot;successWithWarnings&quot; to=&quot;showAuthenticationWarningMessages&quot;/&gt;</span><br><span class="line">        &lt;transition on=&quot;authenticationFailure&quot; to=&quot;handleAuthenticationFailure&quot;/&gt;</span><br><span class="line">        &lt;transition on=&quot;error&quot; to=&quot;initializeLoginForm&quot;/&gt;</span><br><span class="line">    &lt;/action-state&gt;</span><br><span class="line">&lt;/flow&gt;</span><br></pre></td></tr></table></figure>
 
-<p>CAS中对Spring Web Flow的代码进行了二次封装，主体的逻辑是在程序开启时将login这个url和上述的web flow做绑定,当访问后缀为login的地址时会自动跳转到这个flow中，将配置的casLoginView这个页面展示出去，当casLoginView页面中触发submit动作时候又会跳转到realSubmit这个action，接着运行配置的authenticationViaFormAction代码，最后flow完成调用</p>
-<h4 id="Spring-Web-Flow-基础详细说明和实例"><a href="#Spring-Web-Flow-基础详细说明和实例" class="headerlink" title="Spring Web Flow 基础详细说明和实例"></a>Spring Web Flow 基础详细说明和实例</h4><p><a href="https://www.ibm.com/developerworks/cn/education/java/j-spring-webflow/index.html" target="_blank" rel="noopener">https://www.ibm.com/developerworks/cn/education/java/j-spring-webflow/index.html</a></p>
-<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>Spring Web Flow总体来说就是对传统的MVC C到V和V到C做了一层中间层，使这部分的业务更加抽象更能体现出业务流程，并实现在Requset和Session中多加了一种状态Flow作用域，在Flow的调用中这部分的调用都是共享状态的(类似session，在多次请求中session可以获取相同的变量，flow的作用域比request大但是却小于session)，但是大大加大了配置的代码</p>
-
-        
-      
-    </div>
-
-    
-    
-    
       <footer class="post-footer">
-          <div class="post-eof"></div>
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/CAS/" rel="tag"># CAS</a>
+            
+          </div>
         
-      </footer>
-  </div>
-  
-  
-  
-  </article>
 
-    
-        <article itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2020/01/17/概念简介/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="刘绍煌">
-      <meta itemprop="description" content="刘绍煌的个人博客">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="刘绍煌">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-            
-            <a href="/2020/01/17/概念简介/" class="post-title-link" itemprop="url">概念简介</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2020-01-17 14:44:20" itemprop="dateCreated datePublished" datetime="2020-01-17T14:44:20+08:00">2020-01-17</time>
-            </span>
-          
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          
         
-      
-    </div>
 
-    
-    
-    
-      <footer class="post-footer">
-          <div class="post-eof"></div>
-        
-      </footer>
-  </div>
-  
-  
-  
-  </article>
-
-    
-        <article itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2020/01/07/CAS详细认证流程和部分客户端源码解析/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="刘绍煌">
-      <meta itemprop="description" content="刘绍煌的个人博客">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="刘绍煌">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-            
-            <a href="/2020/01/07/CAS详细认证流程和部分客户端源码解析/" class="post-title-link" itemprop="url">CAS详细认证流程和部分客户端源码解析</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
               
-                
+                <a href="/2020/01/17/Spring-Web-flow-概念简介/" rel="next" title="Spring Web flow 概念简介">
+                  <i class="fa fa-chevron-left"></i> Spring Web flow 概念简介
+                </a>
               
-
-              <time title="创建时间：2020-01-07 11:09:14" itemprop="dateCreated datePublished" datetime="2020-01-07T11:09:14+08:00">2020-01-07</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-01-08 15:41:01" itemprop="dateModified" datetime="2020-01-08T15:41:01+08:00">2020-01-08</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/CAS/" itemprop="url" rel="index"><span itemprop="name">CAS</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>CAS解决了单点登录的问题，网上有很多关于CAS是如何实现单点的文章，但是很少有对详细认证流程做解释，这里做一下梳理。</p>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2020/01/07/CAS详细认证流程和部分客户端源码解析/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
             </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
 
-    
-    
-    
-      <footer class="post-footer">
-          <div class="post-eof"></div>
-        
-      </footer>
-  </div>
-  
-  
-  
-  </article>
+            <span class="post-nav-divider"></span>
 
-    
-        <article itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2020/01/06/CAS教程/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="刘绍煌">
-      <meta itemprop="description" content="刘绍煌的个人博客">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="刘绍煌">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-            
-            <a href="/2020/01/06/CAS教程/" class="post-title-link" itemprop="url">CAS教程</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
+            <div class="post-nav-prev post-nav-item">
               
-                
-              
-
-              <time title="创建时间：2020-01-06 15:43:04" itemprop="dateCreated datePublished" datetime="2020-01-06T15:43:04+08:00">2020-01-06</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-01-07 16:58:01" itemprop="dateModified" datetime="2020-01-07T16:58:01+08:00">2020-01-07</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/CAS/" itemprop="url" rel="index"><span itemprop="name">CAS</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h4 id="参考博文地址"><a href="#参考博文地址" class="headerlink" title="参考博文地址"></a>参考博文地址</h4><p><a href="https://github.com/X-rapido/CAS_SSO_Record" target="_blank" rel="noopener">https://github.com/X-rapido/CAS_SSO_Record</a><br><a href="https://www.jianshu.com/nb/36971803" target="_blank" rel="noopener">https://www.jianshu.com/nb/36971803</a> </p>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2020/01/06/CAS教程/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
             </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-          <div class="post-eof"></div>
+          </div>
         
       </footer>
+    
   </div>
   
   
   
   </article>
 
-    
-        <article itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2019/12/30/Spring-Import和-Enable-注解/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="刘绍煌">
-      <meta itemprop="description" content="刘绍煌的个人博客">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="刘绍煌">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-            
-            <a href="/2019/12/30/Spring-Import和-Enable-注解/" class="post-title-link" itemprop="url">Spring @Import和@Enable*注解和Spring的SPI完成二方包的注入</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2019-12-30 17:49:32" itemprop="dateCreated datePublished" datetime="2019-12-30T17:49:32+08:00">2019-12-30</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-01-03 14:29:52" itemprop="dateModified" datetime="2020-01-03T14:29:52+08:00">2020-01-03</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/SPI/" itemprop="url" rel="index"><span itemprop="name">SPI</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>最近在写一些基于SpringBoot的jar供其它工程调用，学习了一些开源和了解了Spring的自动配置后做了以下总结，在最开始接触Spring时当时网上说Spring基于xml的控制反转和依赖注入可以很好的将代码解耦，当时并不理解，明明依赖还是存在为什么能很好的解耦？直到接触了多模块后才渐渐理解它的含义，在多模块中代码供应商提供统一的接口，犹如一些插件，软件商提供主要接口，接入商负责实现，接入商的又有很多，那么如何做到可插拔开箱即用而各个接入商之间又不互相影响呢？这是依赖注入就很好的解决了这个问题，开发商和接入商不再进行强耦合，而是依赖类似与中间件一样的组件，将实现都由中间去管理，如果我想替换掉某个接入商的实现就在中间中更换接口的实现即可，对供应商的代码无任何影响，这就是Spring做的事。</p>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2019/12/30/Spring-Import和-Enable-注解/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-          <div class="post-eof"></div>
-        
-      </footer>
   </div>
-  
-  
-  
-  </article>
-
-    
-        <article itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2019/12/27/JAVA-SPI机制/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="刘绍煌">
-      <meta itemprop="description" content="刘绍煌的个人博客">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="刘绍煌">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-            
-            <a href="/2019/12/27/JAVA-SPI机制/" class="post-title-link" itemprop="url">JAVA_SPI机制</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2019-12-27 16:25:08 / 修改时间：17:05:18" itemprop="dateCreated datePublished" datetime="2019-12-27T16:25:08+08:00">2019-12-27</time>
-            </span>
-          
-            
-
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/SPI/" itemprop="url" rel="index"><span itemprop="name">SPI</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>在编写SpringBoot stater时我们会在项目的resources目录下新建META-INF文件夹并且在该目录下新建spring.factories文件,该文件中配置了在SpringBoot开启时需要加载和配置的类，那为什么只要配置了这个文件Spring就能自动去加载这个类呢？这个是因为用到了java的SPI机制</p>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2019/12/27/JAVA-SPI机制/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-          <div class="post-eof"></div>
-        
-      </footer>
-  </div>
-  
-  
-  
-  </article>
-
-    
-        <article itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2019/12/12/设计原本-杂记/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="刘绍煌">
-      <meta itemprop="description" content="刘绍煌的个人博客">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="刘绍煌">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-            
-            <a href="/2019/12/12/设计原本-杂记/" class="post-title-link" itemprop="url">设计原本-杂记</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2019-12-12 11:14:34 / 修改时间：14:59:52" itemprop="dateCreated datePublished" datetime="2019-12-12T11:14:34+08:00">2019-12-12</time>
-            </span>
-          
-            
-
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/设计原本/" itemprop="url" rel="index"><span itemprop="name">设计原本</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h4 id="第二章，理性模型"><a href="#第二章，理性模型" class="headerlink" title="第二章，理性模型"></a>第二章，理性模型</h4><p>工程师对于设计过程有一个清晰但通常来说也是隐含的模型，这个隐含的模型是在项目设计开始时根据目标，必要条件，约束等设计出来的，我们可以在开始设计时将条件设计出一个决策树，将各种暂时能想到的决策用树的形式展示出来，正如本章开篇所说<strong>因为设计的理念是普通的搜索理论即巨大的组合空间搜索</strong>，我是这样理解这句话，设计就是各个模块的各种可能选择最优解的组合，在项目开始设计时，将我们能想到的各种解用决策树的形式展示出来，并给每个节点（每种设计可能）一个权重，从而取出目前的最优设计.而有了这个决策树的理性模型，就更方便的和项目组中的其它成员分析项目的设计.注意：理性模型不是设计决策，而是暂定的设计方案。</p>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2019/12/12/设计原本-杂记/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-          <div class="post-eof"></div>
-        
-      </footer>
-  </div>
-  
-  
-  
-  </article>
-
-    
-        <article itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2019/12/09/Spring-security的认证和鉴权/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="刘绍煌">
-      <meta itemprop="description" content="刘绍煌的个人博客">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="刘绍煌">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-            
-            <a href="/2019/12/09/Spring-security的认证和鉴权/" class="post-title-link" itemprop="url">Spring security的认证和鉴权</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2019-12-09 11:42:08 / 修改时间：19:21:55" itemprop="dateCreated datePublished" datetime="2019-12-09T11:42:08+08:00">2019-12-09</time>
-            </span>
-          
-            
-
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Spring-security/" itemprop="url" rel="index"><span itemprop="name">Spring security</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>Spring security 总体分为认证和鉴权两部分，认证我们可以理解为对账号密码的验证，鉴权为用户能不能访问资源，我们可以通过实现Spring security的接口来实现自定义的认证和鉴权。Spring security的本质是一连串的拦截器，我们可以拦截器链中加入自定义的拦截器来实现自己的逻辑.</p>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2019/12/09/Spring-security的认证和鉴权/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-          <div class="post-eof"></div>
-        
-      </footer>
-  </div>
-  
-  
-  
-  </article>
-
-    
-        <article itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2019/11/07/使用mysqlbinlog和mysql日志恢复数据/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="刘绍煌">
-      <meta itemprop="description" content="刘绍煌的个人博客">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="刘绍煌">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-            
-            <a href="/2019/11/07/使用mysqlbinlog和mysql日志恢复数据/" class="post-title-link" itemprop="url">使用mysqlbinlog和mysql日志恢复数据</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2019-11-07 15:37:47 / 修改时间：15:58:55" itemprop="dateCreated datePublished" datetime="2019-11-07T15:37:47+08:00">2019-11-07</time>
-            </span>
-          
-            
-
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/mysql/" itemprop="url" rel="index"><span itemprop="name">mysql</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>有时候我们会误删mysql中的数据，如果有开启binlog日志，那么我们可以通过mysql提供的mysqlbinlog工具来读取出操作日志，并且重新执行操作日志达到恢复数据的效果</p>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2019/11/07/使用mysqlbinlog和mysql日志恢复数据/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-          <div class="post-eof"></div>
-        
-      </footer>
-  </div>
-  
-  
-  
-  </article>
-
-    
-  </div>
-
-  
-  <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
-  </nav>
 
 
           </div>
@@ -1299,6 +476,11 @@
 
   <aside class="sidebar">
     <div class="sidebar-inner">
+        
+        
+        
+        
+      
 
       <ul class="sidebar-nav motion-element">
         <li class="sidebar-nav-toc">
@@ -1311,6 +493,8 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#前置学习条件"><span class="nav-number">2.</span> <span class="nav-text">前置学习条件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#找到入口Flow-入口"><span class="nav-number">3.</span> <span class="nav-text">找到入口Flow 入口</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CAS-M和V的绑定"><span class="nav-number">4.</span> <span class="nav-text">CAS M和V的绑定</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#自定义-CAS-M和V的绑定"><span class="nav-number">5.</span> <span class="nav-text">自定义 CAS M和V的绑定</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#自定义View"><span class="nav-number">6.</span> <span class="nav-text">自定义View</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#自定义认证"><span class="nav-number">7.</span> <span class="nav-text">自定义认证</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#mybtais配置"><span class="nav-number">7.1.</span> <span class="nav-text">mybtais配置</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#注意点"><span class="nav-number">8.</span> <span class="nav-text">注意点</span></a></li></ol></div>
+        
       </div>
       <!--/noindex-->
 
