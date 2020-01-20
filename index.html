@@ -350,7 +350,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-01-19 09:09:42" itemprop="dateModified" datetime="2020-01-19T09:09:42+08:00">2020-01-19</time>
+                <time title="修改时间：2020-01-20 16:39:40" itemprop="dateModified" datetime="2020-01-20T16:39:40+08:00">2020-01-20</time>
               </span>
             
           
@@ -380,35 +380,15 @@
 
       
           <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>最近在搭建CAS单点登录，CAS中使用了Spring Web Flow来构建MVC 应用，需要对Web Flow的基本概念有一定的了解才能进行CAS登录的改造。</p>
-<h4 id="什么是Spring-Web-Flow"><a href="#什么是Spring-Web-Flow" class="headerlink" title="什么是Spring Web Flow"></a>什么是Spring Web Flow</h4><p>Flow字面上的意思为工作流，意思就是将一系列的操作进行编排，使用户较为直观的了解整个业务流程，比如OA系统中的工作流，IT管理人员在OA系统中编辑了一个请假的工作流，那么在员工在OA上提出请假单时，就可以直观的查看请假的流程是什么，现在流程进行到哪一步,Spring Web Flow对Spring MVC进行了再一次封装，使之前在Controller的页面和动作跳转已工作流的这种形式直观的体现出来，可以在xml中配置和查看某个业务具体的流程跳转(<strong>Spring Web Flow是基于SpringMVC的基础上开发的，允许web应用对flows实现。一个Flow封装了一些列的操作步骤，引导用户执行某些业务任务。Flows可以包含多个HTTP的请求，她有状态、能处理事务的数据，是可重用的，本质上是可以动态的长时间运行</strong>).  </p>
-<h4 id="Spring-Web-Flow-的基本配置"><a href="#Spring-Web-Flow-的基本配置" class="headerlink" title="Spring Web Flow 的基本配置"></a>Spring Web Flow 的基本配置</h4><p><strong>每个Flow可以包含多个如下的配置：</strong>  </p>
-<ul>
-<li>Actions: 一个可执行任务和有返回结果的组件  </li>
-<li>Transitions: 把Flow从一个状态转到另外一个状态；转换可能对整个FLow有全局影响。  </li>
-<li>Views: 把表示层展现到客户端显示的组件  </li>
-<li>Decisions: 路由到其他的Flow，可以有逻辑的判定组件  </li>
-</ul>
-<p>Flow 可看作是客户端与服务器的一次对话（ conversation ）。 Flow 的完成要由分多个步骤来实现，在 Spring Web Flow 的语义中，步骤指的就是 state 。 Spring Web Flow 提供了五种 state ，分别是 Action State 、 View State 、 Subflow State 、 Decision State 、 End State ，这些 state 可用于定义 flow 执行过程中的各个步骤。除了 End State 外，其他 state 都可以转换到别的 state ，一般通过在 state 中定义 transition 来实现到其他 state 的转换，转换的发生一般由事件（ event ）来触发</p>
-<h4 id="Spring-Web-Flow的核心类"><a href="#Spring-Web-Flow的核心类" class="headerlink" title="Spring Web Flow的核心类"></a>Spring Web Flow的核心类</h4><ul>
-<li><p>FlowRegistry  </p>
-<p>FlowRegistry 是存放 flow 的仓库，每个定义 flow 的 XML 文档被解析后，都会被分配一个唯一的 id ，并以 FlowDefinition 对象的形式存放在 FlowResigtry 中。</p>
-</li>
-<li><p>FlowExecutor</p>
-<p>FlowExecutor 是 Spring Web Flow 的一个核心接口，启动某个 flow ，都要通过这个接口来进行</p>
-</li>
-</ul>
-<ul>
-<li><p>FlowBuilder Services  </p>
-<p>flow-builder-services 属性的配置指明了在这个 flow-registry “仓库”里的 flow 的一些基本特性，例如，是用 Unified EL 还是 OGNL， model （模型）对象中的数据在显示之前是否需要先作转换，等等。比如我们需要在 flow-builder-services 属性中指明 Spring Web Flow 中所用到的 view ，由 Spring Web MVC 的“ View Resolver ”来查找，由 Spring Web MVC 的“ View Class”来解析，最后呈现给客户。  </p>
-</li>
-</ul>
-<h4 id="Flow-的xml配置"><a href="#Flow-的xml配置" class="headerlink" title="Flow 的xml配置"></a>Flow 的xml配置</h4><p>下面是CAS 的login-webflow.xmlw配置文件</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span><br><span class="line">&lt;flow xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span><br><span class="line">      xmlns=&quot;http://www.springframework.org/schema/webflow&quot;</span><br><span class="line">      xsi:schemaLocation=&quot;http://www.springframework.org/schema/webflow</span><br><span class="line">                          http://www.springframework.org/schema/webflow/spring-webflow.xsd&quot;&gt;</span><br><span class="line"></span><br><span class="line">    &lt;action-state id=&quot;initializeLoginForm&quot;&gt;</span><br><span class="line">        &lt;evaluate expression=&quot;initializeLoginAction&quot; /&gt;</span><br><span class="line">        &lt;transition on=&quot;success&quot; to=&quot;viewLoginForm&quot;/&gt;</span><br><span class="line">    &lt;/action-state&gt;</span><br><span class="line"></span><br><span class="line">    &lt;view-state id=&quot;viewLoginForm&quot; view=&quot;casLoginView&quot; model=&quot;credential&quot;&gt;</span><br><span class="line">        &lt;binder&gt;</span><br><span class="line">            &lt;binding property=&quot;username&quot; required=&quot;true&quot;/&gt;</span><br><span class="line">            &lt;binding property=&quot;password&quot; required=&quot;true&quot;/&gt;</span><br><span class="line">        &lt;/binder&gt;</span><br><span class="line">        &lt;transition on=&quot;submit&quot; bind=&quot;true&quot; validate=&quot;true&quot; to=&quot;realSubmit&quot; history=&quot;invalidate&quot;/&gt;</span><br><span class="line">    &lt;/view-state&gt;</span><br><span class="line"></span><br><span class="line">    &lt;action-state id=&quot;realSubmit&quot;&gt;</span><br><span class="line">        &lt;evaluate expression=&quot;authenticationViaFormAction&quot;/&gt;</span><br><span class="line">        &lt;transition on=&quot;warn&quot; to=&quot;warn&quot;/&gt;</span><br><span class="line">        &lt;transition on=&quot;success&quot; to=&quot;createTicketGrantingTicket&quot;/&gt;</span><br><span class="line">        &lt;transition on=&quot;successWithWarnings&quot; to=&quot;showAuthenticationWarningMessages&quot;/&gt;</span><br><span class="line">        &lt;transition on=&quot;authenticationFailure&quot; to=&quot;handleAuthenticationFailure&quot;/&gt;</span><br><span class="line">        &lt;transition on=&quot;error&quot; to=&quot;initializeLoginForm&quot;/&gt;</span><br><span class="line">    &lt;/action-state&gt;</span><br><span class="line">&lt;/flow&gt;</span><br></pre></td></tr></table></figure>
-
-<p>CAS中对Spring Web Flow的代码进行了二次封装，主体的逻辑是在程序开启时将login这个url和上述的web flow做绑定,当访问后缀为login的地址时会自动跳转到这个flow中，将配置的casLoginView这个页面展示出去，当casLoginView页面中触发submit动作时候又会跳转到realSubmit这个action，接着运行配置的authenticationViaFormAction代码，最后flow完成调用</p>
-<h4 id="Spring-Web-Flow-基础详细说明和实例"><a href="#Spring-Web-Flow-基础详细说明和实例" class="headerlink" title="Spring Web Flow 基础详细说明和实例"></a>Spring Web Flow 基础详细说明和实例</h4><p><a href="https://www.ibm.com/developerworks/cn/education/java/j-spring-webflow/index.html" target="_blank" rel="noopener">https://www.ibm.com/developerworks/cn/education/java/j-spring-webflow/index.html</a></p>
-<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>Spring Web Flow总体来说就是对传统的MVC C到V和V到C做了一层中间层，使这部分的业务更加抽象更能体现出业务流程，并实现在Requset和Session中多加了一种状态Flow作用域，在Flow的调用中这部分的调用都是共享状态的(类似session，在多次请求中session可以获取相同的变量，flow的作用域比request大但是却小于session)，但是大大加大了配置的代码</p>
-
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2020/01/17/Spring-Web-flow-概念简介/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
         
       
     </div>

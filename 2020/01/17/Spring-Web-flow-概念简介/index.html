@@ -55,18 +55,18 @@
   };
 </script>
 
-  <meta name="description" content="简介最近在搭建CAS单点登录，CAS中使用了Spring Web Flow来构建MVC 应用，需要对Web Flow的基本概念有一定的了解才能进行CAS登录的改造。 什么是Spring Web FlowFlow字面上的意思为工作流，意思就是将一系列的操作进行编排，使用户较为直观的了解整个业务流程，比如OA系统中的工作流，IT管理人员在OA系统中编辑了一个请假的工作流，那么在员工在OA上提出请假单时">
+  <meta name="description" content="简介最近在搭建CAS单点登录，CAS中使用了Spring Web Flow来构建MVC 应用，需要对Web Flow的基本概念有一定的了解才能进行CAS登录的改造。">
 <meta name="keywords" content="CAS,Web Flow">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Spring Web flow 概念简介">
 <meta property="og:url" content="http://www.liushaohuang.cn/2020/01/17/Spring-Web-flow-概念简介/index.html">
 <meta property="og:site_name" content="刘绍煌">
-<meta property="og:description" content="简介最近在搭建CAS单点登录，CAS中使用了Spring Web Flow来构建MVC 应用，需要对Web Flow的基本概念有一定的了解才能进行CAS登录的改造。 什么是Spring Web FlowFlow字面上的意思为工作流，意思就是将一系列的操作进行编排，使用户较为直观的了解整个业务流程，比如OA系统中的工作流，IT管理人员在OA系统中编辑了一个请假的工作流，那么在员工在OA上提出请假单时">
+<meta property="og:description" content="简介最近在搭建CAS单点登录，CAS中使用了Spring Web Flow来构建MVC 应用，需要对Web Flow的基本概念有一定的了解才能进行CAS登录的改造。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-01-19T01:09:42.089Z">
+<meta property="og:updated_time" content="2020-01-20T08:39:40.497Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Spring Web flow 概念简介">
-<meta name="twitter:description" content="简介最近在搭建CAS单点登录，CAS中使用了Spring Web Flow来构建MVC 应用，需要对Web Flow的基本概念有一定的了解才能进行CAS登录的改造。 什么是Spring Web FlowFlow字面上的意思为工作流，意思就是将一系列的操作进行编排，使用户较为直观的了解整个业务流程，比如OA系统中的工作流，IT管理人员在OA系统中编辑了一个请假的工作流，那么在员工在OA上提出请假单时">
+<meta name="twitter:description" content="简介最近在搭建CAS单点登录，CAS中使用了Spring Web Flow来构建MVC 应用，需要对Web Flow的基本概念有一定的了解才能进行CAS登录的改造。">
   <link rel="canonical" href="http://www.liushaohuang.cn/2020/01/17/Spring-Web-flow-概念简介/">
 
 
@@ -258,7 +258,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-01-19 09:09:42" itemprop="dateModified" datetime="2020-01-19T09:09:42+08:00">2020-01-19</time>
+                <time title="修改时间：2020-01-20 16:39:40" itemprop="dateModified" datetime="2020-01-20T16:39:40+08:00">2020-01-20</time>
               </span>
             
           
@@ -296,6 +296,7 @@
 
       
         <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>最近在搭建CAS单点登录，CAS中使用了Spring Web Flow来构建MVC 应用，需要对Web Flow的基本概念有一定的了解才能进行CAS登录的改造。</p>
+<a id="more"></a>
 <h4 id="什么是Spring-Web-Flow"><a href="#什么是Spring-Web-Flow" class="headerlink" title="什么是Spring Web Flow"></a>什么是Spring Web Flow</h4><p>Flow字面上的意思为工作流，意思就是将一系列的操作进行编排，使用户较为直观的了解整个业务流程，比如OA系统中的工作流，IT管理人员在OA系统中编辑了一个请假的工作流，那么在员工在OA上提出请假单时，就可以直观的查看请假的流程是什么，现在流程进行到哪一步,Spring Web Flow对Spring MVC进行了再一次封装，使之前在Controller的页面和动作跳转已工作流的这种形式直观的体现出来，可以在xml中配置和查看某个业务具体的流程跳转(<strong>Spring Web Flow是基于SpringMVC的基础上开发的，允许web应用对flows实现。一个Flow封装了一些列的操作步骤，引导用户执行某些业务任务。Flows可以包含多个HTTP的请求，她有状态、能处理事务的数据，是可重用的，本质上是可以动态的长时间运行</strong>).  </p>
 <h4 id="Spring-Web-Flow-的基本配置"><a href="#Spring-Web-Flow-的基本配置" class="headerlink" title="Spring Web Flow 的基本配置"></a>Spring Web Flow 的基本配置</h4><p><strong>每个Flow可以包含多个如下的配置：</strong>  </p>
 <ul>
