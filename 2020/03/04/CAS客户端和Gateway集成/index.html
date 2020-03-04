@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.3.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.3.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.3.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.3.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.3.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.3.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="简介CAS提供的客户端是基于Servlet写的，也就是说我们如果使用非Servlet应用，那么客户端是无法继承的，项目中使用没有使用Zuul来作为网关，而是使用Gateway，所以我们需要将原有的逻辑迁移到Gateway上 实现思路根据查询原有客户端我们可以发现，客户端本质是一些Servlet拦截器，在拦截器中对登录和验证进行各种逻辑，而Gateway也提供了拦截器GlobalFilter，所以我">
+<meta name="keywords" content="CAS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CAS客户端和Gateway集成">
+<meta property="og:url" content="http://www.liushaohuang.cn/2020/03/04/CAS客户端和Gateway集成/index.html">
+<meta property="og:site_name" content="刘绍煌">
+<meta property="og:description" content="简介CAS提供的客户端是基于Servlet写的，也就是说我们如果使用非Servlet应用，那么客户端是无法继承的，项目中使用没有使用Zuul来作为网关，而是使用Gateway，所以我们需要将原有的逻辑迁移到Gateway上 实现思路根据查询原有客户端我们可以发现，客户端本质是一些Servlet拦截器，在拦截器中对登录和验证进行各种逻辑，而Gateway也提供了拦截器GlobalFilter，所以我">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.liushaohuang.cn/images/332B4E76-11111.png">
+<meta property="og:image" content="http://www.liushaohuang.cn/images/81D3082D-222.png">
+<meta property="og:image" content="http://www.liushaohuang.cn/images/2C28C9D3-33333.png">
+<meta property="og:updated_time" content="2020-03-04T02:27:52.799Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="CAS客户端和Gateway集成">
+<meta name="twitter:description" content="简介CAS提供的客户端是基于Servlet写的，也就是说我们如果使用非Servlet应用，那么客户端是无法继承的，项目中使用没有使用Zuul来作为网关，而是使用Gateway，所以我们需要将原有的逻辑迁移到Gateway上 实现思路根据查询原有客户端我们可以发现，客户端本质是一些Servlet拦截器，在拦截器中对登录和验证进行各种逻辑，而Gateway也提供了拦截器GlobalFilter，所以我">
+<meta name="twitter:image" content="http://www.liushaohuang.cn/images/332B4E76-11111.png">
+  <link rel="canonical" href="http://www.liushaohuang.cn/2020/03/04/CAS客户端和Gateway集成/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>CAS客户端和Gateway集成 | 刘绍煌</title>
+  <meta name="generator" content="Hexo 3.9.0">
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">刘绍煌</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2020/03/04/CAS客户端和Gateway集成/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="刘绍煌">
+      <meta itemprop="description" content="刘绍煌的个人博客">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="刘绍煌">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">CAS客户端和Gateway集成
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-03-04 09:14:45 / 修改时间：10:27:52" itemprop="dateCreated datePublished" datetime="2020-03-04T09:14:45+08:00">2020-03-04</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/CAS/" itemprop="url" rel="index"><span itemprop="name">CAS</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span class="post-meta-item" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>CAS提供的客户端是基于Servlet写的，也就是说我们如果使用非Servlet应用，那么客户端是无法继承的，项目中使用没有使用Zuul来作为网关，而是使用Gateway，所以我们需要将原有的逻辑迁移到Gateway上</p>
+<h4 id="实现思路"><a href="#实现思路" class="headerlink" title="实现思路"></a>实现思路</h4><p>根据查询原有客户端我们可以发现，客户端本质是一些Servlet拦截器，在拦截器中对登录和验证进行各种逻辑，而Gateway也提供了拦截器GlobalFilter，所以我们只要实现GlobalFilter将原有的逻辑迁移到GlobalFilter中并在Spring中注册将其作用到Gateway即可。</p>
+<h4 id="Cas客户单总体流程图"><a href="#Cas客户单总体流程图" class="headerlink" title="Cas客户单总体流程图"></a>Cas客户单总体流程图</h4><p>我们在Servelt应用中集成CAS客户端主要使用的是Cas30ProxyReceivingTicketValidationFilter和AuthenticationFilter两个拦截器，通过查看源码我们可以发现Cas30ProxyReceivingTicketValidationFilter的主要作用是验证Ticket，就是登陆完成后服务端会下发给一个临时的Ticket来验证请求的正确性，用ST来表示，这个类主要用来验证ST和在处理代理模式下的逻辑<strong>(代理模式：两个应用同时集成了cas客户单，现在A应用要通过http协议直接调用B应用的接口，类似于Nginx，如果是这这类请求走的验证Ticket逻辑是不一样的，CAS会生成PGT和PGTIOU，通过PGTIOU作为键来对应PGT来验证代理服务器时候之前已经认证过，代理这部分放在以后再说明)</strong>,下面是根据官网的流程图和结合客户端代码绘制的总体的CAS验证流程图<br><img src="/images/332B4E76-11111.png" alt="图片"><br><img src="/images/81D3082D-222.png" alt="图片"><br><img src="/images/2C28C9D3-33333.png" alt="图片"></p>
+<h4 id="核心源码分析"><a href="#核心源码分析" class="headerlink" title="核心源码分析"></a>核心源码分析</h4><h5 id="Cas30ProxyReceivingTicketValidationFilter"><a href="#Cas30ProxyReceivingTicketValidationFilter" class="headerlink" title="Cas30ProxyReceivingTicketValidationFilter"></a>Cas30ProxyReceivingTicketValidationFilter</h5><p>上文说到Cas30ProxyReceivingTicketValidationFilter的核心作用是验证Ticket，而具体的验证逻辑由TicketValidator类来控制，我们可以在Cas30ProxyReceivingTicketValidationFilter的父类Cas20ProxyReceivingTicketValidationFilter中的getTicketValidator方法中查看初始化TicketValidator的逻辑，总体分为2总一种是初始化代理端的TicketValidator，另一种是初始化被代理端的TicketValidator，下面的注释已经说明，而getTicketValidator方法又会在初始化Cas30ProxyReceivingTicketValidationFilter时被调用。通过源码我们可以发现根据逻辑的不同其初始化了Cas20ServiceTicketValidator或者Cas20ProxyTicketValidator的ticket验证器，前者是作为代理端的ticket验证器(类似nginx)<strong>如果不设置代理用这个ticket验证器即可</strong>，后者是被代理端的验证器，处理被代理端的ticket验证逻辑</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">protected final TicketValidator getTicketValidator(final FilterConfig filterConfig) &#123;</span><br><span class="line">        final boolean allowAnyProxy = getBoolean(ConfigurationKeys.ACCEPT_ANY_PROXY);</span><br><span class="line">        final String allowedProxyChains = getString(ConfigurationKeys.ALLOWED_PROXY_CHAINS);</span><br><span class="line">        final String casServerUrlPrefix = getString(ConfigurationKeys.CAS_SERVER_URL_PREFIX);</span><br><span class="line">        final Class&lt;? extends Cas20ServiceTicketValidator&gt; ticketValidatorClass = getClass(ConfigurationKeys.TICKET_VALIDATOR_CLASS);</span><br><span class="line">        final Cas20ServiceTicketValidator validator;</span><br><span class="line">        //根据servlet拦截器的初始化参数来判断，如果是被代理端（被调用的应用）</span><br><span class="line">        if (allowAnyProxy || CommonUtils.isNotBlank(allowedProxyChains)) &#123;</span><br><span class="line">            final Cas20ProxyTicketValidator v = createNewTicketValidator(ticketValidatorClass, casServerUrlPrefix,</span><br><span class="line">                    this.defaultProxyTicketValidatorClass);</span><br><span class="line">            v.setAcceptAnyProxy(allowAnyProxy);</span><br><span class="line">            v.setAllowedProxyChains(CommonUtils.createProxyList(allowedProxyChains));</span><br><span class="line">            validator = v;</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">          //如果是代理端(类似nginx)</span><br><span class="line">            validator = createNewTicketValidator(ticketValidatorClass, casServerUrlPrefix,</span><br><span class="line">                    this.defaultServiceTicketValidatorClass);</span><br><span class="line">        &#125;</span><br><span class="line">        validator.setProxyCallbackUrl(getString(ConfigurationKeys.PROXY_CALLBACK_URL));</span><br><span class="line">        validator.setProxyGrantingTicketStorage(this.proxyGrantingTicketStorage);</span><br><span class="line"></span><br><span class="line">        final HttpURLConnectionFactory factory = new HttpsURLConnectionFactory(getHostnameVerifier(),</span><br><span class="line">                getSSLConfig());</span><br><span class="line">        validator.setURLConnectionFactory(factory);</span><br><span class="line"></span><br><span class="line">        validator.setProxyRetriever(new Cas20ProxyRetriever(casServerUrlPrefix, getString(ConfigurationKeys.ENCODING), factory));</span><br><span class="line">        validator.setRenew(getBoolean(ConfigurationKeys.RENEW));</span><br><span class="line">        validator.setEncoding(getString(ConfigurationKeys.ENCODING));</span><br><span class="line"></span><br><span class="line">        final Map&lt;String, String&gt; additionalParameters = new HashMap&lt;String, String&gt;();</span><br><span class="line">        final List&lt;String&gt; params = Arrays.asList(RESERVED_INIT_PARAMS);</span><br><span class="line"></span><br><span class="line">        for (final Enumeration&lt;?&gt; e = filterConfig.getInitParameterNames(); e.hasMoreElements(); ) &#123;</span><br><span class="line">            final String s = (String) e.nextElement();</span><br><span class="line"></span><br><span class="line">            if (!params.contains(s)) &#123;</span><br><span class="line">                additionalParameters.put(s, filterConfig.getInitParameter(s));</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        validator.setCustomParameters(additionalParameters);</span><br><span class="line">        return validator;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="调用TicketValidator"><a href="#调用TicketValidator" class="headerlink" title="调用TicketValidator"></a>调用TicketValidator</h4><p>我们查看Cas30ProxyReceivingTicketValidationFilter的父类AbstractTicketValidationFilter的doFilter方法，主要逻辑已经在下面代码中做出注释，<strong>那么现在我们要做的主要事情已经清晰，重写拦截器中根据不同的功能配置不同协议的TicketValidator（我采用的是CAS3协议对应的是Cas30ServiceTicketValidator和Cas30ProxyTicketValidator,前者作为代理服务端验证ticket的逻辑,后者作为验证被代理端的ticket逻辑）每种不同协议的实现类会调用Cas Service的对应协议的URL具体可以查看各个协议实现的TicketValidator的getUrlSuffix()方法,然后验证成功后再将信息存在缓存中</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line">public final void doFilter(final ServletRequest servletRequest, final ServletResponse servletResponse,</span><br><span class="line">            final FilterChain filterChain) throws IOException, ServletException &#123;</span><br><span class="line"></span><br><span class="line">        if (!preFilter(servletRequest, servletResponse, filterChain)) &#123;</span><br><span class="line">            return;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        final HttpServletRequest request = (HttpServletRequest) servletRequest;</span><br><span class="line">        final HttpServletResponse response = (HttpServletResponse) servletResponse;</span><br><span class="line">        final String ticket = retrieveTicketFromRequest(request);</span><br><span class="line"></span><br><span class="line">        if (CommonUtils.isNotBlank(ticket)) &#123;</span><br><span class="line">            logger.debug(&quot;Attempting to validate ticket: &#123;&#125;&quot;, ticket);</span><br><span class="line"></span><br><span class="line">            try &#123;</span><br><span class="line">                //验证ticket的有效性</span><br><span class="line">                final Assertion assertion = this.ticketValidator.validate(ticket,</span><br><span class="line">                        constructServiceUrl(request, response));</span><br><span class="line"></span><br><span class="line">                logger.debug(&quot;Successfully authenticated user: &#123;&#125;&quot;, assertion.getPrincipal().getName());</span><br><span class="line"></span><br><span class="line">                request.setAttribute(CONST_CAS_ASSERTION, assertion);</span><br><span class="line">                //验证成功存入Session</span><br><span class="line">                if (this.useSession) &#123;</span><br><span class="line">                    request.getSession().setAttribute(CONST_CAS_ASSERTION, assertion);</span><br><span class="line">                &#125;</span><br><span class="line">                onSuccessfulValidation(request, response, assertion);</span><br><span class="line">                //验证成功重定向到原来访问的链接</span><br><span class="line">                if (this.redirectAfterValidation) &#123;</span><br><span class="line">                    logger.debug(&quot;Redirecting after successful ticket validation.&quot;);</span><br><span class="line">                    response.sendRedirect(constructServiceUrl(request, response));</span><br><span class="line">                    return;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; catch (final TicketValidationException e) &#123;</span><br><span class="line">                logger.debug(e.getMessage(), e);</span><br><span class="line"></span><br><span class="line">                onFailedValidation(request, response);</span><br><span class="line"></span><br><span class="line">                if (this.exceptionOnValidationFailure) &#123;</span><br><span class="line">                    throw new ServletException(e);</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                response.sendError(HttpServletResponse.SC_FORBIDDEN, e.getMessage());</span><br><span class="line"></span><br><span class="line">                return;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        filterChain.doFilter(request, response);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="功能补充"><a href="#功能补充" class="headerlink" title="功能补充"></a>功能补充</h4><h5 id="session"><a href="#session" class="headerlink" title="session"></a>session</h5><p>serlvet客户单中采用缓存在session中的方式来缓存用户信息，在gateway中没有session的概念，因此我用cookie来解决用户标识的问题，在用户完成验证后会往cookie中写入信息，在请求时带上cooike信息然后再redis中判断用户是否登录过来模拟实现session</p>
+<h4 id="单点登出"><a href="#单点登出" class="headerlink" title="单点登出"></a>单点登出</h4><p>上面提到我是使用redis来当做分布式session来使用，那么单点登出实现的逻辑是在gateway中提供统一的单点退出接口，用户调用此接口后清除redies中缓存的信息，并且重定向到CAS Service 调用/logout方法，并且在url中带上service参数后面跟上退出成功后cas重定向到的地址，这样在清除掉本地缓存的时又清楚了CAS Service中缓存的TGT信息实现单点退出.</p>
+<h4 id="代码地址"><a href="#代码地址" class="headerlink" title="代码地址"></a>代码地址</h4><p><a href="https://github.com/liushprofessor/cas_demo" target="_blank" rel="noopener">https://github.com/liushprofessor/cas_demo</a></p>
+
+    </div>
+
+    
+    
+    
+        
+      
+        <div id="reward-container">
+  <div></div>
+  <button id="reward-button" disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/赞赏码.png" alt="刘绍煌 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/CAS/" rel="tag"># CAS</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/02/17/CAS登录成功跳转/" rel="next" title="CAS登录成功跳转">
+                  <i class="fa fa-chevron-left"></i> CAS登录成功跳转
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#实现思路"><span class="nav-number">2.</span> <span class="nav-text">实现思路</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Cas客户单总体流程图"><span class="nav-number">3.</span> <span class="nav-text">Cas客户单总体流程图</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#核心源码分析"><span class="nav-number">4.</span> <span class="nav-text">核心源码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Cas30ProxyReceivingTicketValidationFilter"><span class="nav-number">4.1.</span> <span class="nav-text">Cas30ProxyReceivingTicketValidationFilter</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#调用TicketValidator"><span class="nav-number">5.</span> <span class="nav-text">调用TicketValidator</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#功能补充"><span class="nav-number">6.</span> <span class="nav-text">功能补充</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#session"><span class="nav-number">6.1.</span> <span class="nav-text">session</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#单点登出"><span class="nav-number">7.</span> <span class="nav-text">单点登出</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#代码地址"><span class="nav-number">8.</span> <span class="nav-text">代码地址</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">刘绍煌</p>
+  <div class="site-description" itemprop="description">刘绍煌的个人博客</div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">46</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">50</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">刘绍煌</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.3.0</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.3.0"></script><script src="/js/motion.js?v=7.3.0"></script>
+<script src="/js/schemes/pisces.js?v=7.3.0"></script>
+<script src="/js/next-boot.js?v=7.3.0"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
