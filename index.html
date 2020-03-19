@@ -245,7 +245,7 @@
                 
               
 
-              <time title="创建时间：2020-03-19 14:54:13 / 修改时间：15:03:12" itemprop="dateCreated datePublished" datetime="2020-03-19T14:54:13+08:00">2020-03-19</time>
+              <time title="创建时间：2020-03-19 14:54:13 / 修改时间：15:06:12" itemprop="dateCreated datePublished" datetime="2020-03-19T14:54:13+08:00">2020-03-19</time>
             </span>
           
             
@@ -278,9 +278,15 @@
 
       
           <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>在实际项目中需要用到ngnix做反向代理，但是做完反向代理后发现子应用无法获取正确的url和端口。比如访问nginx的url为 192.168.1.1/test  ,那么现在将/test反向代理到 192.168.1.2:8080/test 这个url下，那么我在 192.168.1.2:8080/test 下就获取端口一直会是80，获取的url不会是访问nginx时的192.168.1.1/test ，这里我们需要对ngnix的配置文件的请求头进行修改加入proxy_set_header HOST $host;属性如下$host代表你访问nginx的访问路径，在路径后加入应用的端口，那么在子应用中就能获取到正确的端口了</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">upstream gateway &#123;</span><br><span class="line">               server 192.168.171.42:30000;</span><br><span class="line">            #   server 192.168.171.43:30000;</span><br><span class="line">            #   server 192.168.171.45:30000;</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">server &#123;</span><br><span class="line">        listen       8080;</span><br><span class="line">        server_name  location;</span><br><span class="line"></span><br><span class="line">                location /cas &#123;</span><br><span class="line">                         proxy_pass http://192.168.171.44:8089/cas;</span><br><span class="line">                         proxy_set_header HOST $host:8089;</span><br><span class="line">                         proxy_set_header X-Real-IP $remote_addr;</span><br><span class="line">                         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                location / &#123;</span><br><span class="line">                         proxy_pass http://gateway;</span><br><span class="line">                         proxy_set_header HOST $host:8080;</span><br><span class="line">                         proxy_set_header X-Real-IP $remote_addr;</span><br><span class="line">                         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;</span><br><span class="line">                &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-
-
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2020/03/19/nginx配置反向代理后，接入nginx的应用无法获取正确的访问路径和端口问题/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
         
       
     </div>
