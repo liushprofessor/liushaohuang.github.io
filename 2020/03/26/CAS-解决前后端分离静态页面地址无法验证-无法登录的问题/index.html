@@ -55,19 +55,19 @@
   };
 </script>
 
-  <meta name="description" content="简介数据库连接池是为了规避每次查询时都向数据库建立连接而采用的技术，而向数据库创建连接往往比一次简单的查询所耗费的时间多好几倍，采用连接池在项目中可以有效的提升数据库查询的响应速度，而在SpringBoot中的spring-boot-starter-jdbc模块中又默认集成了HikariCP连接池，使我们很方便的在Springboot中使用数据库连接池.注意一下，由于本人使用的是mybatis持久">
-<meta name="keywords" content="HikariCP">
+  <meta name="description" content="简介现有项目采用前后端分离分开部署的策略，根据前文CAS客户端和Gateway集成的文章中提到的CAS的验证流程,我们可得知在用户调用接口时如果发现本地项目没有缓存用户登录信息，就跳转到CAS服务端去验证,登录完成后再跳转到原页面,并在url中带上ticket参数再去验证本次请求的合法性,在采用前后端分离的项目中会有一下问题,以下是解决方案.">
+<meta name="keywords" content="CAS">
 <meta property="og:type" content="article">
-<meta property="og:title" content="SpringBoot中使用HikariCP连接池">
-<meta property="og:url" content="http://www.liushaohuang.cn/2019/10/09/SpringBoot中使用HikariCP连接池/index.html">
+<meta property="og:title" content="CAS 解决前后端分离静态页面地址无法验证,无法登录的问题">
+<meta property="og:url" content="http://www.liushaohuang.cn/2020/03/26/CAS-解决前后端分离静态页面地址无法验证-无法登录的问题/index.html">
 <meta property="og:site_name" content="刘绍煌">
-<meta property="og:description" content="简介数据库连接池是为了规避每次查询时都向数据库建立连接而采用的技术，而向数据库创建连接往往比一次简单的查询所耗费的时间多好几倍，采用连接池在项目中可以有效的提升数据库查询的响应速度，而在SpringBoot中的spring-boot-starter-jdbc模块中又默认集成了HikariCP连接池，使我们很方便的在Springboot中使用数据库连接池.注意一下，由于本人使用的是mybatis持久">
+<meta property="og:description" content="简介现有项目采用前后端分离分开部署的策略，根据前文CAS客户端和Gateway集成的文章中提到的CAS的验证流程,我们可得知在用户调用接口时如果发现本地项目没有缓存用户登录信息，就跳转到CAS服务端去验证,登录完成后再跳转到原页面,并在url中带上ticket参数再去验证本次请求的合法性,在采用前后端分离的项目中会有一下问题,以下是解决方案.">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-10-09T09:22:14.879Z">
+<meta property="og:updated_time" content="2020-03-26T02:21:54.236Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="SpringBoot中使用HikariCP连接池">
-<meta name="twitter:description" content="简介数据库连接池是为了规避每次查询时都向数据库建立连接而采用的技术，而向数据库创建连接往往比一次简单的查询所耗费的时间多好几倍，采用连接池在项目中可以有效的提升数据库查询的响应速度，而在SpringBoot中的spring-boot-starter-jdbc模块中又默认集成了HikariCP连接池，使我们很方便的在Springboot中使用数据库连接池.注意一下，由于本人使用的是mybatis持久">
-  <link rel="canonical" href="http://www.liushaohuang.cn/2019/10/09/SpringBoot中使用HikariCP连接池/">
+<meta name="twitter:title" content="CAS 解决前后端分离静态页面地址无法验证,无法登录的问题">
+<meta name="twitter:description" content="简介现有项目采用前后端分离分开部署的策略，根据前文CAS客户端和Gateway集成的文章中提到的CAS的验证流程,我们可得知在用户调用接口时如果发现本地项目没有缓存用户登录信息，就跳转到CAS服务端去验证,登录完成后再跳转到原页面,并在url中带上ticket参数再去验证本次请求的合法性,在采用前后端分离的项目中会有一下问题,以下是解决方案.">
+  <link rel="canonical" href="http://www.liushaohuang.cn/2020/03/26/CAS-解决前后端分离静态页面地址无法验证-无法登录的问题/">
 
 
 <script id="page-configurations">
@@ -81,7 +81,7 @@
   };
 </script>
 
-  <title>SpringBoot中使用HikariCP连接池 | 刘绍煌</title>
+  <title>CAS 解决前后端分离静态页面地址无法验证,无法登录的问题 | 刘绍煌</title>
   <meta name="generator" content="Hexo 3.9.0">
   
 
@@ -219,7 +219,7 @@
   
   
   <div class="post-block post">
-    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2019/10/09/SpringBoot中使用HikariCP连接池/">
+    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2020/03/26/CAS-解决前后端分离静态页面地址无法验证-无法登录的问题/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="刘绍煌">
@@ -231,7 +231,7 @@
       <meta itemprop="name" content="刘绍煌">
     </span>
       <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">SpringBoot中使用HikariCP连接池
+        <h1 class="post-title" itemprop="name headline">CAS 解决前后端分离静态页面地址无法验证,无法登录的问题
 
           
         </h1>
@@ -247,7 +247,7 @@
                 
               
 
-              <time title="创建时间：2019-10-09 16:48:43 / 修改时间：17:22:14" itemprop="dateCreated datePublished" datetime="2019-10-09T16:48:43+08:00">2019-10-09</time>
+              <time title="创建时间：2020-03-26 09:41:23 / 修改时间：10:21:54" itemprop="dateCreated datePublished" datetime="2020-03-26T09:41:23+08:00">2020-03-26</time>
             </span>
           
             
@@ -260,7 +260,7 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/并发/" itemprop="url" rel="index"><span itemprop="name">并发</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/CAS/" itemprop="url" rel="index"><span itemprop="name">CAS</span></a></span>
 
                 
                 
@@ -287,28 +287,24 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>数据库连接池是为了规避每次查询时都向数据库建立连接而采用的技术，而向数据库创建连接往往比一次简单的查询所耗费的时间多好几倍，采用连接池在项目中可以有效的提升数据库查询的响应速度，而在SpringBoot中的spring-boot-starter-jdbc模块中又默认集成了HikariCP连接池，使我们很方便的在Springboot中使用数据库连接池.注意一下，<strong>由于本人使用的是mybatis持久化框架，HikariCP的依赖包含在spring-boot-starter-jdbc模块中，而mybatis-spring-boot-starter又包含了spring-boot-starter-jdbc，所以只需要引入mybatis-spring-boot-starter即可</strong></p>
+        <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>现有项目采用前后端分离分开部署的策略，根据前文CAS客户端和Gateway集成的文章中提到的CAS的验证流程,我们可得知在用户调用接口时如果发现本地项目没有缓存用户登录信息，就跳转到CAS服务端去验证,登录完成后再跳转到原页面,并在url中带上ticket参数再去验证本次请求的合法性,在采用前后端分离的项目中会有一下问题,以下是解决方案.</p>
 <a id="more"></a>
 
-<h4 id="引入maven-POM依赖"><a href="#引入maven-POM依赖" class="headerlink" title="引入maven POM依赖"></a>引入maven POM依赖</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;mysql&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;mysql-connector-java&lt;/artifactId&gt;</span><br><span class="line">            &lt;version&gt;8.0.16&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;org.mybatis.spring.boot&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;mybatis-spring-boot-starter&lt;/artifactId&gt;</span><br><span class="line">            &lt;version&gt;2.0.0&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br><span class="line"></span><br><span class="line">&lt;!-- 本人新建SpringBoot Web项目，也可只创建SpringBoot项目 --&gt;</span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;</span><br><span class="line">            &lt;version&gt;2.1.0.RELEASE&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
-
-<h4 id="配置application-properties文件"><a href="#配置application-properties文件" class="headerlink" title="配置application.properties文件"></a>配置application.properties文件</h4><h5 id="连接池中最重要两个配置，最小连接数和最大连接数"><a href="#连接池中最重要两个配置，最小连接数和最大连接数" class="headerlink" title="连接池中最重要两个配置，最小连接数和最大连接数"></a>连接池中最重要两个配置，最小连接数和最大连接数</h5><ul>
-<li>spring.datasource.hikari.minimum-idle 最小空闲连接数量</li>
-<li>spring.datasource.hikari.maximum-pool-size 连接池最大连接数</li>
-</ul>
-<ol>
-<li>如果当前连接数小于最小连接数，则创建新的连接处理数据库请求  </li>
-<li>如果连接池中有空闲连接则复用空闲连接；</li>
-<li>如果空闲池中没有连接并且当前连接数小于最大连接数，则创建新的连接</li>
-<li>如果当前连接数已经大于等于最大连接数，则按照配置中设定的时间（HikariCP中为connectionTimeout）等待旧的连接可用</li>
-<li>如果等待超过了这个设定时间则向用户抛出错误。</li>
-</ol>
+<h4 id="验证ticket参数无法获取"><a href="#验证ticket参数无法获取" class="headerlink" title="验证ticket参数无法获取"></a>验证ticket参数无法获取</h4><p>因为是前后端分离项目,在调用接口时发现本地没有缓存登录信息,将跳转到统一登录页面，登录完成后再调回到原有页面的地址，并在url中加入ticket参数,由于我们采用的是前后端分离的策略，此时回调的地址是一个静态页面,那么后端无法自动对ticket参数进行验证，所以我这里采取了一个策略，<strong>在调用接口发现本地没有缓存用户信息的时候,不是直接跳转到cas登录页，而是跳转到一个已经集成了cas客户端第三方的应用(我这里是网关),由网关将需要跳转的链接组装好（将cas登录后跳转的地址改到网关）,在登录完成后跳转到网关进行ticket合法调用的验证(因为网关已经集成客户端)并且缓存下登录信息,在ticket验证成功后再从新跳转到静态页面。注意我们在获取原有静态访问页面地址的时候不是直接获取url,而是优先获取请求头中的Referer中的地址，如果没有Referer再去获取调用接口的rul地址,因为前端中经常使用异步去调用接口，如果直接获取请求接口的url中的地址,我们得到的地址是接口的地址如以下代码，而Referer地址则是反应了请求时从哪里跳转过来的,具体可自行百度Referer</strong></p>
 <ul>
-<li>使用mysql中有一点需要注意，就是mysql中wait_timeout参数控制了一个连接多长时间后将会被回收，所以我们将max-lifetime参数设置的比mysql中的这个参数值稍微小写</li>
-<li>connection-test-query,此参数为在应用程序每次获取连接池连接时都会去执行一下语句，如果正常，则使用这个个连接，但是在官网的简介中新版本的jdbc不再推荐使用这个参数，而是自动会调用jdbc4接口中的Connection.isValid()方法去判断连接是否可用，因此我们去除这个参数</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">spring.datasource.url=jdbc:mysql://127.0.0.1:3306/mytest?serverTimezone=UTC</span><br><span class="line">spring.datasource.username=root</span><br><span class="line">spring.datasource.password=root</span><br><span class="line">spring.datasource.driver-class-name=com.mysql.jdbc.Driver</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">##  Hikari 连接池配置 ------ 详细配置请访问：https://github.com/brettwooldridge/HikariCP</span><br><span class="line">## 最小空闲连接数量</span><br><span class="line">spring.datasource.hikari.minimum-idle=10</span><br><span class="line">## 空闲连接存活最大时间，默认600000（10分钟）</span><br><span class="line">spring.datasource.hikari.idle-timeout=180000</span><br><span class="line">## 连接池最大连接数，默认是10</span><br><span class="line">spring.datasource.hikari.maximum-pool-size=20</span><br><span class="line">## 此属性控制从池返回的连接的默认自动提交行为,默认值：true</span><br><span class="line">spring.datasource.hikari.auto-commit=true</span><br><span class="line">## 连接池的用户定义名称，主要出现在日志记录和JMX管理控制台中以识别池和池配置</span><br><span class="line">spring.datasource.hikari.pool-name=MyHikariCP</span><br><span class="line">## 此属性控制池中连接的最长生命周期，值0表示无限生命周期，默认1800000即30分钟,如果是mysql可以将值配置的比mysql中wait_timeout参数稍小些</span><br><span class="line">spring.datasource.hikari.max-lifetime=1800000</span><br><span class="line">## 数据库连接超时时间,默认30秒，即30000</span><br><span class="line">spring.datasource.hikari.connection-timeout=30000</span><br><span class="line">## 如果支持驱动jdbc4不要设置</span><br><span class="line">#spring.datasource.hikari.connection-test-query=SELECT 1</span><br></pre></td></tr></table></figure>
+<li><p>获取登录成功后跳转回原有页面的地址</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">StringUtils.isEmpty(request.getHeaders().getFirst(&quot;Referer&quot;)) ?</span><br><span class="line"> serviceUrl : request.getHeaders().getFirst(&quot;Referer&quot;),</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>在gateway拦截器中,如果没有登录成功则返回对象告诉页面跳转的地址</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">//这里直接返回对象，这里个返回时放在认证拦截器中,如果没有登录返回301和跳转地址供前端跳转，urlToRedirect的格式举例为</span><br><span class="line">//http://localhost.com/cas/login?service=192.168.1.1/gateway/validateTicket&amp;redirectUrl=192.168.1.2/redirect</span><br><span class="line">//在原有的service参数后又自定义一个redirectUrl参数，供在ticket验证完成后跳转到访问静态页面</span><br><span class="line">    public static Mono&lt;Void&gt; createResponse(ServerWebExchange exchange ,String urlToRedirect)&#123;</span><br><span class="line">        ServerHttpResponse response = exchange.getResponse();</span><br><span class="line">        JSONObject responseJson = new JSONObject();</span><br><span class="line">        responseJson.put(&quot;code&quot;,&quot;301&quot;);</span><br><span class="line">        responseJson.put(&quot;urlToRedirect&quot;,urlToRedirect);</span><br><span class="line">        byte[] bits = responseJson.toJSONString().getBytes(StandardCharsets.UTF_8);</span><br><span class="line">        DataBuffer buffer = response.bufferFactory().wrap(bits);</span><br><span class="line">        return response.writeWith(Mono.just(buffer));</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>gateway中重定向的拦截器</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">public class RedirectFilter implements GlobalFilter, Ordered &#123;</span><br><span class="line">    @Override</span><br><span class="line">    public Mono&lt;Void&gt; filter(ServerWebExchange exchange, GatewayFilterChain chain) &#123;</span><br><span class="line">        ServerHttpRequest request =exchange.getRequest();</span><br><span class="line">        String uri=exchange.getRequest().getURI().toString();</span><br><span class="line">        if(uri.contains(&quot;/redirect&quot;) &amp;&amp; uri.contains(&quot;redirectUrl=&quot;))&#123;</span><br><span class="line">            //如果是重定向的话</span><br><span class="line">            String redirectUrl=request.getQueryParams().getFirst(&quot;redirectUrl&quot;);</span><br><span class="line">            return GatewayCommonUtils.redirect(exchange, redirectUrl);</span><br><span class="line">        &#125;else &#123;//如果不是重定向url的话跳过拦截器</span><br><span class="line">            return chain.filter(exchange);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public int getOrder() &#123;</span><br><span class="line">        return 10000;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
+</li>
+</ul>
+<h4 id="异步调用问题"><a href="#异步调用问题" class="headerlink" title="异步调用问题"></a>异步调用问题</h4><p>采取前后端分离，前端调用接口必然大量存在异步调用,而最开始时我采用的是后端发起301重定向,由浏览器去自动完成跳转,但是在异步情况下，浏览器无法对后端发起的30X请求发起定向，于是这我采用如上代码,直接返回对象和跳转url给前端,由前端去跳转，而不是再由后端发起重定向.</p>
+<h4 id="跨域保存cookie的问题"><a href="#跨域保存cookie的问题" class="headerlink" title="跨域保存cookie的问题"></a>跨域保存cookie的问题</h4><p>在登录成功后需要在本地项目中保存登录信息,由于我们项目使用的是gateway作为网关接入客户单，gateway中并没有session的概念，于是我采用cookie来保存登录的凭证，再用登录凭证去redis中查找登录的信息来判断用户是否已经登录过,但是这样存在一个问题，<strong>用户信息是在网关中验证的,我在网关中设置的cookie写入路径path为 / ，但是采用前后端分离的情况静态页面有着单独的http地址，并没有和网关在同一个域,这样导致了我在网关写入的cookie信息无法在前端的那个域中调用的接口中获取到,我这里采用的方法是统一有nginx反向代理网关域名和http静态页面的域名,强制让网关和静态页面在同一个域下,解决跨域无法读取cookie的问题</strong></p>
 
     </div>
 
@@ -341,7 +337,7 @@
           
           <div class="post-tags">
             
-              <a href="/tags/HikariCP/" rel="tag"># HikariCP</a>
+              <a href="/tags/CAS/" rel="tag"># CAS</a>
             
           </div>
         
@@ -351,8 +347,8 @@
           <div class="post-nav">
             <div class="post-nav-next post-nav-item">
               
-                <a href="/2019/10/09/为什么不允许使用JDK中的Executors去创建线程池/" rel="next" title="为什么不允许在高并发下使用JDK中的Executors去创建线程池">
-                  <i class="fa fa-chevron-left"></i> 为什么不允许在高并发下使用JDK中的Executors去创建线程池
+                <a href="/2020/03/19/nginx配置反向代理后，接入nginx的应用无法获取正确的访问路径和端口问题/" rel="next" title="nginx配置反向代理后，接入nginx的应用无法获取正确的访问路径和端口问题">
+                  <i class="fa fa-chevron-left"></i> nginx配置反向代理后，接入nginx的应用无法获取正确的访问路径和端口问题
                 </a>
               
             </div>
@@ -360,10 +356,6 @@
             <span class="post-nav-divider"></span>
 
             <div class="post-nav-prev post-nav-item">
-              
-                <a href="/2019/10/10/使用sharding-jdbc实现mysql的读写分离/" rel="prev" title="使用sharding-jdbc实现mysql的读写分离">
-                  使用sharding-jdbc实现mysql的读写分离 <i class="fa fa-chevron-right"></i>
-                </a>
               
             </div>
           </div>
@@ -412,7 +404,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#引入maven-POM依赖"><span class="nav-number">2.</span> <span class="nav-text">引入maven POM依赖</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#配置application-properties文件"><span class="nav-number">3.</span> <span class="nav-text">配置application.properties文件</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#连接池中最重要两个配置，最小连接数和最大连接数"><span class="nav-number">3.1.</span> <span class="nav-text">连接池中最重要两个配置，最小连接数和最大连接数</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#验证ticket参数无法获取"><span class="nav-number">2.</span> <span class="nav-text">验证ticket参数无法获取</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#异步调用问题"><span class="nav-number">3.</span> <span class="nav-text">异步调用问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#跨域保存cookie的问题"><span class="nav-number">4.</span> <span class="nav-text">跨域保存cookie的问题</span></a></li></ol></div>
         
       </div>
       <!--/noindex-->
