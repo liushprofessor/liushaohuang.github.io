@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title><![CDATA[nginx反向代理静态资源404问题]]></title>
+    <url>%2F2020%2F04%2F10%2Fnginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90404%E9%97%AE%E9%A2%98%2F</url>
+    <content type="text"><![CDATA[简介在前后端分离的项目中通过nginx映射前端的html静态资源出现404，是由于配置静态路径有两种方式 方式112345Sets the root directory for requests. For example, with the following configurationlocation /i/ &#123; root /data/w3;&#125;The /data/w3/i/top.gif file will be sent in response to the “/i/top.gif” request 当访问/i/top.gif时，root是去/data/w3/i/top.gif请求文件 方式212345Defines a replacement for the specified location. For example, with the following configurationlocation /i/ &#123; alias /data/w3/images/;&#125;on request of “/i/top.gif”, the file /data/w3/images/top.gif will be sent. alias是去/data/w3/images/top.gif获取文件 总结由于采用方式1来配置静态资源导致实际映射的目录和访问的目录对不上导致404,后改制方式2后解决问题]]></content>
+      <categories>
+        <category>nginx</category>
+      </categories>
+      <tags>
+        <tag>nginx</tag>
+      </tags>
+  </entry>
+  <entry>
     <title><![CDATA[关于大流量下防止超卖的思考]]></title>
     <url>%2F2020%2F03%2F29%2F%E5%85%B3%E4%BA%8E%E5%A4%A7%E6%B5%81%E9%87%8F%E4%B8%8B%E9%98%B2%E6%AD%A2%E8%B6%85%E5%8D%96%E7%9A%84%E6%80%9D%E8%80%83%2F</url>
     <content type="text"><![CDATA[简介最近在思考如何在大流量下防止超卖的问题,其实在并发下防止超卖或者其它一些并发问题，本质上绕不开锁的问题，因为如果没有锁无法保证数据同步的问题(至少是目前还没想到其它方法)，这边进行了一次尝试. 悲观锁一般悲观锁都由数据库等底层组件时间,比如在mysql的命令行中我们可以开启一个事务，然后再执行select * from table for update,然后再执行其它增删改操作，最后再提交事务即可,悲观锁就是你在select * from table for update时直接锁定这条数据，其它任何操作都要等到锁的释放才能进行操作（这里是事务的提交），在查找网上资料后悲观锁好像在代码中并没有什么比较好的实践方案所以放弃. 乐观锁其本质就是在数据库字段的最后加一个版本号或者更新时间的字段，在操作时先查询库存和版本信息，如果大于1则只需update操作并且在where中带上版本号或者更新日期，如果版本号和更新日期和之前获取的时候不匹配则更新失败,这样对数据变相的加锁，保证一次只能一个请求操作数据保证并发安全，在并发情况下我们可以做一些优化，比如将请求写入到队列中,由消费者去消费,消费者由于乐观锁操作失败时加入一定的重试次数等 redisredis的一些操作中保证了数据的原子性操作如list 的push和pop,那么我们可以应用redis的这些特性来实现此功能，在list中初始化你要卖货物的数量，然后再一个个pop出来直到list不为空为止。如果将所有库存信息都放在一个list中卖大量货物时会导致消费过慢,因此我们可以将库存信息存放在多个list中,一个list中只保存相对量的库存比如1000个,但是这样做还需要加入额外的代码逻辑,比如一个list过早的消费网，那么他就要去其它list中获取库存信息 代码乐观锁123456789101112131415161718@RequestMapping(&quot;sell&quot;) public String sell() &#123; //获取库存信息，你们保存库存量和最后更新时间 Stock stock = stockMapper.findNum(&quot;1&quot;); //如果没有库存 if(stock.getNum()&lt;1)&#123; return &quot;out&quot;; &#125; //如果由于乐观锁导致无法更新成功,重试20次 for (int i = 0; i &lt; 20; i++) &#123; //将版本信息，id，和当前时间传入数据库更新库存 int result = stockMapper.changeStock(&quot;1&quot;, stock.getNum() - 1, new Date(), stock.getUpdate()); if (result == 1) &#123; return &quot;success&quot;; &#125; &#125; return &quot;fail&quot;; &#125; redis123456789101112//初始化redis信息@RequestMapping(&quot;initStock&quot;) public void initStock(int num)&#123; List&lt;String&gt; cargoes=new ArrayList&lt;&gt;(); for(int i=0;i&lt;num;i++)&#123; cargoes.add(&quot;cargo_____&quot;+i); &#125; redisUtil.pushAll(cargoes); &#125; 1234567891011//销售货物@RequestMapping(&quot;sell&quot;) public void sell()&#123; String cargo=redisUtil.sell(); if(cargo!=null)&#123; //这里并没有加入任何锁 stockMapper.sell(&quot;1&quot;); &#125; &#125; 123456789101112131415//redis 代码//初始化库存public void pushAll(List&lt;String&gt; cargoes)&#123; redisTemplate.opsForList().leftPushAll(&quot;stock_num&quot;,cargoes); &#125;//销售商品 public String sell()&#123; Object object= redisTemplate.opsForList().leftPop(&quot;stock_num&quot;); return object!=null?object.toString():null; &#125; 测试实际中我将库存设置为1000，再使用Jmeter测试工程开启100个线程,每个线程循环200次去重复调用http接口，均能保证不超卖]]></content>
