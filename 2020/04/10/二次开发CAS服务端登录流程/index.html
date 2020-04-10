@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.3.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.3.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.3.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.3.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.3.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.3.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="简介CAS 服务端登录提供了默认的登录流程并采用WebFlow进行实现,但是再实际项目中需要对接外部的登录系统，如果外部账号之前没有在本系统登录过,那么就要在内部账号进行一次二次注册,这需要对原有的登录流程进行修改,如果外部账号验证通过则进行判断该账号时候在本系统注册过,如果没有跳转到二次注册页面进行注册,我这里使用的版本是5.3.X">
+<meta name="keywords" content="CAS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="二次开发CAS服务端登录流程">
+<meta property="og:url" content="http://www.liushaohuang.cn/2020/04/10/二次开发CAS服务端登录流程/index.html">
+<meta property="og:site_name" content="刘绍煌">
+<meta property="og:description" content="简介CAS 服务端登录提供了默认的登录流程并采用WebFlow进行实现,但是再实际项目中需要对接外部的登录系统，如果外部账号之前没有在本系统登录过,那么就要在内部账号进行一次二次注册,这需要对原有的登录流程进行修改,如果外部账号验证通过则进行判断该账号时候在本系统注册过,如果没有跳转到二次注册页面进行注册,我这里使用的版本是5.3.X">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.liushaohuang.cn/images/520D8F7E-41F4-40be-9189-9035681E18DF.png">
+<meta property="og:image" content="http://www.liushaohuang.cn/images/BB88E60E-05D9-4fdd-B794-8FE7C251DE3233333.png">
+<meta property="og:updated_time" content="2020-04-10T08:05:20.845Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="二次开发CAS服务端登录流程">
+<meta name="twitter:description" content="简介CAS 服务端登录提供了默认的登录流程并采用WebFlow进行实现,但是再实际项目中需要对接外部的登录系统，如果外部账号之前没有在本系统登录过,那么就要在内部账号进行一次二次注册,这需要对原有的登录流程进行修改,如果外部账号验证通过则进行判断该账号时候在本系统注册过,如果没有跳转到二次注册页面进行注册,我这里使用的版本是5.3.X">
+<meta name="twitter:image" content="http://www.liushaohuang.cn/images/520D8F7E-41F4-40be-9189-9035681E18DF.png">
+  <link rel="canonical" href="http://www.liushaohuang.cn/2020/04/10/二次开发CAS服务端登录流程/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>二次开发CAS服务端登录流程 | 刘绍煌</title>
+  <meta name="generator" content="Hexo 3.9.0">
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">刘绍煌</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2020/04/10/二次开发CAS服务端登录流程/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="刘绍煌">
+      <meta itemprop="description" content="刘绍煌的个人博客">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="刘绍煌">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">二次开发CAS服务端登录流程
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-04-10 13:53:03 / 修改时间：16:05:20" itemprop="dateCreated datePublished" datetime="2020-04-10T13:53:03+08:00">2020-04-10</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/CAS/" itemprop="url" rel="index"><span itemprop="name">CAS</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span class="post-meta-item" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>CAS 服务端登录提供了默认的登录流程并采用WebFlow进行实现,但是再实际项目中需要对接外部的登录系统，如果外部账号之前没有在本系统登录过,那么就要在内部账号进行一次二次注册,这需要对原有的登录流程进行修改,如果外部账号验证通过则进行判断该账号时候在本系统注册过,如果没有跳转到二次注册页面进行注册,我这里使用的版本是5.3.X</p>
+<a id="more"></a>
+
+<h4 id="强制条件"><a href="#强制条件" class="headerlink" title="强制条件"></a>强制条件</h4><p>CAS 服务端采用Spring WebFlow进行流程编排，需要对WebFlow有个大概的了解才能进行开发<br><a href="https://blog.csdn.net/u013040472/article/details/71375058" target="_blank" rel="noopener">https://blog.csdn.net/u013040472/article/details/71375058</a></p>
+<h4 id="修改切入点"><a href="#修改切入点" class="headerlink" title="修改切入点"></a>修改切入点</h4><p>通过CAS官网得知 登录流程Webflow的默认实现类为DefaultLoginWebflowConfigurer，通过检索源码发现，该类会在工程开启时自动在Spring容器中注册,<strong>那么我们对流程的二次开发就已经明了，我们继承该类，加入自己的逻辑并在Spring容器中注册即可</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">@ConditionalOnMissingBean(name = &quot;defaultWebflowConfigurer&quot;)</span><br><span class="line">    @Bean</span><br><span class="line">    @Order(0)</span><br><span class="line">    @RefreshScope</span><br><span class="line">    public CasWebflowConfigurer defaultWebflowConfigurer() &#123;</span><br><span class="line">        final DefaultLoginWebflowConfigurer c = new DefaultLoginWebflowConfigurer(builder(), loginFlowRegistry(), applicationContext, casProperties);</span><br><span class="line">        c.setLogoutFlowDefinitionRegistry(logoutFlowRegistry());</span><br><span class="line">        c.setOrder(Ordered.HIGHEST_PRECEDENCE);</span><br><span class="line">        return c;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>WebFlow 定义入口，在resources/webflow/login 创建了一个名为loginwebflow,以下的代码都是对这个webflow做扩展</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span><br><span class="line">&lt;flow xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span><br><span class="line">      xmlns=&quot;http://www.springframework.org/schema/webflow&quot;</span><br><span class="line">      xsi:schemaLocation=&quot;http://www.springframework.org/schema/webflow</span><br><span class="line">                          http://www.springframework.org/schema/webflow/spring-webflow.xsd&quot;&gt;</span><br><span class="line"></span><br><span class="line">    &lt;action-state id=&quot;initializeLoginForm&quot;&gt;</span><br><span class="line">        &lt;evaluate expression=&quot;initializeLoginAction&quot; /&gt;</span><br><span class="line">        &lt;transition on=&quot;success&quot; to=&quot;viewLoginForm&quot;/&gt;</span><br><span class="line">    &lt;/action-state&gt;</span><br><span class="line"></span><br><span class="line">    &lt;view-state id=&quot;viewLoginForm&quot; view=&quot;casLoginView&quot; model=&quot;credential&quot;&gt;</span><br><span class="line">        &lt;binder&gt;</span><br><span class="line">            &lt;binding property=&quot;username&quot; required=&quot;true&quot;/&gt;</span><br><span class="line">            &lt;binding property=&quot;password&quot; required=&quot;true&quot;/&gt;</span><br><span class="line">            &lt;binding property=&quot;code&quot;/&gt;</span><br><span class="line">            &lt;binding property=&quot;type&quot; required=&quot;true&quot;/&gt;</span><br><span class="line">        &lt;/binder&gt;</span><br><span class="line">        &lt;transition on=&quot;submit&quot; bind=&quot;true&quot; validate=&quot;true&quot; to=&quot;realSubmit&quot; history=&quot;invalidate&quot;/&gt;</span><br><span class="line">    &lt;/view-state&gt;</span><br><span class="line"></span><br><span class="line">    &lt;action-state id=&quot;realSubmit&quot;&gt;</span><br><span class="line">        &lt;evaluate expression=&quot;authenticationViaFormAction&quot;/&gt;</span><br><span class="line">        &lt;transition on=&quot;warn&quot; to=&quot;warn&quot;/&gt;</span><br><span class="line">        &lt;transition on=&quot;success&quot; to=&quot;createTicketGrantingTicket&quot;/&gt;</span><br><span class="line">        &lt;transition on=&quot;successWithWarnings&quot; to=&quot;showAuthenticationWarningMessages&quot;/&gt;</span><br><span class="line">        &lt;transition on=&quot;authenticationFailure&quot; to=&quot;handleAuthenticationFailure&quot;/&gt;</span><br><span class="line">        &lt;transition on=&quot;error&quot; to=&quot;initializeLoginForm&quot;/&gt;</span><br><span class="line">    &lt;/action-state&gt;</span><br><span class="line">&lt;/flow&gt;</span><br></pre></td></tr></table></figure>
+
+<h4 id="CAS默认登录流程"><a href="#CAS默认登录流程" class="headerlink" title="CAS默认登录流程"></a>CAS默认登录流程</h4><p>通过查看DefaultLoginWebflowConfigurer，绘制了CAS流程登录时候的默认流程图,流程图中省略了一些非主要的逻辑</p>
+<p><img src="/images/520D8F7E-41F4-40be-9189-9035681E18DF.png" alt="流程图"></p>
+<h4 id="经过二次开发后的流程"><a href="#经过二次开发后的流程" class="headerlink" title="经过二次开发后的流程"></a>经过二次开发后的流程</h4><p>我在生成st 的流程下(generateServiceTicket)添加了一个自定义流程checkUserExister,来判断用户是否进行过二次注册，如果注册过就就跳转，如果没有注册过就跳转到二次注册页面,同样我在checkUserExister下也添加了checkUserExister来对用户是否进行过二次注册进行判断</p>
+<p><img src="/images/BB88E60E-05D9-4fdd-B794-8FE7C251DE3233333.png" alt="流程图"></p>
+<h4 id="部分代码"><a href="#部分代码" class="headerlink" title="部分代码"></a>部分代码</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br></pre></td><td class="code"><pre><span class="line">public class MyLoginWebflowConfiger extends DefaultLoginWebflowConfigurer &#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    public MyLoginWebflowConfiger(FlowBuilderServices flowBuilderServices, FlowDefinitionRegistry flowDefinitionRegistry, ApplicationContext applicationContext, CasConfigurationProperties casProperties) &#123;</span><br><span class="line">        super(flowBuilderServices, flowDefinitionRegistry, applicationContext, casProperties);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">//登录页面属性和后端绑定</span><br><span class="line">    @Override</span><br><span class="line">    protected void createRememberMeAuthnWebflowConfig(Flow flow)&#123;</span><br><span class="line">        if (this.casProperties.getTicket().getTgt().getRememberMe().isEnabled()) &#123;</span><br><span class="line">            this.createFlowVariable(flow, &quot;credential&quot;, RememberMeUsernamePasswordCredential.class);</span><br><span class="line">            ViewState state = (ViewState)this.getState(flow, &quot;viewLoginForm&quot;, ViewState.class);</span><br><span class="line">            BinderConfiguration cfg = this.getViewStateBinderConfiguration(state);</span><br><span class="line">            cfg.addBinding(new BinderConfiguration.Binding(&quot;rememberMe&quot;, (String)null, false));</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            this.createFlowVariable(flow, &quot;credential&quot;, LoginUsernamePasswordCredential.class);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">//generateServiceTicket后加入验证用户是否进行过二次注册checkUserExist</span><br><span class="line">    @Override</span><br><span class="line">    protected void createGenerateServiceTicketAction(Flow flow) &#123;</span><br><span class="line">        ActionState handler = this.createActionState(flow, &quot;generateServiceTicket&quot;, this.createEvaluateAction(&quot;generateServiceTicketAction&quot;));</span><br><span class="line">        this.createTransitionForState(handler, &quot;success&quot;, &quot;checkUserExist&quot;);</span><br><span class="line">        this.createTransitionForState(handler, &quot;warn&quot;, &quot;warn&quot;);</span><br><span class="line">        this.createTransitionForState(handler, &quot;authenticationFailure&quot;, &quot;handleAuthenticationFailure&quot;);</span><br><span class="line">        this.createTransitionForState(handler, &quot;error&quot;, &quot;initializeLoginForm&quot;);</span><br><span class="line">        this.createTransitionForState(handler, &quot;gateway&quot;, &quot;gatewayServicesManagementCheck&quot;);</span><br><span class="line">        createCheckUserExist(flow);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">//hasServiceCheck后加入验证用户是否进行过二次注册checkUserExist</span><br><span class="line">    @Override</span><br><span class="line">    protected void createHasServiceCheckDecisionState(Flow flow) &#123;</span><br><span class="line">        this.createDecisionState(flow, &quot;hasServiceCheck&quot;, &quot;flowScope.service != null&quot;, &quot;renewRequestCheck&quot;, &quot;checkUserExist&quot;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">//serviceCheck后加入验证用户是否进行过二次注册checkUserExist</span><br><span class="line">    @Override</span><br><span class="line">    protected void createServiceCheckDecisionState(Flow flow) &#123;</span><br><span class="line">        this.createDecisionState(flow, &quot;serviceCheck&quot;, &quot;flowScope.service != null&quot;, &quot;generateServiceTicket&quot;, &quot;checkUserExist&quot;);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">//创建serviceCheck action</span><br><span class="line">    private void createCheckUserExist(Flow flow)&#123;</span><br><span class="line"></span><br><span class="line">        ActionState handler = this.createActionState(flow, &quot;checkUserExist&quot;, this.createEvaluateAction(&quot;checkUserExistAction&quot;));</span><br><span class="line">        //没有注册添加到注册页面</span><br><span class="line">        this.createTransitionForState(handler, &quot;noRegister&quot;, &quot;addUser&quot;);</span><br><span class="line">        //注册过跳转到判断是否有service回调地址</span><br><span class="line">        this.createTransitionForState(handler, &quot;register&quot;, &quot;checkServiceDecisionState&quot;);</span><br><span class="line"></span><br><span class="line">        createAddUserView(flow);</span><br><span class="line">        createRegisteredUserView(flow);</span><br><span class="line">        createCheckServiceDecisionState(flow);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">//如果有回调地址service则重定向,如果么有则跳转到默认页面</span><br><span class="line">    private void createCheckServiceDecisionState(Flow flow)&#123;</span><br><span class="line">        this.createDecisionState(flow, &quot;checkServiceDecisionState&quot;, &quot;flowScope.service != null&quot;, &quot;redirect&quot;, &quot;registeredUser&quot;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    private void createAddUserView(Flow flow)&#123;</span><br><span class="line">        EndState state = this.createEndState(flow, &quot;addUser&quot;, &quot;addUser&quot;);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private void createRegisteredUserView(Flow flow)&#123;</span><br><span class="line">        EndState state = this.createEndState(flow, &quot;registeredUser&quot;, &quot;registeredUser&quot;);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>CheckUserExistAction 代码<br><strong>requestContext.getFlowScope().put(“redirect_service”,service);方法可以在flow域中传入参数，这样在页面中就可通过themeleaf模板方法<br><input id="redirect" th:value="${redirect_service}" type="hidden"> 获取之前传入的值</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line">public class CheckUserExistAction extends AbstractAction &#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    private CentralAuthenticationService centralAuthenticationService;</span><br><span class="line"></span><br><span class="line">    private ServiceConfig serviceConfig;</span><br><span class="line"></span><br><span class="line">    public CheckUserExistAction(CentralAuthenticationService centralAuthenticationService,ServiceConfig serviceConfig) &#123;</span><br><span class="line">        this.centralAuthenticationService = centralAuthenticationService;</span><br><span class="line">        this.serviceConfig=serviceConfig;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    protected Event doExecute(RequestContext requestContext) throws IOException, URISyntaxException &#123;</span><br><span class="line">        String tgt = WebUtils.getTicketGrantingTicketId(requestContext);</span><br><span class="line">        TicketGrantingTicket ticketGrantingTicket = this.centralAuthenticationService.getTicket(tgt, TicketGrantingTicket.class);</span><br><span class="line">        Principal principal =ticketGrantingTicket.getAuthentication().getPrincipal();</span><br><span class="line">        String userJson=principal.getId();</span><br><span class="line">        User user=JSON.toJavaObject(JSON.parseObject(userJson), User.class);</span><br><span class="line">        String idCard=user.getIdCard();</span><br><span class="line">        Map&lt;String,String&gt; params=new HashMap&lt;&gt;();</span><br><span class="line">        params.put(&quot;userIdcard&quot;,idCard);</span><br><span class="line">        String response=HttpClientUtil.get(serviceConfig.find_useridcard_url,params);</span><br><span class="line">        validateResponse(response);</span><br><span class="line">        requestContext.getFlowScope().put(&quot;user_info&quot;,JSON.toJavaObject(JSON.parseObject(principal.getId()),User.class));</span><br><span class="line">        WebApplicationService webApplicationService=WebUtils.getService(requestContext);</span><br><span class="line">        String service=webApplicationService==null?null:webApplicationService.getOriginalUrl();</span><br><span class="line">        requestContext.getFlowScope().put(&quot;redirect_service&quot;,service);</span><br><span class="line">        if(noRegisterAndCompany(response))&#123;</span><br><span class="line">            return this.getEventFactorySupport().event(this,&quot;noRegister&quot;);</span><br><span class="line">        &#125;else &#123;</span><br><span class="line">            return this.getEventFactorySupport().event(this,&quot;register&quot;);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    private void validateResponse(String response)&#123;</span><br><span class="line"></span><br><span class="line">        Object code=JSON.parseObject(response).get(&quot;code&quot;);</span><br><span class="line">        if(code==null || !&quot;1&quot;.equals(code.toString()))&#123;</span><br><span class="line">            throw new RuntimeException(&quot;根据信用代码查询用户信息错误&quot;);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private boolean noRegisterAndCompany(String response) &#123;</span><br><span class="line">        Object data=JSON.parseObject(response).get(&quot;data&quot;);</span><br><span class="line">       return   data==null?true:</span><br><span class="line">                    !&quot;2d0f4e4b-4a7f-463c-abb1-20d33ea14f1a&quot;.equals(JSON.parseObject(data.toString()).get(&quot;type&quot;))</span><br><span class="line">               ;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+        
+      
+        <div id="reward-container">
+  <div></div>
+  <button id="reward-button" disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/赞赏码.png" alt="刘绍煌 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/CAS/" rel="tag"># CAS</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/04/10/nginx反向代理静态资源404问题/" rel="next" title="nginx反向代理静态资源404问题">
+                  <i class="fa fa-chevron-left"></i> nginx反向代理静态资源404问题
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#强制条件"><span class="nav-number">2.</span> <span class="nav-text">强制条件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#修改切入点"><span class="nav-number">3.</span> <span class="nav-text">修改切入点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CAS默认登录流程"><span class="nav-number">4.</span> <span class="nav-text">CAS默认登录流程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#经过二次开发后的流程"><span class="nav-number">5.</span> <span class="nav-text">经过二次开发后的流程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#部分代码"><span class="nav-number">6.</span> <span class="nav-text">部分代码</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">刘绍煌</p>
+  <div class="site-description" itemprop="description">刘绍煌的个人博客</div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">51</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">52</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">刘绍煌</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.3.0</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.3.0"></script><script src="/js/motion.js?v=7.3.0"></script>
+<script src="/js/schemes/pisces.js?v=7.3.0"></script>
+<script src="/js/next-boot.js?v=7.3.0"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
