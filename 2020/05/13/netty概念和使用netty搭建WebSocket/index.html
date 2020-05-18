@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.3.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.3.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.3.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.3.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.3.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.3.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="简介netty是java网络编程框架，其架构抽象出的概念很容易使我们针对不同的需求来定制不同的处理器,本文将简介netty的概念和一些网络知识，最后并使用netty来编写一个webScoket聊天室服务器.">
+<meta name="keywords" content="网络,netty">
+<meta property="og:type" content="article">
+<meta property="og:title" content="netty概念和使用netty搭建WebSocket">
+<meta property="og:url" content="http://www.liushaohuang.cn/2020/05/13/netty概念和使用netty搭建WebSocket/index.html">
+<meta property="og:site_name" content="刘绍煌">
+<meta property="og:description" content="简介netty是java网络编程框架，其架构抽象出的概念很容易使我们针对不同的需求来定制不同的处理器,本文将简介netty的概念和一些网络知识，最后并使用netty来编写一个webScoket聊天室服务器.">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.liushaohuang.cn/images/v2-a3a7f2b064f424fbb11e77f019123e62_720w.jpg">
+<meta property="og:image" content="http://www.liushaohuang.cn/images/v2-d60a5c2c930e3ec611855d387d2429ec_720w.jpg">
+<meta property="og:updated_time" content="2020-05-18T03:39:10.367Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="netty概念和使用netty搭建WebSocket">
+<meta name="twitter:description" content="简介netty是java网络编程框架，其架构抽象出的概念很容易使我们针对不同的需求来定制不同的处理器,本文将简介netty的概念和一些网络知识，最后并使用netty来编写一个webScoket聊天室服务器.">
+<meta name="twitter:image" content="http://www.liushaohuang.cn/images/v2-a3a7f2b064f424fbb11e77f019123e62_720w.jpg">
+  <link rel="canonical" href="http://www.liushaohuang.cn/2020/05/13/netty概念和使用netty搭建WebSocket/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>netty概念和使用netty搭建WebSocket | 刘绍煌</title>
+  <meta name="generator" content="Hexo 3.9.0">
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">刘绍煌</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2020/05/13/netty概念和使用netty搭建WebSocket/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="刘绍煌">
+      <meta itemprop="description" content="刘绍煌的个人博客">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="刘绍煌">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">netty概念和使用netty搭建WebSocket
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-05-13 10:11:43" itemprop="dateCreated datePublished" datetime="2020-05-13T10:11:43+08:00">2020-05-13</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-05-18 11:39:10" itemprop="dateModified" datetime="2020-05-18T11:39:10+08:00">2020-05-18</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/netty/" itemprop="url" rel="index"><span itemprop="name">netty</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span class="post-meta-item" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>netty是java网络编程框架，其架构抽象出的概念很容易使我们针对不同的需求来定制不同的处理器,本文将简介netty的概念和一些网络知识，最后并使用netty来编写一个webScoket聊天室服务器.</p>
+<a id="more"></a>
+<h4 id="netty基本概念"><a href="#netty基本概念" class="headerlink" title="netty基本概念"></a>netty基本概念</h4><h5 id="线程模型"><a href="#线程模型" class="headerlink" title="线程模型"></a>线程模型</h5><h6 id="阻塞与非阻塞"><a href="#阻塞与非阻塞" class="headerlink" title="阻塞与非阻塞"></a>阻塞与非阻塞</h6><p>  <strong>阻塞与非阻塞是描述进程在访问某个资源时，数据是否准备就绪的的一种处理方式。</strong>当数据没有准备就绪时：</p>
+<p> 阻塞：线程持续等待资源中数据准备完成，直到返回响应结果。</p>
+<p> 非阻塞：线程直接返回结果，不会持续等待资源准备数据结束后才响应结果。</p>
+<h6 id="同步与异步"><a href="#同步与异步" class="headerlink" title="同步与异步"></a>同步与异步</h6><p>  <strong>同步与异步是指访问数据的机制，同步一般指主动请求并等待IO操作完成的方式。</strong></p>
+<p>异步则指主动请求数据后便可以继续处理其它任务，随后等待IO操作完毕的通知。</p>
+<p>用经典的烧开水理论来解释为  </p>
+<p>1、普通水壶煮水，站在旁边，主动的看水开了没有？同步的阻塞</p>
+<p>2、普通水壶煮水，去干点别的事，每过一段时间去看看水开了没有，水没开就走人。 同步非阻塞</p>
+<p>3、响水壶煮水，站在旁边，不会每过一段时间主动看水开了没有。如果水开了，水壶自动通知他。 异步阻塞</p>
+<p>4、响水壶煮水，去干点别的事，如果水开了，水壶自动通知他。异步非阻塞</p>
+<p><strong>为什么使用异步线程模型？本质上是由于CPU和I/O执行效率的不对等，CPU执行速度很快，而I/0执行的较慢，如果用阻塞去处理，那么就会导致cpu在I/0阻塞时一直在等待I/0的结果，这样导致CPU的浪费</strong></p>
+<h6 id="netty使用Reactor线程模型"><a href="#netty使用Reactor线程模型" class="headerlink" title="netty使用Reactor线程模型"></a>netty使用Reactor线程模型</h6><p>Reactor是为同步I/O设计的线程模式<br>其分为三种, 分别为</p>
+<ul>
+<li>单线程模型 (单Reactor单线程)</li>
+<li>多线程模型 (单Reactor多线程)</li>
+<li>主从多线程模型 (多Reactor多线程)</li>
+</ul>
+<p>channel:通道，目前可以把channel看做是入站或者出站数据的载体，因此它可以被打开或者关闭—-摘抄自netty实战</p>
+<p>Reactor中一个定义了4个事件分表为Accept(接受), Read(读取), Write(写)，Connect(连接)，各个Channel通过这些事件往Reactor中注册信息，来告诉Reactor，他们下一步想要执行什么事件</p>
+<p><strong>单线程模型</strong></p>
+<p><img src="/images/v2-a3a7f2b064f424fbb11e77f019123e62_720w.jpg" alt="按钮"><br>根据Doug Lea 在 《Scalable IO in Java 》中单线程模型中的代码<br><a href="http://gee.cs.oswego.edu/dl/cpjslides/nio.pdf" target="_blank" rel="noopener">http://gee.cs.oswego.edu/dl/cpjslides/nio.pdf</a><br><strong>顾名思义就是已一个线程去控制所有I/O的流转，从代码中我们可以看出其只用了一个线程就能控制所有的I/O，其原理是在Reactor抽象出一个Selector，所有的Channel当状态发生变化时中往Selector中注册事件),由Selector循环去调用select()方法去获取这些发生状态变化的事件，然后根据这些事件绑定的执行器如图中的(acceptor，和handler(read，decode….send))一个个去执行这些事件，这样就使用一个线程就能控制多个I/O的执行</strong></p>
+<p>缺点:当处理读写任务的线程负载过高后，处理速度下降，事件会堆积，严重的会超时，可能导致客户端重新发送请求，性能越来越差</p>
+<p><strong>多线程模型</strong><br><img src="/images/v2-d60a5c2c930e3ec611855d387d2429ec_720w.jpg" alt="按钮"><br><strong>如图，多线程和单线程模型的区别就是将之前的handler换成一个线程池去处理，来解决单线程的问题，因为在网络编程中，花的时间较多的是handler，因为要负责解码，处理逻辑，最后在编发发送给客户端，因此有用线程池去处理，而acceptor只是单纯的做一个监测端口然后并注册selector中注册的作用，所以没用用到线程池,一般我们使用netty时只监测一个端口，所以这个模型是netty大量使用的模型</strong></p>
+<p><strong>主从多线程模型</strong><br>和多线程的区别就是acceptor也使用线程池去处理</p>
+<h5 id="主要接口和概念"><a href="#主要接口和概念" class="headerlink" title="主要接口和概念"></a>主要接口和概念</h5><ul>
+<li>channel:通道，目前可以把channel看做是入站或者出站数据的载体，因此它可以被打开或者关闭</li>
+<li>ChannelHandler：Netty使用不同的事件来通知我们状态的改变或者是操作的状态;这使我们能够基于已经发生的事件来触发适当的动作，举处理心跳的IdleStateHandler为例,在这个类初始化时会初始化一个定时器，如果在一段时间内没有触发消失这会在定时器中触发事件<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">private void initialize(ChannelHandlerContext ctx) &#123;</span><br><span class="line">        switch(this.state) &#123;</span><br><span class="line">        case 1:</span><br><span class="line">        case 2:</span><br><span class="line">            return;</span><br><span class="line">        default:</span><br><span class="line">            this.state = 1;</span><br><span class="line">            this.initOutputChanged(ctx);</span><br><span class="line">            this.lastReadTime = this.lastWriteTime = this.ticksInNanos();</span><br><span class="line">            if (this.readerIdleTimeNanos &gt; 0L) &#123;</span><br><span class="line">                this.readerIdleTimeout = this.schedule(ctx, new IdleStateHandler.ReaderIdleTimeoutTask(ctx), this.readerIdleTimeNanos, TimeUnit.NANOSECONDS);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            if (this.writerIdleTimeNanos &gt; 0L) &#123;</span><br><span class="line">                this.writerIdleTimeout = this.schedule(ctx, new IdleStateHandler.WriterIdleTimeoutTask(ctx), this.writerIdleTimeNanos, TimeUnit.NANOSECONDS);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            if (this.allIdleTimeNanos &gt; 0L) &#123;</span><br><span class="line">                this.allIdleTimeout = this.schedule(ctx, new IdleStateHandler.AllIdleTimeoutTask(ctx), this.allIdleTimeNanos, TimeUnit.NANOSECONDS);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p>以下是定时任务的代码，在IdleStateHandler.this.channelIdle(ctx, event);中netty发出了事件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">private final class ReaderIdleTimeoutTask extends IdleStateHandler.AbstractIdleTask &#123;</span><br><span class="line">        ReaderIdleTimeoutTask(ChannelHandlerContext ctx) &#123;</span><br><span class="line">            super(ctx);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        protected void run(ChannelHandlerContext ctx) &#123;</span><br><span class="line">            long nextDelay = IdleStateHandler.this.readerIdleTimeNanos;</span><br><span class="line">            if (!IdleStateHandler.this.reading) &#123;</span><br><span class="line">                nextDelay -= IdleStateHandler.this.ticksInNanos() - IdleStateHandler.this.lastReadTime;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            if (nextDelay &lt;= 0L) &#123;</span><br><span class="line">                IdleStateHandler.this.readerIdleTimeout = IdleStateHandler.this.schedule(ctx, this, IdleStateHandler.this.readerIdleTimeNanos, TimeUnit.NANOSECONDS);</span><br><span class="line">                boolean first = IdleStateHandler.this.firstReaderIdleEvent;</span><br><span class="line">                IdleStateHandler.this.firstReaderIdleEvent = false;</span><br><span class="line"></span><br><span class="line">                try &#123;</span><br><span class="line">                    IdleStateEvent event = IdleStateHandler.this.newIdleStateEvent(IdleState.READER_IDLE, first);</span><br><span class="line">                    IdleStateHandler.this.channelIdle(ctx, event);</span><br><span class="line">                &#125; catch (Throwable var6) &#123;</span><br><span class="line">                    ctx.fireExceptionCaught(var6);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                IdleStateHandler.this.readerIdleTimeout = IdleStateHandler.this.schedule(ctx, this, nextDelay, TimeUnit.NANOSECONDS);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>发出事件，由后续由我们自行实现的channel在userEventTriggered方法中捕获这个事件并做处理</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">protected void channelIdle(ChannelHandlerContext ctx, IdleStateEvent evt) throws Exception &#123;</span><br><span class="line">        ctx.fireUserEventTriggered(evt);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>ChannelHandler:分为入站和出站分别对应其的两个子接口ChannelInboundHandler,ChannelOutboundHandler,入站事件主要处理读事件，这里做一个类比，Http服务器主要做的是处理读事件，在客户单连接到服务器后，服务器需要对接受到的信息进行解码，http协议的解释，最后再进行逻辑的处理，最后将请求返回回去这就是读请求，而客户端需要处理写的请求，将对象序列化，并以一定的协议传输出去，这是写请求。</p>
+</li>
+<li><p>EventLoopGroup为netty封装的线程池模型</p>
+</li>
+</ul>
+<h4 id="服务端代码"><a href="#服务端代码" class="headerlink" title="服务端代码"></a>服务端代码</h4><p>服务端代码如下，代码中做了注释</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line">public class ServiceMain &#123;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args)throws Exception &#123;</span><br><span class="line">        //编写一个acceptor线程池,主要监测端口和分发连接，因为我们只监测一个端口所以采用的是Reactor的多线程模型(只用一个线程去处理连接)</span><br><span class="line">        EventLoopGroup bossGroup = new NioEventLoopGroup(1);</span><br><span class="line">        //定义一个出来ChannelHandler的线程池,不指定参数线程池数量为cpu数*2</span><br><span class="line">        EventLoopGroup workerGroup = new NioEventLoopGroup();</span><br><span class="line">        //定义一个保存所有channel连接的容器</span><br><span class="line">        ChannelGroup group=new DefaultChannelGroup(ImmediateEventExecutor.INSTANCE);</span><br><span class="line">        try &#123;</span><br><span class="line">            ServiceMain serviceMain=new ServiceMain();</span><br><span class="line">            ServerBootstrap serverBootstrap=new ServerBootstrap();</span><br><span class="line">            //绑定Reactor线程池和ChannelHandler线程池</span><br><span class="line">            Channel channel =serverBootstrap.group(bossGroup,workerGroup)</span><br><span class="line">                    .channel(NioServerSocketChannel.class).childHandler(new ChannelInitializer&lt;SocketChannel&gt;() &#123;</span><br><span class="line">                        @Override</span><br><span class="line">                        protected void initChannel(SocketChannel socketChannel) throws Exception &#123;</span><br><span class="line">                            ChannelPipeline pipeline=socketChannel.pipeline();</span><br><span class="line">                            //添加http协议的解码器和编译器</span><br><span class="line">                            pipeline.addLast(new HttpServerCodec());</span><br><span class="line">                            //添加http聚合器，因为在tcp传输中tcp协议会根据发送包的大小对数据进行分包，所以这里要将分的包组合成一个完成的http请求</span><br><span class="line">                            pipeline.addLast(new HttpObjectAggregator(65536));</span><br><span class="line">                            //webscoket对应的处理器，用户处理webscoket的握手和协议升级</span><br><span class="line">                            pipeline.addLast(new WebSocketServerProtocolHandler(&quot;/ws&quot;));</span><br><span class="line">                            //主要处理websocket发送的消息</span><br><span class="line">                            pipeline.addLast( serviceMain.new TextHandler(group));</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;)</span><br><span class="line">                    .bind(new InetSocketAddress(9000)).addListener(new ChannelFutureListener() &#123;</span><br><span class="line">                        @Override</span><br><span class="line">                        public void operationComplete(ChannelFuture channelFuture) throws Exception &#123;</span><br><span class="line">                            System.out.println(channelFuture.isSuccess());</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;).sync().channel();</span><br><span class="line">            channel.closeFuture().sync();</span><br><span class="line">        &#125;finally &#123;</span><br><span class="line">            bossGroup.shutdownGracefully();</span><br><span class="line">            workerGroup.shutdownGracefully();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    	&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    //将用户进入聊天室发起的消息进行分发</span><br><span class="line">    private class TextHandler extends SimpleChannelInboundHandler&lt;TextWebSocketFrame&gt;&#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        private ChannelGroup group;</span><br><span class="line"></span><br><span class="line">        public TextHandler(ChannelGroup group) &#123;</span><br><span class="line">            this.group = group;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        //如果触发了webscoket握手信息则往聊天室类发消息通知用户进入聊天室</span><br><span class="line">        @Override</span><br><span class="line">        public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception &#123;</span><br><span class="line">            if(evt==WebSocketServerProtocolHandler.ServerHandshakeStateEvent.HANDSHAKE_COMPLETE)&#123;</span><br><span class="line">                group.writeAndFlush(&quot;新用户加入房间&quot;);</span><br><span class="line">                group.add(ctx.channel());</span><br><span class="line">            &#125;</span><br><span class="line">            super.userEventTriggered(ctx, evt);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        //用户号发送消息时将消息在聊天室内广播</span><br><span class="line">        @Override</span><br><span class="line">        protected void channelRead0(ChannelHandlerContext channelHandlerContext, TextWebSocketFrame textWebSocketFrame) throws Exception &#123;</span><br><span class="line"></span><br><span class="line">            group.writeAndFlush(textWebSocketFrame.retain());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="网页端代码"><a href="#网页端代码" class="headerlink" title="网页端代码"></a>网页端代码</h4><p>用h5发送消息</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">&lt;!DOCTYPE html&gt;</span><br><span class="line">&lt;meta charset=&quot;utf-8&quot; /&gt;</span><br><span class="line">&lt;title&gt;WebSocket Test&lt;/title&gt;</span><br><span class="line">&lt;script language=&quot;javascript&quot;type=&quot;text/javascript&quot;&gt;</span><br><span class="line">    alert(2222)</span><br><span class="line">    var ws = new WebSocket(&quot;ws://127.0.0.1:9000/ws&quot;);</span><br><span class="line"></span><br><span class="line">    ws.onopen = function(evt) &#123;</span><br><span class="line">        console.log(&quot;Connection open ...&quot;);</span><br><span class="line">        ws.send(&quot;Hello WebSockets!&quot;);</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    ws.onmessage = function(evt) &#123;</span><br><span class="line">        console.log( &quot;Received Message: &quot; + evt.data);</span><br><span class="line"></span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    ws.onclose = function(evt) &#123;</span><br><span class="line">        console.log(&quot;Connection closed.&quot;);</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    function send() &#123;</span><br><span class="line">        ws.send(&quot;message.................&quot;)</span><br><span class="line">    &#125;</span><br><span class="line">&lt;/script&gt;</span><br><span class="line">&lt;input type=&quot;button&quot; value=&quot;send&quot; onclick=&quot;send()&quot;&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+        
+      
+        <div id="reward-container">
+  <div></div>
+  <button id="reward-button" disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/赞赏码.png" alt="刘绍煌 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/网络/" rel="tag"># 网络</a>
+            
+              <a href="/tags/netty/" rel="tag"># netty</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/05/06/关于钉钉在外网故障情况下仍然能发送消息的思考/" rel="next" title="关于钉钉在外网故障情况下仍然能发送消息的思考">
+                  <i class="fa fa-chevron-left"></i> 关于钉钉在外网故障情况下仍然能发送消息的思考
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#netty基本概念"><span class="nav-number">2.</span> <span class="nav-text">netty基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#线程模型"><span class="nav-number">2.1.</span> <span class="nav-text">线程模型</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#阻塞与非阻塞"><span class="nav-number">2.1.1.</span> <span class="nav-text">阻塞与非阻塞</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#同步与异步"><span class="nav-number">2.1.2.</span> <span class="nav-text">同步与异步</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#netty使用Reactor线程模型"><span class="nav-number">2.1.3.</span> <span class="nav-text">netty使用Reactor线程模型</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#主要接口和概念"><span class="nav-number">2.2.</span> <span class="nav-text">主要接口和概念</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#服务端代码"><span class="nav-number">3.</span> <span class="nav-text">服务端代码</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#网页端代码"><span class="nav-number">4.</span> <span class="nav-text">网页端代码</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">刘绍煌</p>
+  <div class="site-description" itemprop="description">刘绍煌的个人博客</div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">54</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">55</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">刘绍煌</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.3.0</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.3.0"></script><script src="/js/motion.js?v=7.3.0"></script>
+<script src="/js/schemes/pisces.js?v=7.3.0"></script>
+<script src="/js/next-boot.js?v=7.3.0"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
