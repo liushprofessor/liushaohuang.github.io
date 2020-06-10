@@ -216,6 +216,108 @@
   
   
   <div class="post-block home">
+    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2019/10/10/使用sharding-jdbc实现mysql的读写分离/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="刘绍煌">
+      <meta itemprop="description" content="刘绍煌的个人博客">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="刘绍煌">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+            
+            <a href="/2019/10/10/使用sharding-jdbc实现mysql的读写分离/" class="post-title-link" itemprop="url">使用sharding-jdbc实现mysql的读写分离</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2019-10-10 16:34:20" itemprop="dateCreated datePublished" datetime="2019-10-10T16:34:20+08:00">2019-10-10</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-10-11 10:09:56" itemprop="dateModified" datetime="2019-10-11T10:09:56+08:00">2019-10-11</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/并发/" itemprop="url" rel="index"><span itemprop="name">并发</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>在读数据远远大于写数据时，且写数据连在千万级别，为了扩展数据库的可读性可以采用数据库的读写分离结构来减轻读数据的压力。其实现方案就是利用数据库的主备，将读请求分发到各个从库中，来减轻读压力，实现这部分方案往往依赖中间件去屏蔽数据库访问信息(开发者像使用单数据源一样进行开发),而这类中间件又可以分为两部分，一部分为植入应用程序，通常为jar包，如淘宝的 TDDL，在访问数据源时由植入的中间件完成对数据请求的分发，将读请求分发到不同的数据库中，采用这部分中间的优点是简单易用，缺点是不能跨语言去使用。还有一部分中间件为独立部署到服务器中，应用程序去访问这部分服务，然后由服务去完成请求的处理和转发。sharding-jdbc（现在托管给Apache改名为ShardingSphere）兼备了这两种功能，这里我们使用ShardingSphere的sharding-jdbc模块来植入应用程序来实现一个读写分离的应用。</p>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2019/10/10/使用sharding-jdbc实现mysql的读写分离/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+          <div class="post-eof"></div>
+        
+      </footer>
+  </div>
+  
+  
+  
+  </article>
+
+    
+        <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block home">
     <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2019/10/09/SpringBoot中使用HikariCP连接池/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1083,134 +1185,6 @@
   </article>
 
     
-        <article itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2019/09/18/java在linux中占用资源过多的排查/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="刘绍煌">
-      <meta itemprop="description" content="刘绍煌的个人博客">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="刘绍煌">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-            
-            <a href="/2019/09/18/java在linux中占用资源过多的排查/" class="post-title-link" itemprop="url">java应用在linux中性能和堆栈信息的排查</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              
-                
-              
-
-              <time title="创建时间：2019-09-18 11:03:58" itemprop="dateCreated datePublished" datetime="2019-09-18T11:03:58+08:00">2019-09-18</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-11-04 15:30:22" itemprop="dateModified" datetime="2019-11-04T15:30:22+08:00">2019-11-04</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/性能测试和监控/" itemprop="url" rel="index"><span itemprop="name">性能测试和监控</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>####简介<br>在线上环境中有时会遇到cpu等资源占用过多的资源我们可以使用top命令和jstack命令对问题进行排查</p>
-<h4 id="编写循环代码"><a href="#编写循环代码" class="headerlink" title="编写循环代码"></a>编写循环代码</h4><p>下面代码开启两个线程循环打印</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">public class Test &#123;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        ExecutorService service = Executors.newFixedThreadPool(2);</span><br><span class="line">        service.submit(new Runnable() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            public void run() &#123;</span><br><span class="line">                runTest();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        service.submit(new Runnable() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            public void run() &#123;</span><br><span class="line">                runTest();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    public static void runTest() &#123;</span><br><span class="line">        while (true) &#123;</span><br><span class="line">            System.out.println(1);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h4 id="将代码发布到linux上并执行"><a href="#将代码发布到linux上并执行" class="headerlink" title="将代码发布到linux上并执行"></a>将代码发布到linux上并执行</h4><p>开启jar应用</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nohup java -jar test.jar &gt;/dev/null 2&gt;&amp;1 &amp;</span><br></pre></td></tr></table></figure>
-
-<h4 id="使用top命令查看进程情况"><a href="#使用top命令查看进程情况" class="headerlink" title="使用top命令查看进程情况"></a>使用top命令查看进程情况</h4><p>我们可以从命令中看到pid 19384占用了大量资源</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">top</span><br></pre></td></tr></table></figure>
-
-<p>  <img src="/images/top1.png" alt="top进程命令"></p>
-<h4 id="使用top命令查看线程情况"><a href="#使用top命令查看线程情况" class="headerlink" title="使用top命令查看线程情况"></a>使用top命令查看线程情况</h4><p>从上一步我们得到进程pid,现在我们使用top命令查看进程pid下的线程</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">top -Hp  19384</span><br></pre></td></tr></table></figure>
-
-<p><img src="/images/top2.png" alt="top线程命令"><br>我们可以看到19436 和19437这两个线程占用了大量资源</p>
-<h4 id="使用jstack命令进行具体分析"><a href="#使用jstack命令进行具体分析" class="headerlink" title="使用jstack命令进行具体分析"></a>使用jstack命令进行具体分析</h4><p>根据进程pid进行查询</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jstack -l 19437</span><br></pre></td></tr></table></figure>
-
-<p><img src="/images/jstack1.png" alt="jstack命令"><br>我们由上面的top线程查询到19436和19437这两个线程占用了大量资源<br>将其转化成16进制分别为4bec和4bed<br>根据16进制的pid查询对应的nid,如图我们找到了pool-1-thread-2 这个线程名对应的nid为4bed,这个线程就是我们之前开启的一个线程,我们可以查看之中的堆栈信息发现其在runTest方法中持续执行,并且持续在执行io流(打印)</p>
-<h4 id="通过thread-dump分析线程状态"><a href="#通过thread-dump分析线程状态" class="headerlink" title="通过thread dump分析线程状态"></a>通过thread dump分析线程状态</h4><p> 除了上述的分析，大多数情况下会基于thead dump分析当前各个线程的运行情况，如是否存在死锁、是否存在一个线程长时间持有锁不放等等。在dump中，线程一般存在如下几种状态：    </p>
-<ul>
-<li>RUNNABLE，线程处于执行中</li>
-<li>BLOCKED，线程被阻塞</li>
-<li>WAITING，线程正在等待</li>
-</ul>
-<h4 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h4><p>在实际调试中这两个线程无法并发执行,始终都是一个线程为RUNNABLE,一个为BLOCKED,但是实际代码并未加锁,根据堆栈打印出的信息线程中是在io流中加了锁</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">locked &lt;0x0000000085c3d2e0&gt; (a java.io.OutputStreamWriter)</span><br></pre></td></tr></table></figure>
-
-<p>于是查看System.out.println(“ “)的源代码,可以看出源码中打印代码时加了锁的,所以导致两个线程无法并发</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">public void println(String x) &#123;</span><br><span class="line">       synchronized (this) &#123;</span><br><span class="line">           print(x);</span><br><span class="line">           newLine();</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
-
-<h4 id="系统资源监控命令"><a href="#系统资源监控命令" class="headerlink" title="系统资源监控命令"></a>系统资源监控命令</h4><ul>
-<li>vmstat</li>
-<li>iostat</li>
-</ul>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-          <div class="post-eof"></div>
-        
-      </footer>
-  </div>
-  
-  
-  
-  </article>
-
-    
   </div>
 
   
@@ -1260,7 +1234,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">54</span>
+          <span class="site-state-item-count">55</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1315,7 +1289,9 @@
         
           
         
-        <span class="site-state-item-count">20</span>
+          
+        
+        <span class="site-state-item-count">21</span>
         <span class="site-state-item-name">分类</span>
         </a>
       </div>
@@ -1440,7 +1416,9 @@
         
           
         
-        <span class="site-state-item-count">55</span>
+          
+        
+        <span class="site-state-item-count">56</span>
         <span class="site-state-item-name">标签</span>
         </a>
       </div>
