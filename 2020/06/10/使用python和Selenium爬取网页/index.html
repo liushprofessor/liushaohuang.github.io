@@ -63,7 +63,7 @@
 <meta property="og:site_name" content="刘绍煌">
 <meta property="og:description" content="简介最近使用八爪鱼爬虫软件在网上爬取了一部分数据，也想尝试一下实现一个简单的爬虫，这里是使用python的一次实践,我们要首先安装python和Selenium，Selenium就是一个软件可以驱动浏览器进行自动化测试的软件，安装方法很简单，可以自行百度.">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-06-10T03:21:57.200Z">
+<meta property="og:updated_time" content="2020-06-10T03:36:11.340Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="使用python和Selenium爬取网页">
 <meta name="twitter:description" content="简介最近使用八爪鱼爬虫软件在网上爬取了一部分数据，也想尝试一下实现一个简单的爬虫，这里是使用python的一次实践,我们要首先安装python和Selenium，Selenium就是一个软件可以驱动浏览器进行自动化测试的软件，安装方法很简单，可以自行百度.">
@@ -247,7 +247,7 @@
                 
               
 
-              <time title="创建时间：2020-06-10 10:33:13 / 修改时间：11:21:57" itemprop="dateCreated datePublished" datetime="2020-06-10T10:33:13+08:00">2020-06-10</time>
+              <time title="创建时间：2020-06-10 10:33:13 / 修改时间：11:36:11" itemprop="dateCreated datePublished" datetime="2020-06-10T10:33:13+08:00">2020-06-10</time>
             </span>
           
             
@@ -303,7 +303,7 @@
 <li>IP限制,比如同一ip过多则不让操作</li>
 <li>代理限制:为了解决IP限制通常我们会使用代理，轮流切换IP进行爬取，但是服务端会监测你是否开启代理或者VPN，例如淘宝我在开启VPN时，淘宝会拒绝我的访问</li>
 <li>环境监测，有些服务器会监测本地环境，比如是否使用Selenium等</li>
-<li>登录监测: 站点要求用户登录，或者用户一次操作有次数限制，一般站点都会将用户一些登录凭据存在cookie中，因此我们可以使用本地cookie池来模拟多用户</li>
+<li>登录监测: 站点要求用户登录，或者用户一次操作有次数限制，一般站点都会将用户一些登录凭据存在cookie中，因此我们可以使用本地cookie池来模拟多用户<br>目前总体来说爬取APP的数据会比web容易，这就是为什么我之前看到的群控软件或者爬虫都会基于app端来做</li>
 </ul>
 <h4 id="实践"><a href="#实践" class="headerlink" title="实践"></a>实践</h4><p>在本人第一次实践中，我试着爬取速卖通的商品数据(这个代码只展示了主要逻辑，还有很多异常重试等功能没有实现)，至于为什么选择速卖通网站进行第一次练手，是因为比较好爬。。。。虽然同为阿里系，但是好像阿里并没有严格限制速卖通的爬取，如下代码并没有什么复杂逻辑，<strong>因为现在很多网站商品列表很长，它们可能会采用懒加载机制，在滚动条滚动到对应商品时才会进行加载，所以我们这里用selenium模拟了浏览器的滚动，让其加载数据，然后我们后续要做的就是选取要爬取的数据的元素节点(常用的选取是XPATH，或者id，class等，解析html的模块有很多，如lxml，Beautiful Soup或者是可以应用jquery语法来解析xml的pyquery)，我这里使用的是selenium自带的解析html方法,在爬取完当前页面后，点击下一页，然后就是循环爬取页面了</strong></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line">import time</span><br><span class="line"></span><br><span class="line">from selenium import webdriver</span><br><span class="line">from selenium.common.exceptions import NoSuchElementException</span><br><span class="line">from selenium.webdriver.common.keys import Keys</span><br><span class="line"></span><br><span class="line">browser = webdriver.Chrome()</span><br><span class="line">browser.get(&apos;https://www.aliexpress.com/premium/ipad.html&apos;)</span><br><span class="line">size = browser.get_window_size();</span><br><span class="line">height = size[&apos;height&apos;]</span><br><span class="line"></span><br><span class="line">#滚动下拉框</span><br><span class="line">def roll():</span><br><span class="line">    time.sleep(1)</span><br><span class="line">    for i in range(15):</span><br><span class="line">        script = &quot;window.scrollBy(0,&quot; + str(height) + &quot;)&quot;</span><br><span class="line">        time.sleep(1)</span><br><span class="line">        browser.execute_script(script)</span><br><span class="line">    browser.execute_script(&quot;window.scrollBy(0,&quot; + str(-height) + &quot;)&quot;)</span><br><span class="line">    time.sleep(1)</span><br><span class="line"></span><br><span class="line"># 获取数据</span><br><span class="line">def getData():</span><br><span class="line">    time.sleep(1)</span><br><span class="line">    lis = browser.find_elements_by_xpath(&quot;//ul[@class=&apos;list-items&apos;]/li&quot;)</span><br><span class="line">    for li in lis:</span><br><span class="line">        try:</span><br><span class="line">            a = li.find_element_by_xpath(&quot;.//a[@class=&apos;item-title&apos;]&quot;)</span><br><span class="line">            print(a.get_attribute(&apos;title&apos;))</span><br><span class="line">        except NoSuchElementException:</span><br><span class="line">            continue</span><br><span class="line">    print(&apos;----------------------------&apos;)</span><br><span class="line">    time.sleep(1)</span><br><span class="line"></span><br><span class="line">#翻页</span><br><span class="line">def nextPage():</span><br><span class="line">    next = browser.find_element_by_css_selector(</span><br><span class="line">        &quot;[class=&apos;next-btn next-medium next-btn-normal next-pagination-item next-next&apos;]&quot;)</span><br><span class="line">    # next.click() 出现异常无法点击元素    </span><br><span class="line">    next.send_keys(Keys.ENTER)</span><br><span class="line"></span><br><span class="line">#获取页数，做循环翻页使用</span><br><span class="line">def getTotalPage():</span><br><span class="line">    totalPageSpan = browser.find_element_by_class_name(&quot;total-page&quot;).get_attribute(&apos;innerHTML&apos;)</span><br><span class="line">    pageTextArray = str(totalPageSpan).split(&quot; &quot;)</span><br><span class="line">    totalPageNum = pageTextArray[1]</span><br><span class="line">    return totalPageNum</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">roll()</span><br><span class="line">getData()</span><br><span class="line">pageNum = getTotalPage()</span><br><span class="line">for i in range(int(pageNum)):</span><br><span class="line">    nextPage()</span><br><span class="line">    roll()</span><br><span class="line">    getData()</span><br></pre></td></tr></table></figure>
@@ -364,6 +364,10 @@
             <span class="post-nav-divider"></span>
 
             <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/06/11/使用python和Selenium爬取淘宝数据/" rel="prev" title="使用python和Selenium爬取淘宝数据">
+                  使用python和Selenium爬取淘宝数据 <i class="fa fa-chevron-right"></i>
+                </a>
               
             </div>
           </div>
@@ -427,7 +431,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">55</span>
+          <span class="site-state-item-count">56</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
