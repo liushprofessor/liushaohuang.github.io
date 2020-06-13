@@ -55,19 +55,19 @@
   };
 </script>
 
-  <meta name="description" content="简介在实际项目中需要用到ngnix做反向代理，但是做完反向代理后发现子应用无法获取正确的url和端口。比如访问nginx的url为 192.168.1.1/test  ,那么现在将/test反向代理到 192.168.1.2:8080/test 这个url下，那么我在 192.168.1.2:8080/test 下就获取端口一直会是80，获取的url不会是访问nginx时的192.168.1.1/">
-<meta name="keywords" content="nginx">
+  <meta name="description" content="简介之前使用Selenium模拟谷歌浏览器爬取网页数据，现在使用Appium来模拟爬取app数据，这里以抖音为例子">
+<meta name="keywords" content="Appium">
 <meta property="og:type" content="article">
-<meta property="og:title" content="nginx配置反向代理后，接入nginx的应用无法获取正确的访问路径和端口问题">
-<meta property="og:url" content="http://www.liushaohuang.cn/2020/03/19/nginx配置反向代理后，接入nginx的应用无法获取正确的访问路径和端口问题/index.html">
+<meta property="og:title" content="使用Appium爬取数据">
+<meta property="og:url" content="http://www.liushaohuang.cn/2020/06/13/使用Appium爬取数据/index.html">
 <meta property="og:site_name" content="刘绍煌">
-<meta property="og:description" content="简介在实际项目中需要用到ngnix做反向代理，但是做完反向代理后发现子应用无法获取正确的url和端口。比如访问nginx的url为 192.168.1.1/test  ,那么现在将/test反向代理到 192.168.1.2:8080/test 这个url下，那么我在 192.168.1.2:8080/test 下就获取端口一直会是80，获取的url不会是访问nginx时的192.168.1.1/">
+<meta property="og:description" content="简介之前使用Selenium模拟谷歌浏览器爬取网页数据，现在使用Appium来模拟爬取app数据，这里以抖音为例子">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-03-19T07:06:12.355Z">
+<meta property="og:updated_time" content="2020-06-13T13:20:22.880Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="nginx配置反向代理后，接入nginx的应用无法获取正确的访问路径和端口问题">
-<meta name="twitter:description" content="简介在实际项目中需要用到ngnix做反向代理，但是做完反向代理后发现子应用无法获取正确的url和端口。比如访问nginx的url为 192.168.1.1/test  ,那么现在将/test反向代理到 192.168.1.2:8080/test 这个url下，那么我在 192.168.1.2:8080/test 下就获取端口一直会是80，获取的url不会是访问nginx时的192.168.1.1/">
-  <link rel="canonical" href="http://www.liushaohuang.cn/2020/03/19/nginx配置反向代理后，接入nginx的应用无法获取正确的访问路径和端口问题/">
+<meta name="twitter:title" content="使用Appium爬取数据">
+<meta name="twitter:description" content="简介之前使用Selenium模拟谷歌浏览器爬取网页数据，现在使用Appium来模拟爬取app数据，这里以抖音为例子">
+  <link rel="canonical" href="http://www.liushaohuang.cn/2020/06/13/使用Appium爬取数据/">
 
 
 <script id="page-configurations">
@@ -81,7 +81,7 @@
   };
 </script>
 
-  <title>nginx配置反向代理后，接入nginx的应用无法获取正确的访问路径和端口问题 | 刘绍煌</title>
+  <title>使用Appium爬取数据 | 刘绍煌</title>
   <meta name="generator" content="Hexo 3.9.0">
   
 
@@ -219,7 +219,7 @@
   
   
   <div class="post-block post">
-    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2020/03/19/nginx配置反向代理后，接入nginx的应用无法获取正确的访问路径和端口问题/">
+    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2020/06/13/使用Appium爬取数据/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="刘绍煌">
@@ -231,7 +231,7 @@
       <meta itemprop="name" content="刘绍煌">
     </span>
       <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">nginx配置反向代理后，接入nginx的应用无法获取正确的访问路径和端口问题
+        <h1 class="post-title" itemprop="name headline">使用Appium爬取数据
 
           
         </h1>
@@ -247,7 +247,7 @@
                 
               
 
-              <time title="创建时间：2020-03-19 14:54:13 / 修改时间：15:06:12" itemprop="dateCreated datePublished" datetime="2020-03-19T14:54:13+08:00">2020-03-19</time>
+              <time title="创建时间：2020-06-13 20:58:18 / 修改时间：21:20:22" itemprop="dateCreated datePublished" datetime="2020-06-13T20:58:18+08:00">2020-06-13</time>
             </span>
           
             
@@ -260,7 +260,7 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/nginx/" itemprop="url" rel="index"><span itemprop="name">nginx</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/爬虫/" itemprop="url" rel="index"><span itemprop="name">爬虫</span></a></span>
 
                 
                 
@@ -287,10 +287,28 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>在实际项目中需要用到ngnix做反向代理，但是做完反向代理后发现子应用无法获取正确的url和端口。比如访问nginx的url为 192.168.1.1/test  ,那么现在将/test反向代理到 192.168.1.2:8080/test 这个url下，那么我在 192.168.1.2:8080/test 下就获取端口一直会是80，获取的url不会是访问nginx时的192.168.1.1/test ，这里我们需要对ngnix的配置文件的请求头进行修改加入proxy_set_header HOST $host;属性如下$host代表你访问nginx的访问路径，在路径后加入应用的端口，那么在子应用中就能获取到正确的端口了</p>
+        <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>之前使用Selenium模拟谷歌浏览器爬取网页数据，现在使用Appium来模拟爬取app数据，这里以抖音为例子</p>
 <a id="more"></a>
 
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">upstream gateway &#123;</span><br><span class="line">               server 192.168.171.42:30000;</span><br><span class="line">            #   server 192.168.171.43:30000;</span><br><span class="line">            #   server 192.168.171.45:30000;</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">server &#123;</span><br><span class="line">        listen       8080;</span><br><span class="line">        server_name  location;</span><br><span class="line"></span><br><span class="line">                location /cas &#123;</span><br><span class="line">                         proxy_pass http://192.168.171.44:8089/cas;</span><br><span class="line">                         proxy_set_header HOST $host:8089;</span><br><span class="line">                         proxy_set_header X-Real-IP $remote_addr;</span><br><span class="line">                         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                location / &#123;</span><br><span class="line">                         proxy_pass http://gateway;</span><br><span class="line">                         proxy_set_header HOST $host:8080;</span><br><span class="line">                         proxy_set_header X-Real-IP $remote_addr;</span><br><span class="line">                         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;</span><br><span class="line">                &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<h4 id="步骤"><a href="#步骤" class="headerlink" title="步骤"></a>步骤</h4><ol>
+<li>安装 Appium</li>
+<li>使用python驱动 Appium-Python-Client</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip3 install Appium-Python-Client</span><br></pre></td></tr></table></figure>
+
+<p>3.使用Appium启动会话，并且获取要爬取数据的元素id,期间要设置以下参数，其中appPackage和appActivity可通过在windows环境下在dos中运行<strong>adb shell dumpsys window |findstr mCurrent</strong>命令获取<br>deviceName 通过adb devices -l   中的 model字段获取</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;platformName&quot;: &quot;Android&quot;,</span><br><span class="line">  &quot;deviceName&quot;: &quot;vivo_X21UD_A&quot;,</span><br><span class="line">  &quot;appPackage&quot;: &quot;com.ss.android.ugc.aweme&quot;,</span><br><span class="line">  &quot;appActivity&quot;: &quot;com.ss.android.ugc.aweme.splash.SplashActivity&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>设置完参数启动session后下面获取要爬取的元素id即可</p>
+<ol start="4">
+<li>Appium可以通过界面上的时间自动生成代码，我这里使用python来驱动,以下代码模拟滑动操作并且爬取了点赞数据，和用户名,注意一下几点</li>
+</ol>
+<ul>
+<li>Appium每次打开app都会默认删除app并且重新安装，我们在参数中设置”noReset”: True来禁止每次都重新安装软件</li>
+<li>Appium每次打开app都会重新安装apk，我们通过<br>“skipServerInstallation”: True,<br>“skipDeviceInitialization”: True<br>这两个参数来禁止每次安装apk，但是至少要进行一次安装</li>
+<li>appium.webdriver import webdriver 一定要导入appium包下的webdriver模块，不然无法选择元素</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">import time</span><br><span class="line"></span><br><span class="line">from appium import webdriver</span><br><span class="line">from selenium.webdriver.common.by import By</span><br><span class="line"></span><br><span class="line">option = &#123;</span><br><span class="line">    &quot;platformName&quot;: &quot;Android&quot;,</span><br><span class="line">    &quot;deviceName&quot;: &quot;vivo_X21UD_A&quot;,</span><br><span class="line">    &quot;appPackage&quot;: &quot;com.ss.android.ugc.aweme&quot;,</span><br><span class="line">    &quot;appActivity&quot;: &quot;com.ss.android.ugc.aweme.splash.SplashActivity&quot;,</span><br><span class="line">    #不需要每次都重新安装软件</span><br><span class="line">    &quot;noReset&quot;: True,</span><br><span class="line">    #不要每次都安装apk</span><br><span class="line">    &quot;skipServerInstallation&quot;: True,</span><br><span class="line">    &quot;skipDeviceInitialization&quot;: True</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">driver = webdriver.Remote(&apos;http://localhost:4723/wd/hub&apos;, option)</span><br><span class="line"></span><br><span class="line">def getData():</span><br><span class="line">        like=driver.find_element(By.ID,&apos;com.ss.android.ugc.aweme:id/aqg&apos;).text</span><br><span class="line">        print(&apos;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&apos;)</span><br><span class="line">        print(like)</span><br><span class="line">        title =driver.find_element(By.ID,&apos;com.ss.android.ugc.aweme:id/title&apos;).text</span><br><span class="line">        print(&apos;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&apos;)</span><br><span class="line">        print(title)</span><br><span class="line">        driver.swipe(100, 1700, 100, 100, 1000)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">time.sleep(10)</span><br><span class="line">try:</span><br><span class="line">    while True:</span><br><span class="line">        getData()</span><br><span class="line">        print(&apos;=====================================&apos;)</span><br><span class="line">except:</span><br><span class="line">    print(&apos;----------------------------------&apos;)</span><br></pre></td></tr></table></figure>
 
 
     </div>
@@ -324,7 +342,7 @@
           
           <div class="post-tags">
             
-              <a href="/tags/nginx/" rel="tag"># nginx</a>
+              <a href="/tags/Appium/" rel="tag"># Appium</a>
             
           </div>
         
@@ -334,8 +352,8 @@
           <div class="post-nav">
             <div class="post-nav-next post-nav-item">
               
-                <a href="/2020/03/04/CAS客户端和Gateway集成/" rel="next" title="CAS客户端和Gateway集成">
-                  <i class="fa fa-chevron-left"></i> CAS客户端和Gateway集成
+                <a href="/2020/06/11/使用python和Selenium爬取淘宝数据/" rel="next" title="使用python和Selenium爬取淘宝数据">
+                  <i class="fa fa-chevron-left"></i> 使用python和Selenium爬取淘宝数据
                 </a>
               
             </div>
@@ -343,10 +361,6 @@
             <span class="post-nav-divider"></span>
 
             <div class="post-nav-prev post-nav-item">
-              
-                <a href="/2020/03/26/CAS-解决前后端分离静态页面地址无法验证-无法登录的问题/" rel="prev" title="CAS 解决前后端分离静态页面地址无法验证,无法登录的问题">
-                  CAS 解决前后端分离静态页面地址无法验证,无法登录的问题 <i class="fa fa-chevron-right"></i>
-                </a>
               
             </div>
           </div>
@@ -395,7 +409,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#步骤"><span class="nav-number">2.</span> <span class="nav-text">步骤</span></a></li></ol></div>
         
       </div>
       <!--/noindex-->
