@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.3.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.3.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.3.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.3.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.3.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.3.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="####简介在之前的项目中采用HDFS和Hive来搭建数据仓库。但是使用HDFS和hive来搭建数据仓库无法做到数据的实时查询,因为hive的本质是mapreduce运算，map和reduce的过程都存储在磁盘，存储在磁盘避免不了磁盘的i/o，随机i/o又是磁盘的主要瓶颈(固态硬盘可从无视)，所以这边对使用hbase搭建数仓库，hbase也是基于hdfs上建设的nosql数据库，之所以它能够做到数">
+<meta name="keywords" content="phoenix,hbase">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用phoenix和hbase搭建数仓基础知识">
+<meta property="og:url" content="http://www.liushaohuang.cn/2020/07/14/使用phoenix和hbase搭建数仓/index.html">
+<meta property="og:site_name" content="刘绍煌">
+<meta property="og:description" content="####简介在之前的项目中采用HDFS和Hive来搭建数据仓库。但是使用HDFS和hive来搭建数据仓库无法做到数据的实时查询,因为hive的本质是mapreduce运算，map和reduce的过程都存储在磁盘，存储在磁盘避免不了磁盘的i/o，随机i/o又是磁盘的主要瓶颈(固态硬盘可从无视)，所以这边对使用hbase搭建数仓库，hbase也是基于hdfs上建设的nosql数据库，之所以它能够做到数">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-07-14T09:25:24.074Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用phoenix和hbase搭建数仓基础知识">
+<meta name="twitter:description" content="####简介在之前的项目中采用HDFS和Hive来搭建数据仓库。但是使用HDFS和hive来搭建数据仓库无法做到数据的实时查询,因为hive的本质是mapreduce运算，map和reduce的过程都存储在磁盘，存储在磁盘避免不了磁盘的i/o，随机i/o又是磁盘的主要瓶颈(固态硬盘可从无视)，所以这边对使用hbase搭建数仓库，hbase也是基于hdfs上建设的nosql数据库，之所以它能够做到数">
+  <link rel="canonical" href="http://www.liushaohuang.cn/2020/07/14/使用phoenix和hbase搭建数仓/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>使用phoenix和hbase搭建数仓基础知识 | 刘绍煌</title>
+  <meta name="generator" content="Hexo 3.9.0">
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">刘绍煌</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2020/07/14/使用phoenix和hbase搭建数仓/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="刘绍煌">
+      <meta itemprop="description" content="刘绍煌的个人博客">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="刘绍煌">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">使用phoenix和hbase搭建数仓基础知识
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-07-14 15:16:09 / 修改时间：17:25:24" itemprop="dateCreated datePublished" datetime="2020-07-14T15:16:09+08:00">2020-07-14</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/数据仓库/" itemprop="url" rel="index"><span itemprop="name">数据仓库</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span class="post-meta-item" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>####简介<br>在之前的项目中采用HDFS和Hive来搭建数据仓库。但是使用HDFS和hive来搭建数据仓库无法做到数据的实时查询,因为hive的本质是mapreduce运算，map和reduce的过程都存储在磁盘，存储在磁盘避免不了磁盘的i/o，随机i/o又是磁盘的主要瓶颈(固态硬盘可从无视)，所以这边对使用hbase搭建数仓库，hbase也是基于hdfs上建设的nosql数据库，之所以它能够做到数据的实时查询是因为它以列去存储数据，并且在数据写入到磁盘时已经将数据排序完成，尽量避免了磁盘的随机i/o而磁盘的顺序读取速度又非常的快，几乎可达到内存的速度，<strong>其实我目前除了auto sharding以外，个人比较喜欢hbase可以保留不同版本数据的这个功能，在看过我之前的关于数据建立维度里面就提到，数仓的好坏的难点就是在维度的建设方面，而维度最麻烦的就是处理维度的变化，如果相同的维度数据可以保留多个历史版本，这样就完美解决维度变化这个问题，可是目前我在phoenix并没有看到可以查找到历史数据这个功能，但是在网上查询到有人通过对phoenix修改后达到这个目的</strong>。相比关系型数据库其能存储海，这是依托由其auto sharding功能，这使nosql在数据存储扩展方面具有得天独厚的优势，在关系型数据库中对数据进行扩展往往意味着对数据分片或分库的重建，如甚于关系型数据库开发的greenplum就必须在搭建时提前考虑好数据的增长量，如果后序增加节点是非常复杂的事，如果你使用的是诸如mongo或hbase来搭建数据仓库的话就完全不要考虑这方面问题，但Hbase也有自己的缺点其时实查询的功能高度依赖rowkey,并且无法创建索引对列中的具体值进行查找(虽然可从使用api提供的过滤器去查找数据)，所以我们在设计hbase的rowkey时需要尽可能将查询信息都包含在rowkey中。为了解决这个问题，这里尝试使用Phoenix来当作数仓工具来构建数仓，它将传统的Sql语句转换成hbase的api进行查询，并且支持二级索引和联表统计，和自定义函数等功能，<strong>hbase相比hive的另一个优势就是可以完美解决小文件的问题，我们都知道hdfs将数据的元数据都存储在namenode的内存中，因此namenode的内存大小限制了文件的数量，因为即使文件再小都要占用固定的元数据大小的空间，所有hdfs的长处是存储大文件，如果我们的数据是许多小文件构成，那么namenode的内存使用效率就地，我们需要定期自己将小文件合并成块，但是hbase就不需要关系这一点，他可以自动的对数据文件进行合并和拆分，然后再存储到hdfs中</strong>。</p>
+<a id="more"></a>
+
+<h4 id="创建"><a href="#创建" class="headerlink" title="创建"></a>创建</h4><p>我使用的是cdh来搭建hadoop集群，在官网上下载对应cdh hbase的phoenix版本，<strong>phoenix是构建在hbase的数仓工具，之所以我这样说是因为真正存储数据分析的地方是hbase，而hbase又依赖hdfs，就好比hive也数仓而是数仓工具一样，hive大多都依赖hdfs存储数据，hive只提供分析等功能</strong>，将解压的包中的service包复制到hbase的各台region server的lib下，重启hbase。以下是官网安装简介</p>
+<ul>
+<li>download and expand our installation tar</li>
+<li>copy the phoenix server jar that is compatible with your HBase installation into the lib directory of every region server</li>
+<li>restart the region servers</li>
+<li>add the phoenix client jar to the classpath of your HBase client</li>
+</ul>
+<h4 id="表操作"><a href="#表操作" class="headerlink" title="表操作"></a>表操作</h4><p>hive 分为内部表和外部表，内部表是托管hdfs中的数据，你执行命令删除了hive的数据，hdfs的数据也会删除，而外部表则不将数据拖由hive管理，你删除了hive中的数据，hdfs的数据还将保留。相应的phoenix和sql一样也分为表和视图，表就是将数据拖由phoenix报错，视图对应hive的外部表，但是创建完表后新增的数据只能在hive中进行，<strong>如果建立了phoenix和hbase关联后，调用hbase的api新增数据，则新增的数据不会在phoenix中查询的到,到底使用表还是视图？我的理解是你需不需要将数据托管给hive来保管，如果你想那么就使用表</strong><br>下面我们将phoenix关联hbase，使用我github中的爬虫爬取淘宝数据，会生成一张hbase taobaoList的表，我创建了一个data列簇，有以下字段</p>
+<table>
+<thead>
+<tr>
+<th>data.sellNum</th>
+<th>data.title</th>
+<th>data.url</th>
+<th>data.shopName</th>
+<th>data.price</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>销售量</td>
+<td>商品标题</td>
+<td>商品连接</td>
+<td>店铺名</td>
+<td>商品价格</td>
+</tr>
+</tbody></table>
+<p>现在我们运行phoenix客户端  ./sqlline.py ip:2181<br>其中ip是hbase所在zookeeper集群的ip地址，端口为对应的端口，默认是2181<br><strong>注意新版本中要在后面加上列的编码不然会导致phoenix列编码和hbase中不一致导致数据查询不出来</strong><br><strong>phoenix中的列一定要和hbase中列大小对应上，phoenix默认全部都是大写，所以我们使用双引号将小写的列引用起来，除了rowkey 对应的主键名可以自己指定外</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">create view &quot;taobaoList&quot;(&quot;id&quot; varchar primary key,&quot;data&quot;.&quot;sellNum&quot; varchar,&quot;data&quot;.&quot;title&quot; varchar,&quot;data&quot;.&quot;url&quot; varchar,&quot;data&quot;.&quot;shopName&quot; varchar,&quot;data&quot;.&quot;price&quot; varchar)column_encoded_bytes=0;</span><br></pre></td></tr></table></figure>
+
+<p>执行 以下命令就可以看见表</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">! tables</span><br></pre></td></tr></table></figure>
+
+<p>查询数据,<strong>注意查询数据的条件(如:where id=’1’)中的条件需要用单引号包裹，查询出的字段(如select “id”)用双引号包裹，如果查询的字段是小写的话</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from &quot;taobaoList&quot; limit 1;</span><br></pre></td></tr></table></figure>
+
+<p><strong>grop by</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select &quot;shopName&quot; ,count(*) from &quot;taobaoList&quot; group by &quot;shopName&quot;;</span><br></pre></td></tr></table></figure>
+
+<p><strong>join 加分页</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from &quot;taobaoList&quot; as t1 inner join &quot;taobaoDetailList&quot; t2 on t1.&quot;id&quot;=t2.&quot;productRowKey&quot; limit 1 offset 20;</span><br></pre></td></tr></table></figure>
+
+<p><strong>二级索引</strong><br><strong>二级索引也是将二级索引存入在hbase表中，由于hbase使用的是裂存储，索引和sql一样尽量使用覆盖索引，避免回表</strong><br>首先查看未创建二级索引前的执行计划</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">explain select * from &quot;taobaoDetailList&quot; where &quot;productRowKey&quot;=&apos;100001594042362234&apos;;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">+----------------------------------------------------------------------------+-----------------+----------------+--------------+</span><br><span class="line">|                                    PLAN                                    | EST_BYTES_READ  | EST_ROWS_READ  | EST_INFO_TS  |</span><br><span class="line">+----------------------------------------------------------------------------+-----------------+----------------+--------------+</span><br><span class="line">| CLIENT 1-CHUNK PARALLEL 1-WAY ROUND ROBIN FULL SCAN OVER taobaoDetailList  | null            | null           | null         |</span><br><span class="line">|     SERVER FILTER BY data.&quot;productRowKey&quot; = &apos;100001594042362234&apos;           | null            | null           | null         |</span><br><span class="line">+----------------------------------------------------------------------------+-----------------+----------------+--------------+</span><br></pre></td></tr></table></figure>
+
+<p>执行计划中现实的是全表扫描,现在创建执行计划，创建执行计划前需要添加配置文件,由于我使用的是4.14.0 phoenix版本根据官网，在所有RegionServer 中添加如下配置即可重启即可CDH只需在hbase配置中搜索hbase-site，然后将值填入到RegionServer的配置项中即可,官网链接<a href="https://phoenix.apache.org/secondary_indexing.html" target="_blank" rel="noopener">https://phoenix.apache.org/secondary_indexing.html</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;property&gt;</span><br><span class="line">  &lt;name&gt;hbase.regionserver.wal.codec&lt;/name&gt;</span><br><span class="line">  &lt;value&gt;org.apache.hadoop.hbase.regionserver.wal.IndexedWALEditCodec&lt;/value&gt;</span><br><span class="line">&lt;/property&gt;</span><br></pre></td></tr></table></figure>
+
+<p>下面创建二级覆盖索引include包含你要覆盖的列，这样查询索引时就不要回表，如果不创建覆盖索引就不要添加include后面的代码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">create index rowkey_index on &quot;taobaoDetailList&quot;(&quot;data&quot;.&quot;productRowKey&quot;) include(&quot;id&quot;);</span><br></pre></td></tr></table></figure>
+
+<p>现在我们再执行上面的执行计划,发现已经走索引了</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">+------------------------------------------------------------------------------------------------+-----------------+----------------+--------------+</span><br><span class="line">|                                              PLAN                                              | EST_BYTES_READ  | EST_ROWS_READ  | EST_INFO_TS  |</span><br><span class="line">+------------------------------------------------------------------------------------------------+-----------------+----------------+--------------+</span><br><span class="line">| CLIENT 1-CHUNK PARALLEL 1-WAY ROUND ROBIN RANGE SCAN OVER ROWKEY_INDEX [&apos;100001594042362234&apos;]  | null            | null           | null         |</span><br><span class="line">|     SERVER FILTER BY FIRST KEY ONLY                                                            | null            | null           | null         |</span><br><span class="line">+------------------------------------------------------------------------------------------------+-----------------+----------------+--------------+</span><br></pre></td></tr></table></figure>
+
+<h4 id="udf自定义函数"><a href="#udf自定义函数" class="headerlink" title="udf自定义函数"></a>udf自定义函数</h4><p>和hive一样phoenix一样支持自定义函数，下面这个自定义函数就是将taobaoList中的sellNum字段转换成数字，从淘宝上爬取下来的交易笔数都是如  1万笔   800笔这样的，我们需要将其转换成数字<br>首先添加phoenix下bin目录下的hbase-site.xml配置文件中的配置信息 hbase.rootdir改成真实的hbase在hdfs的路径即可，hbase.dynamic.jars.dir为你后续编写的udf函数存放的路径,</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">&lt;property&gt;</span><br><span class="line">  &lt;name&gt;phoenix.functions.allowUserDefinedFunctions&lt;/name&gt;</span><br><span class="line">  &lt;value&gt;true&lt;/value&gt;</span><br><span class="line">&lt;/property&gt;</span><br><span class="line">&lt;property&gt;</span><br><span class="line">  &lt;name&gt;fs.hdfs.impl&lt;/name&gt;</span><br><span class="line">  &lt;value&gt;org.apache.hadoop.hdfs.DistributedFileSystem&lt;/value&gt;</span><br><span class="line">&lt;/property&gt;</span><br><span class="line">&lt;property&gt;</span><br><span class="line">  &lt;name&gt;hbase.rootdir&lt;/name&gt;</span><br><span class="line">  &lt;value&gt;$&#123;hbase.tmp.dir&#125;/hbase&lt;/value&gt;</span><br><span class="line">  &lt;description&gt;The directory shared by region servers and into</span><br><span class="line">    which HBase persists.  The URL should be &apos;fully-qualified&apos;</span><br><span class="line">    to include the filesystem scheme.  For example, to specify the</span><br><span class="line">    HDFS directory &apos;/hbase&apos; where the HDFS instance&apos;s namenode is</span><br><span class="line">    running at namenode.example.org on port 9000, set this value to:</span><br><span class="line">    hdfs://namenode.example.org:9000/hbase.  By default, we write</span><br><span class="line">    to whatever $&#123;hbase.tmp.dir&#125; is set too -- usually /tmp --</span><br><span class="line">    so change this configuration or else all data will be lost on</span><br><span class="line">    machine restart.&lt;/description&gt;</span><br><span class="line">&lt;/property&gt;</span><br><span class="line">&lt;property&gt;</span><br><span class="line">  &lt;name&gt;hbase.dynamic.jars.dir&lt;/name&gt;</span><br><span class="line">  &lt;value&gt;$&#123;hbase.rootdir&#125;/lib&lt;/value&gt;</span><br><span class="line">  &lt;description&gt;</span><br><span class="line">    The directory from which the custom udf jars can be loaded</span><br><span class="line">    dynamically by the phoenix client/region server without the need to restart. However,</span><br><span class="line">    an already loaded udf class would not be un-loaded. See</span><br><span class="line">    HBASE-1936 for more details.</span><br><span class="line">  &lt;/description&gt;</span><br><span class="line">&lt;/property&gt;</span><br></pre></td></tr></table></figure>
+
+<p>鉴于我都是存放在hdfs下所以我的配置</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">&lt;property&gt;</span><br><span class="line">  &lt;name&gt;phoenix.functions.allowUserDefinedFunctions&lt;/name&gt;</span><br><span class="line">  &lt;value&gt;true&lt;/value&gt;</span><br><span class="line">&lt;/property&gt;</span><br><span class="line">&lt;property&gt;</span><br><span class="line">  &lt;name&gt;fs.hdfs.impl&lt;/name&gt;</span><br><span class="line">  &lt;value&gt;org.apache.hadoop.hdfs.DistributedFileSystem&lt;/value&gt;</span><br><span class="line">&lt;/property&gt;</span><br><span class="line">&lt;property&gt;</span><br><span class="line">  &lt;name&gt;hbase.rootdir&lt;/name&gt;</span><br><span class="line">  &lt;value&gt;hdfs://hztnode1:8020/hbase&lt;/value&gt;</span><br><span class="line">&lt;/property&gt;</span><br><span class="line">&lt;property&gt;</span><br><span class="line">  &lt;name&gt;hbase.dynamic.jars.dir&lt;/name&gt;</span><br><span class="line">  &lt;value&gt;hdfs://hztnode1:8020/hbase/lib&lt;/value&gt;</span><br><span class="line">&lt;/property&gt;</span><br></pre></td></tr></table></figure>
+
+<p>创建udf代码实现udf类，具体代码说明如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">package com.liu;</span><br><span class="line"></span><br><span class="line">import org.apache.hadoop.hbase.io.ImmutableBytesWritable;</span><br><span class="line">import org.apache.phoenix.expression.Expression;</span><br><span class="line">import org.apache.phoenix.expression.function.ScalarFunction;</span><br><span class="line">import org.apache.phoenix.parse.FunctionParseNode;</span><br><span class="line">import org.apache.phoenix.schema.tuple.Tuple;</span><br><span class="line">import org.apache.phoenix.schema.types.PBinary;</span><br><span class="line">import org.apache.phoenix.schema.types.PDataType;</span><br><span class="line">import org.apache.phoenix.schema.types.PInteger;</span><br><span class="line">import org.apache.phoenix.schema.types.PVarchar;</span><br><span class="line"></span><br><span class="line">import java.io.UnsupportedEncodingException;</span><br><span class="line">import java.util.List;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * 功能： TODO(用一句话描述类的功能)</span><br><span class="line"> *</span><br><span class="line"> * ──────────────────────────────────────────</span><br><span class="line"> *   version  变更日期    修改人    修改说明</span><br><span class="line"> * ------------------------------------------</span><br><span class="line"> *   V1.0.0   2020/7/9    Liush     初版</span><br><span class="line"> * ──────────────────────────────────────────</span><br><span class="line"> */</span><br><span class="line">//指定函数名和参数</span><br><span class="line">@FunctionParseNode.BuiltInFunction(</span><br><span class="line">        name =&quot;F_SELLNUM&quot; ,</span><br><span class="line">        args = &#123;</span><br><span class="line">                @FunctionParseNode.Argument(allowedTypes = &#123;PVarchar.class&#125;),</span><br><span class="line">        &#125;</span><br><span class="line">)</span><br><span class="line">public class SellNumUDF extends ScalarFunction &#123;</span><br><span class="line">    @Override</span><br><span class="line">    public String getName() &#123;</span><br><span class="line">        return  &quot;F_SELLNUM&quot;;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    public SellNumUDF(List&lt;Expression&gt; children) &#123;</span><br><span class="line">        super(children);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public boolean evaluate(Tuple tuple, ImmutableBytesWritable immutableBytesWritable) &#123;</span><br><span class="line">        //获取到参数</span><br><span class="line">        Expression arg1 =this.getChildren().get(0);</span><br><span class="line">        //从表达式中或获取参数</span><br><span class="line">        if(arg1.evaluate(tuple,immutableBytesWritable))&#123;</span><br><span class="line">            if(immutableBytesWritable.getLength()&gt;0)&#123;</span><br><span class="line">                //得到参数字节码</span><br><span class="line">                byte[] valueByte=immutableBytesWritable.copyBytes();</span><br><span class="line">                try &#123;</span><br><span class="line">                    String sellNum=new String(valueByte,&quot;UTF-8&quot;);</span><br><span class="line">                    if(sellNum.contains(&quot;万笔&quot;))&#123;</span><br><span class="line">                        String num=sellNum.substring(0,sellNum.indexOf(&quot;万笔&quot;));</span><br><span class="line">                        int numInt=(int)(Float.valueOf(num)*10000);</span><br><span class="line">                        //将处理后的数据返回，如果执行的是类似sum运算的话返回的必须是数字类型</span><br><span class="line">                        immutableBytesWritable.set(PInteger.INSTANCE.toBytes(numInt));</span><br><span class="line">                        return true;</span><br><span class="line">                    &#125;</span><br><span class="line">                    if(sellNum.contains(&quot;笔&quot;))&#123;</span><br><span class="line">                        String num=sellNum.substring(0,sellNum.indexOf(&quot;笔&quot;));</span><br><span class="line">                        int numInt=Integer.valueOf(num);</span><br><span class="line">                        immutableBytesWritable.set(PInteger.INSTANCE.toBytes(numInt));</span><br><span class="line">                        return  true;</span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">                &#125; catch (UnsupportedEncodingException e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">        return false;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public PDataType getDataType() &#123;</span><br><span class="line">        return PInteger.INSTANCE;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>打包我采用maven打包，使用maven打包插件，此打包插件可指定工程的配置文件路径等</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">&lt;build&gt;</span><br><span class="line">        &lt;plugins&gt;</span><br><span class="line">            &lt;plugin&gt;</span><br><span class="line">                &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;</span><br><span class="line">                &lt;artifactId&gt;maven-assembly-plugin&lt;/artifactId&gt;</span><br><span class="line">                &lt;version&gt;2.2&lt;/version&gt;</span><br><span class="line">                &lt;executions&gt;</span><br><span class="line">                    &lt;execution&gt;</span><br><span class="line">                        &lt;id&gt;make-assembly&lt;/id&gt;</span><br><span class="line">                        &lt;!-- 绑定到package生命周期 --&gt;</span><br><span class="line">                        &lt;phase&gt;package&lt;/phase&gt;</span><br><span class="line">                        &lt;goals&gt;</span><br><span class="line">                            &lt;!-- 只运行一次 --&gt;</span><br><span class="line">                            &lt;goal&gt;single&lt;/goal&gt;</span><br><span class="line">                        &lt;/goals&gt;</span><br><span class="line">                    &lt;/execution&gt;</span><br><span class="line">                &lt;/executions&gt;</span><br><span class="line">                &lt;configuration&gt;</span><br><span class="line">                    &lt;!-- 配置描述符文件 --&gt;</span><br><span class="line">                    &lt;!--  &lt;descriptor&gt;src/main/assembly/assembly.xml&lt;/descriptor&gt;--&gt;</span><br><span class="line">                    &lt;!-- 也可以使用Maven预配置的描述符--&gt;</span><br><span class="line">                    &lt;descriptorRefs&gt;</span><br><span class="line">                        &lt;descriptorRef&gt;jar-with-dependencies&lt;/descriptorRef&gt;</span><br><span class="line">                    &lt;/descriptorRefs&gt;</span><br><span class="line">                &lt;/configuration&gt;</span><br><span class="line">            &lt;/plugin&gt;</span><br><span class="line">        &lt;/plugins&gt;</span><br><span class="line">    &lt;/build&gt;</span><br></pre></td></tr></table></figure>
+
+<p>最后将打完打jar包放入，之前配置文件中配置的hdfs的路径下，现在我们在shell中执行sql</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select f_sellnum(&quot;sellNum&quot;),&quot;sellNum&quot; from &quot;taobaoList&quot; limit 1;</span><br></pre></td></tr></table></figure>
+
+<p>我们查询到</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">+----------------------------+----------+</span><br><span class="line">| F_SELLNUM(data.&quot;sellNum&quot;)  | sellNum  |</span><br><span class="line">+----------------------------+----------+</span><br><span class="line">| 39000                      | 3.9万笔    |</span><br><span class="line">+----------------------------+----------+</span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+        
+      
+        <div id="reward-container">
+  <div></div>
+  <button id="reward-button" disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/赞赏码.png" alt="刘绍煌 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/phoenix/" rel="tag"># phoenix</a>
+            
+              <a href="/tags/hbase/" rel="tag"># hbase</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/06/13/使用Appium爬取数据/" rel="next" title="使用Appium爬取数据">
+                  <i class="fa fa-chevron-left"></i> 使用Appium爬取数据
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#创建"><span class="nav-number">1.</span> <span class="nav-text">创建</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#表操作"><span class="nav-number">2.</span> <span class="nav-text">表操作</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#udf自定义函数"><span class="nav-number">3.</span> <span class="nav-text">udf自定义函数</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">刘绍煌</p>
+  <div class="site-description" itemprop="description">刘绍煌的个人博客</div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">58</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">59</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">刘绍煌</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.3.0</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.3.0"></script><script src="/js/motion.js?v=7.3.0"></script>
+<script src="/js/schemes/pisces.js?v=7.3.0"></script>
+<script src="/js/next-boot.js?v=7.3.0"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
