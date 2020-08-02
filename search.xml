@@ -76,8 +76,8 @@
         <category>netty</category>
       </categories>
       <tags>
-        <tag>网络</tag>
         <tag>netty</tag>
+        <tag>网络</tag>
       </tags>
   </entry>
   <entry>
@@ -248,8 +248,8 @@
         <category>SPI</category>
       </categories>
       <tags>
-        <tag>SPI</tag>
         <tag>Spring</tag>
+        <tag>SPI</tag>
       </tags>
   </entry>
   <entry>
@@ -374,8 +374,8 @@
       </categories>
       <tags>
         <tag>sharding-jdbc</tag>
-        <tag>mysql读写分离</tag>
         <tag>mysql分库分表</tag>
+        <tag>mysql读写分离</tag>
       </tags>
   </entry>
   <entry>
@@ -461,9 +461,9 @@
         <category>JVM</category>
       </categories>
       <tags>
-        <tag>instrument</tag>
         <tag>javassist</tag>
         <tag>agent</tag>
+        <tag>instrument</tag>
       </tags>
   </entry>
   <entry>
