@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.3.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.3.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.3.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.3.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.3.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.3.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="简介程序员最讨厌的事情之一就是写文档,特别是word文档,写好word文档是并不是一件简单的事,以个人经验来看如果有人提供了一份word文档给我阅读,往往阅读效率是很低下的,于是催生出了类似于Markdown或者AsciiDoc这种以编程方式来写文档的工具,通过这些工具的语法,我们可以不需要学习各种排版样式而写入清新的文档,提到rest文档,不可绕开的就是Swagger,目前项目中全部使用了Swa">
+<meta name="keywords" content="AsciiDoc,SpringRestDoc">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用SpringRestDoc和AsciiDoc来构造项目文档">
+<meta property="og:url" content="http://www.liushaohuang.cn/2020/08/21/使用SpringDoc和AsciiDoc来构造项目文档/index.html">
+<meta property="og:site_name" content="刘绍煌">
+<meta property="og:description" content="简介程序员最讨厌的事情之一就是写文档,特别是word文档,写好word文档是并不是一件简单的事,以个人经验来看如果有人提供了一份word文档给我阅读,往往阅读效率是很低下的,于是催生出了类似于Markdown或者AsciiDoc这种以编程方式来写文档的工具,通过这些工具的语法,我们可以不需要学习各种排版样式而写入清新的文档,提到rest文档,不可绕开的就是Swagger,目前项目中全部使用了Swa">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-08-21T15:47:35.946Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用SpringRestDoc和AsciiDoc来构造项目文档">
+<meta name="twitter:description" content="简介程序员最讨厌的事情之一就是写文档,特别是word文档,写好word文档是并不是一件简单的事,以个人经验来看如果有人提供了一份word文档给我阅读,往往阅读效率是很低下的,于是催生出了类似于Markdown或者AsciiDoc这种以编程方式来写文档的工具,通过这些工具的语法,我们可以不需要学习各种排版样式而写入清新的文档,提到rest文档,不可绕开的就是Swagger,目前项目中全部使用了Swa">
+  <link rel="canonical" href="http://www.liushaohuang.cn/2020/08/21/使用SpringDoc和AsciiDoc来构造项目文档/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>使用SpringRestDoc和AsciiDoc来构造项目文档 | 刘绍煌</title>
+  <meta name="generator" content="Hexo 3.9.0">
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">刘绍煌</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2020/08/21/使用SpringDoc和AsciiDoc来构造项目文档/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="刘绍煌">
+      <meta itemprop="description" content="刘绍煌的个人博客">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="刘绍煌">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">使用SpringRestDoc和AsciiDoc来构造项目文档
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-08-21 22:14:37 / 修改时间：23:47:35" itemprop="dateCreated datePublished" datetime="2020-08-21T22:14:37+08:00">2020-08-21</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/文档/" itemprop="url" rel="index"><span itemprop="name">文档</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span class="post-meta-item" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>程序员最讨厌的事情之一就是写文档,特别是word文档,写好word文档是并不是一件简单的事,以个人经验来看如果有人提供了一份word文档给我阅读,往往阅读效率是很低下的,于是催生出了类似于Markdown或者AsciiDoc这种以编程方式来写文档的工具,通过这些工具的语法,我们可以不需要学习各种排版样式而写入清新的文档,提到rest文档,不可绕开的就是Swagger,目前项目中全部使用了Swagger,但是使用Swagger的优缺点都很明显,优点:方便的工具让前端联调接口更简单,缺点:<strong>入侵式的注解让代码看起来杂乱无章</strong>,且文档不够直观等,在这些原因的驱使下让我去寻找一款更加清晰的文档工具,本人发现了2款文档工具 1:smart-doc 它是一款非入侵似的文档框架,采用类似java doc的标准注释来生成文档,这也强迫用户必须写注释,但是缺点是由于采用了注释,很多情况下不够灵活,第二个就是Spring Rest doc,来自Spring官方的Spring res doc, 生成的文档样式可以参考Spring的官方文档,其采用AsciiDoc作为编写文档的工具,美观,且更加灵活,并且其于单元测试强制绑定,也驱使我们培养出写单元测试的良好习惯,所以我这里采用Sprng rest doc来编写文档</p>
+<a id="more"></a>
+
+<h4 id="创建项目"><a href="#创建项目" class="headerlink" title="创建项目"></a>创建项目</h4><ul>
+<li><p>demo代码<a href="https://github.com/liushprofessor/hase_repository/tree/master/spring_test" target="_blank" rel="noopener">https://github.com/liushprofessor/hase_repository/tree/master/spring_test</a></p>
+</li>
+<li><p>以下是我创建的MAVEN工程的Pom文件,由于Spring rest doc 是和单元测试签字绑定所以我这里引入了Springtest的包,并且引入Sprig rest doc的包spring-restdocs-mockmvc</p>
+</li>
+<li><p><strong>我们重点来关注一下plugin,其定义了3个maven插件,spring-boot-maven-plugin没什么好说的,springboot打包插件,asciidoctor-maven-plugin其作用将为asciidoctor文档打包成html样式的文档,其绑定了maven的prepare-packet生命周期,在执行到该周期时自动将asciidoc的文件转成html,还有一个参数我们需要注意<snippets>${snippetsDirectory}</snippets>,该配置规定了生成asciidoc文件的目录,第三个插件就是maven-resources-plugin,其同样绑定在prepare-packet什么周期,该插件的左右就是在打包时规定资源生成的路径,比如我这里将${project.build.directory}/generated-docs 目录下生成的html文件在打包时放入到static的docs文件下, 因为Maven规定 resources 下的static 目录是放置静态资源的目录,所以我们将生成的html放在该目录下,那么可以直接访问里面的文档.</strong></p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span><br><span class="line">&lt;project xmlns=&quot;http://maven.apache.org/POM/4.0.0&quot;</span><br><span class="line">         xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span><br><span class="line">         xsi:schemaLocation=&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&quot;&gt;</span><br><span class="line">    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;</span><br><span class="line"></span><br><span class="line">    &lt;groupId&gt;com.liu&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;spring_test&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;</span><br><span class="line"></span><br><span class="line">    &lt;properties&gt;</span><br><span class="line">        &lt;snippetsDirectory&gt;$&#123;project.build.directory&#125;/generated-snippets&lt;/snippetsDirectory&gt;</span><br><span class="line">    &lt;/properties&gt;</span><br><span class="line">    &lt;parent&gt;</span><br><span class="line">        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</span><br><span class="line">        &lt;artifactId&gt;spring-boot-starter-parent&lt;/artifactId&gt;</span><br><span class="line">        &lt;version&gt;2.1.9.RELEASE&lt;/version&gt;</span><br><span class="line">        &lt;relativePath/&gt;</span><br><span class="line">    &lt;/parent&gt;</span><br><span class="line"></span><br><span class="line">    &lt;dependencies&gt;</span><br><span class="line"></span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;spring-boot-starter-test&lt;/artifactId&gt;</span><br><span class="line">            &lt;scope&gt;test&lt;/scope&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;</span><br><span class="line"></span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line"></span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;org.springframework.restdocs&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;spring-restdocs-mockmvc&lt;/artifactId&gt;</span><br><span class="line">            &lt;scope&gt;test&lt;/scope&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line"></span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;com.alibaba&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;fastjson&lt;/artifactId&gt;</span><br><span class="line">            &lt;version&gt;1.2.47&lt;/version&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line"></span><br><span class="line">    &lt;/dependencies&gt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    &lt;build&gt;</span><br><span class="line">        &lt;plugins&gt;</span><br><span class="line">            &lt;plugin&gt;</span><br><span class="line">                &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</span><br><span class="line">                &lt;artifactId&gt;spring-boot-maven-plugin&lt;/artifactId&gt;</span><br><span class="line">            &lt;/plugin&gt;</span><br><span class="line">            &lt;plugin&gt;</span><br><span class="line">                &lt;groupId&gt;org.asciidoctor&lt;/groupId&gt;</span><br><span class="line">                &lt;artifactId&gt;asciidoctor-maven-plugin&lt;/artifactId&gt;</span><br><span class="line">                &lt;version&gt;1.5.8&lt;/version&gt;</span><br><span class="line">                &lt;executions&gt;</span><br><span class="line">                    &lt;execution&gt;</span><br><span class="line">                        &lt;id&gt;generate-docs&lt;/id&gt;</span><br><span class="line">                        &lt;phase&gt;prepare-package&lt;/phase&gt;</span><br><span class="line">                        &lt;goals&gt;</span><br><span class="line">                            &lt;goal&gt;process-asciidoc&lt;/goal&gt;</span><br><span class="line">                        &lt;/goals&gt;</span><br><span class="line">                        &lt;configuration&gt;</span><br><span class="line">                            &lt;backend&gt;html&lt;/backend&gt;</span><br><span class="line">                            &lt;doctype&gt;book&lt;/doctype&gt;</span><br><span class="line">                            &lt;attributes&gt;</span><br><span class="line">                                &lt;snippets&gt;$&#123;snippetsDirectory&#125;&lt;/snippets&gt;</span><br><span class="line">                            &lt;/attributes&gt;</span><br><span class="line">                        &lt;/configuration&gt;</span><br><span class="line">                    &lt;/execution&gt;</span><br><span class="line">                &lt;/executions&gt;</span><br><span class="line">                &lt;dependencies&gt;</span><br><span class="line">                    &lt;dependency&gt;</span><br><span class="line">                        &lt;groupId&gt;org.springframework.restdocs&lt;/groupId&gt;</span><br><span class="line">                        &lt;artifactId&gt;spring-restdocs-asciidoctor&lt;/artifactId&gt;</span><br><span class="line">                        &lt;version&gt;2.0.5.BUILD-SNAPSHOT&lt;/version&gt;</span><br><span class="line">                    &lt;/dependency&gt;</span><br><span class="line">                &lt;/dependencies&gt;</span><br><span class="line">            &lt;/plugin&gt;</span><br><span class="line">            &lt;plugin&gt;</span><br><span class="line">                &lt;!-- 自定义打包插件讲文档位置打包时放入固定位置 --&gt;</span><br><span class="line">                &lt;artifactId&gt;maven-resources-plugin&lt;/artifactId&gt;</span><br><span class="line">                &lt;executions&gt;</span><br><span class="line">                    &lt;execution&gt;</span><br><span class="line">                        &lt;id&gt;copy-resources&lt;/id&gt;</span><br><span class="line">                        &lt;phase&gt;prepare-package&lt;/phase&gt;</span><br><span class="line">                        &lt;goals&gt;</span><br><span class="line">                            &lt;goal&gt;copy-resources&lt;/goal&gt;</span><br><span class="line">                        &lt;/goals&gt;</span><br><span class="line">                        &lt;configuration&gt;</span><br><span class="line">                            &lt;outputDirectory&gt;$&#123;project.build.outputDirectory&#125;/static/docs&lt;/outputDirectory&gt;</span><br><span class="line">                            &lt;resources&gt;</span><br><span class="line">                                &lt;resource&gt;</span><br><span class="line">                                    &lt;directory&gt;$&#123;project.build.directory&#125;/generated-docs&lt;/directory&gt;</span><br><span class="line">                                &lt;/resource&gt;</span><br><span class="line">                            &lt;/resources&gt;</span><br><span class="line">                        &lt;/configuration&gt;</span><br><span class="line">                    &lt;/execution&gt;</span><br><span class="line">                &lt;/executions&gt;</span><br><span class="line">            &lt;/plugin&gt;</span><br><span class="line">        &lt;/plugins&gt;</span><br><span class="line">    &lt;/build&gt;</span><br><span class="line">&lt;/project&gt;</span><br></pre></td></tr></table></figure>
+
+<h4 id="创建接口并且生成单元测试"><a href="#创建接口并且生成单元测试" class="headerlink" title="创建接口并且生成单元测试"></a>创建接口并且生成单元测试</h4><ul>
+<li>下面我写了两个简单的Rest 接口</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">@PostMapping(&quot;/addUser&quot;)</span><br><span class="line"> public User addUser(User user) &#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">     return user;</span><br><span class="line"> &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"> @PostMapping(&quot;/updateUser&quot;)</span><br><span class="line"> public User updateUser(@RequestBody User user) &#123;</span><br><span class="line"></span><br><span class="line">     return user;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>为接口编写单元测试  </li>
+</ul>
+<p><strong>为了方便我将很多方法import模块时时采用了import static的方式</strong></p>
+<p> <strong>在写单元测试的时候我们需要注意一点,我们需要填写接收请求体的和响应请求头的 header,比如下面<br> 的accept(MediaType.APPLICATION_JSON)和contentType(MediaType.APPLICATION_JSON),不然在采用非<br> MediaType.TEXT_PLAIN 格式的请求体的时候会报错,然后我们关注一下<br> andDo(document ….这后面的代码,这部分代码就是编写 文档的代码,以下第一个测试接口为例,我们在documet方法内指定了addUser参数,这个参数代表我们会在之前在 maven plugin中配置的配置的<br> ${project.build.directory}/generated-snippets 目录下生成了一个addUser文件夹,这文件夹下存放了asciidoc的文件<br> 到这里你可能不太明白,到后面我们编译出文件后你就会明白了,requestHeaders是设置请求头,里面的方法headerWithName<br> 设置了请求头说需要的参数,description为这个请求头的描述,后续spring rest doc会根据这些方法生成对应的表格文件,<br> requestParameters 方法设置了请求体的参数,parameterWithName方法设定了请求参数的具体值, responseFields方法可以理解为设置响应体,fieldWithPath<br> 方法为设置响应体具体的参数</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br></pre></td><td class="code"><pre><span class="line">package com.test;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">import static org.junit.Assert.*;</span><br><span class="line"></span><br><span class="line">import com.alibaba.fastjson.JSON;</span><br><span class="line">import org.junit.Before;</span><br><span class="line">import org.junit.Rule;</span><br><span class="line">import org.junit.runner.RunWith;</span><br><span class="line">import org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line">import org.springframework.boot.test.context.SpringBootTest;</span><br><span class="line">import org.springframework.http.MediaType;</span><br><span class="line">import org.springframework.restdocs.JUnitRestDocumentation;</span><br><span class="line">import org.springframework.test.context.junit4.SpringRunner;</span><br><span class="line">import org.springframework.test.web.servlet.MockMvc;</span><br><span class="line"></span><br><span class="line">import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;</span><br><span class="line">import static org.springframework.restdocs.payload.PayloadDocumentation.*;</span><br><span class="line">import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;</span><br><span class="line">import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;</span><br><span class="line">import org.springframework.test.web.servlet.setup.MockMvcBuilders;</span><br><span class="line">import org.springframework.web.context.WebApplicationContext;</span><br><span class="line">import static org.hamcrest.Matchers.*;</span><br><span class="line">import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;</span><br><span class="line">import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;</span><br><span class="line">import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;</span><br><span class="line">import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;</span><br><span class="line">import static org.springframework.restdocs.headers.HeaderDocumentation.*;</span><br><span class="line">import static org.springframework.restdocs.request.RequestDocumentation.*;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * @author Liush</span><br><span class="line"> * @description</span><br><span class="line"> * @date 2020/8/19 21:08</span><br><span class="line"> **/</span><br><span class="line">@RunWith(SpringRunner.class)</span><br><span class="line">@SpringBootTest</span><br><span class="line">public class Test &#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    @Autowired</span><br><span class="line">    private WebApplicationContext webApplicationContext;</span><br><span class="line"></span><br><span class="line">    @Rule</span><br><span class="line">    public JUnitRestDocumentation restDocumentation = new JUnitRestDocumentation(&quot;target/generated-snippets&quot;);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    private MockMvc mockMvc;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    @Before</span><br><span class="line">    public void setUp()&#123;</span><br><span class="line"></span><br><span class="line">        mockMvc=MockMvcBuilders.webAppContextSetup(webApplicationContext).apply(documentationConfiguration(restDocumentation)).build();</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * requestFields 可以理解为添加的示例数据入&#123;&quot;id&quot;:&quot;222&quot;,&quot;name&quot;:&quot;Liush&quot;&#125;</span><br><span class="line">     * responseFields 同理</span><br><span class="line">     * requestParameters 为入参数,使用此方法添加后会生成入场表格文件</span><br><span class="line">     */</span><br><span class="line"></span><br><span class="line">    @org.junit.Test</span><br><span class="line">    public void addUserTest()throws Exception&#123;</span><br><span class="line">        mockMvc.perform(post(&quot;/addUser&quot;).accept(MediaType.APPLICATION_JSON).param(&quot;id&quot;,&quot;1&quot;).</span><br><span class="line">            param(&quot;name&quot;,&quot;liush&quot;).header(&quot;token&quot;,&quot;token&quot;)</span><br><span class="line">        ).andExpect(jsonPath(&quot;$.id&quot;,is(&quot;1&quot;))).andExpect(jsonPath(&quot;$.name&quot;,is(&quot;liush&quot;))).</span><br><span class="line">        andExpect(status().isOk()).andDo(document(&quot;addUser&quot;,</span><br><span class="line">                requestHeaders(headerWithName(&quot;token&quot;).description(&quot;校验token&quot;)),</span><br><span class="line">                requestParameters(parameterWithName(&quot;id&quot;).description(&quot;用户id&quot;),</span><br><span class="line">                        parameterWithName(&quot;name&quot;).description(&quot;用户名&quot;)</span><br><span class="line">                        ),</span><br><span class="line">                responseFields(fieldWithPath(&quot;id&quot;).description(&quot;用户id&quot;),</span><br><span class="line">                        fieldWithPath(&quot;name&quot;).description(&quot;用户名&quot;)</span><br><span class="line"></span><br><span class="line">                        )</span><br><span class="line">                ));</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    @org.junit.Test</span><br><span class="line">    public void updateUser() throws Exception &#123;</span><br><span class="line">        User user=new User(&quot;222&quot;,&quot;Liush&quot;);</span><br><span class="line">        mockMvc.perform(post(&quot;/updateUser&quot;).accept(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON).content(JSON.toJSONString(user)))</span><br><span class="line">        .andExpect(jsonPath(&quot;$.id&quot;,is(&quot;222&quot;))).andExpect(status().isOk()).</span><br><span class="line">                andDo(document(&quot;updateUser&quot;,</span><br><span class="line">                        requestFields(fieldWithPath(&quot;id&quot;).description(&quot;用户id&quot;),</span><br><span class="line">                                fieldWithPath(&quot;name&quot;).description(&quot;用户名&quot;)</span><br><span class="line"></span><br><span class="line">                ), responseFields(fieldWithPath(&quot;id&quot;).description(&quot;用户id&quot;),fieldWithPath(&quot;name&quot;).description(&quot;用户名&quot;))</span><br><span class="line"></span><br><span class="line">                ))</span><br><span class="line"></span><br><span class="line">        ;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p> 看到这里你也许会有点懵,不过没关系,下面我们执行 mvn clean package命令查看具体目录结构后你就会一目了然vn<br> 执行完该命令后,进入到target目录,下面会生成generated-snippets的目录,其有生成了一个addUser的目录<br> 目录名字之前我们在document方法中指定了,其下又有9个文件,如果你对AsciiDoc有一些<br> 了解你就会知道这些事AsciiDoc的文件</p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">curl-request.adoc</span><br><span class="line">http-request.adoc</span><br><span class="line">http-response.adoc</span><br><span class="line">httpie-request.adoc</span><br><span class="line">request-body.adoc</span><br><span class="line">request-headers.adoc</span><br><span class="line">request-parameters.adoc</span><br><span class="line">response-body.adoc</span><br><span class="line">response-fields.adoc</span><br></pre></td></tr></table></figure>
+
+<p> 打开request-parameters.adoc文件,发现其已经将我们的请求体参数自动生成了表格</p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">|===</span><br><span class="line">|Parameter|Description</span><br><span class="line"></span><br><span class="line">|`+id+`</span><br><span class="line">|用户id</span><br><span class="line"></span><br><span class="line">|`+name+`</span><br><span class="line">|用户名</span><br><span class="line"></span><br><span class="line">|===</span><br></pre></td></tr></table></figure>
+
+<h4 id="生成html文档"><a href="#生成html文档" class="headerlink" title="生成html文档"></a>生成html文档</h4><p> 上面我们已经生成了AsciiDoc文件,现在我们就要将这些文件转换成html文档,首先我们需要在maven main<br> 目录下新建一个asciidoc目录,里面新建一个index.adoc的文件,该文件名可以随意取,<br> 我们编辑该文件,我们采用AsciiDoc语法写入一个文档,如果不熟悉AsciiDoc的语法可以<br> 自行百度一下,很简单,我们重点关注<br> include命令,这里执行的就是将我们之前采用Spring rest doc生成的asccidoc文件引入到主文档来<br> 我们再执行mvn clean package,我们就会再target目录下的 classes下的static下的docs下发现一个index.html<br> 的html文档,然后我们访问该页面就能得到一个和Spring官方文档一样清爽的文档了.</p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">= 接口文档</span><br><span class="line">:author: liush</span><br><span class="line">:email: 442549007@qq.com</span><br><span class="line">:revnumber: v1.0</span><br><span class="line">:toc: left</span><br><span class="line">:toc-title: 接口文档</span><br><span class="line"></span><br><span class="line">==  用户接口</span><br><span class="line">=== 新增用户</span><br><span class="line">*curl 示例*</span><br><span class="line">include::&#123;snippets&#125;\addUser\curl-request.adoc[]</span><br><span class="line">*请求头头*</span><br><span class="line">include::&#123;snippets&#125;\addUser\request-headers.adoc[]</span><br><span class="line">*入参*</span><br><span class="line">include::&#123;snippets&#125;\addUser\request-parameters.adoc[]</span><br><span class="line">*出参*</span><br><span class="line">include::&#123;snippets&#125;\addUser\response-fields.adoc[]</span><br><span class="line"></span><br><span class="line">=== 修改用户</span><br><span class="line">*curl 示例*</span><br><span class="line">include::&#123;snippets&#125;\updateUser\curl-request.adoc[]</span><br><span class="line">*入参*</span><br><span class="line">include::&#123;snippets&#125;\updateUser\request-fields.adoc[]</span><br><span class="line">*入参示例*</span><br><span class="line">include::&#123;snippets&#125;\updateUser\request-body.adoc[]</span><br><span class="line">*出参*</span><br><span class="line">include::&#123;snippets&#125;\updateUser\response-fields.adoc[]</span><br><span class="line">*出参示例*</span><br><span class="line">include::&#123;snippets&#125;\updateUser\response-body.adoc[]</span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+        
+      
+        <div id="reward-container">
+  <div></div>
+  <button id="reward-button" disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/赞赏码.png" alt="刘绍煌 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/AsciiDoc/" rel="tag"># AsciiDoc</a>
+            
+              <a href="/tags/SpringRestDoc/" rel="tag"># SpringRestDoc</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/07/24/cas单点退出和自定义验证ST返回信息/" rel="next" title="cas单点退出和自定义验证登录成功后返回的信息">
+                  <i class="fa fa-chevron-left"></i> cas单点退出和自定义验证登录成功后返回的信息
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#创建项目"><span class="nav-number">2.</span> <span class="nav-text">创建项目</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#创建接口并且生成单元测试"><span class="nav-number">3.</span> <span class="nav-text">创建接口并且生成单元测试</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#生成html文档"><span class="nav-number">4.</span> <span class="nav-text">生成html文档</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">刘绍煌</p>
+  <div class="site-description" itemprop="description">刘绍煌的个人博客</div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">61</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">61</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">刘绍煌</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.3.0</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.3.0"></script><script src="/js/motion.js?v=7.3.0"></script>
+<script src="/js/schemes/pisces.js?v=7.3.0"></script>
+<script src="/js/next-boot.js?v=7.3.0"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
