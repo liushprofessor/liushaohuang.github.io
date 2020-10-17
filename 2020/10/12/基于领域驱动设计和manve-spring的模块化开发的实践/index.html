@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.3.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.3.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.3.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.3.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.3.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.3.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="简介基于领域驱动设计(DDD)开发的项目，它具有代码层次分明，业务更好的贴合业务，使代码的可维护性和可读性大大提高等优点，而MAVEN和Spring天生就是为模块化而设计开发的，最近结合之前的DDD使用经验，结合使用MAVEN和Spring对项目的模块化进行一次实践。">
+<meta name="keywords" content="领域驱动设计，模块化">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于领域驱动设计和manve spring的模块化开发的实践">
+<meta property="og:url" content="http://www.liushaohuang.cn/2020/10/12/基于领域驱动设计和manve-spring的模块化开发的实践/index.html">
+<meta property="og:site_name" content="刘绍煌">
+<meta property="og:description" content="简介基于领域驱动设计(DDD)开发的项目，它具有代码层次分明，业务更好的贴合业务，使代码的可维护性和可读性大大提高等优点，而MAVEN和Spring天生就是为模块化而设计开发的，最近结合之前的DDD使用经验，结合使用MAVEN和Spring对项目的模块化进行一次实践。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.liushaohuang.cn/images/%E5%85%AD%E8%BE%B9%E5%BD%A2%E6%9E%B6%E6%9E%84.png">
+<meta property="og:updated_time" content="2020-10-17T15:07:23.384Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="基于领域驱动设计和manve spring的模块化开发的实践">
+<meta name="twitter:description" content="简介基于领域驱动设计(DDD)开发的项目，它具有代码层次分明，业务更好的贴合业务，使代码的可维护性和可读性大大提高等优点，而MAVEN和Spring天生就是为模块化而设计开发的，最近结合之前的DDD使用经验，结合使用MAVEN和Spring对项目的模块化进行一次实践。">
+<meta name="twitter:image" content="http://www.liushaohuang.cn/images/%E5%85%AD%E8%BE%B9%E5%BD%A2%E6%9E%B6%E6%9E%84.png">
+  <link rel="canonical" href="http://www.liushaohuang.cn/2020/10/12/基于领域驱动设计和manve-spring的模块化开发的实践/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>基于领域驱动设计和manve spring的模块化开发的实践 | 刘绍煌</title>
+  <meta name="generator" content="Hexo 3.9.0">
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">刘绍煌</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2020/10/12/基于领域驱动设计和manve-spring的模块化开发的实践/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="刘绍煌">
+      <meta itemprop="description" content="刘绍煌的个人博客">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="刘绍煌">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">基于领域驱动设计和manve spring的模块化开发的实践
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-10-12 17:06:26" itemprop="dateCreated datePublished" datetime="2020-10-12T17:06:26+08:00">2020-10-12</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-10-17 23:07:23" itemprop="dateModified" datetime="2020-10-17T23:07:23+08:00">2020-10-17</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/领域驱动设计/" itemprop="url" rel="index"><span itemprop="name">领域驱动设计</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span class="post-meta-item" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>基于领域驱动设计(DDD)开发的项目，它具有代码层次分明，业务更好的贴合业务，使代码的可维护性和可读性大大提高等优点，而MAVEN和Spring天生就是为模块化而设计开发的，最近结合之前的DDD使用经验，结合使用MAVEN和Spring对项目的模块化进行一次实践。</p>
+<a id="more"></a>
+
+<h4 id="为什么要模块化和为什么需要微服务"><a href="#为什么要模块化和为什么需要微服务" class="headerlink" title="为什么要模块化和为什么需要微服务"></a>为什么要模块化和为什么需要微服务</h4><p>之前本人参与过的项目中有些采用了SpringCloud全家桶对项目进行微服务化，但是经过一番实践后发现大多数项目并不需要进行微服务化，大都数使用微服务只是为了强制使各个服务的代码隔离，甚至很多情况下所有的服务的数据库还在单个数据库中存储，当我问他们为什么使用单体应用时他们常说为了让各个服务的代码隔离，日后好维护。但是在日常开发中这种四不像赶鸭子上架的开发行为并没有使代码变得更简洁，而且采用微服务在配套设施(如全链路追踪，系统异常检测等)没有发展起来的时候，对线上的问题排查，应用的部署和维护简直是噩梦。所以解决代码业务隔离的问题并不只有微服务这种方法，我们使用maven和Spring就能很好的处理代码业务隔离性的问题，而且使用模块化避免了日后重复功能的开发，比如权限模块，如果之前已经将权限功能进行模块化后,那么后续就不需要在开发，只需要使用MAVEN将需要的模块组装起来即可，个人认为也可类比为中台。</p>
+<h4 id="为什么要使用领域驱动设计-DDD"><a href="#为什么要使用领域驱动设计-DDD" class="headerlink" title="为什么要使用领域驱动设计(DDD)"></a>为什么要使用领域驱动设计(DDD)</h4><p>简单的来说代码的核心是你的业务，所以代码能很好的体现业务，并且将业务代码剥离出来那么代码的可读性和维护性就会更好，举个例子，代码写完后一个月你不去动它，那么你就会忘记，但是业务却没那么容易忘记，而且业务往往有详细的设计和使用文档，如果我们的代码很很好的映射成我们的业务，那么时候意味着日后的扩展会更好？关于领域驱动设计的基础概念可查看之前的文章。</p>
+<h4 id="系统分层"><a href="#系统分层" class="headerlink" title="系统分层"></a>系统分层</h4><p><img src="/images/%E5%85%AD%E8%BE%B9%E5%BD%A2%E6%9E%B6%E6%9E%84.png" alt="六边形架构"></p>
+<p>本次实践采用的项目结构依旧是六边形架构，此架构凸显了越是核心的代码就要放在项目的最底层，这样才能避免核心代码免受其它非核心代码的干扰。简单的举例来说，对于项目而言，最核心的代码应该是项目逻辑代码，这部分代码不应该受到数据库持久层等代码的干扰(持久层代码的变化不应该影响业务代码)，这里举个例子，大家编写代码的时候都依赖过其它项目的包，你需要调用依赖包的方法，经常会出现你依赖的包版本升级导致了你的代码编译报错，为什么会出现这种情况？这是因为你依赖了它的包，那么带来的问题就是你依赖的包发生了变化，那么你的代码就有可能出问题，但是相对你而言，你的代码才是业务的核心，你只是调用了第三方的方法去实现了一个功能，这里相对你来说业务代码才是最重要且在项目中最稳定的一部分，他不应该受到其它层次代码的干扰，如何解决这个问题？其实Spring已经给了我们答案。</p>
+<h4 id="依赖倒置和依赖注入"><a href="#依赖倒置和依赖注入" class="headerlink" title="依赖倒置和依赖注入"></a>依赖倒置和依赖注入</h4><blockquote>
+<p>在刚刚接触到Spring时常常听人说Spring的核心理念就是依赖导致和依赖注入，至于什么事依赖倒置什么是依赖注入，即为什么要使用依赖倒置和依赖注入在接触到领域驱动设计之前其实也是一知半解，这里结合我的实际经验和体会谈谈为什么我们需要Spring需要依赖倒置和依赖注入。</p>
+</blockquote>
+<ul>
+<li>依赖倒置：依赖倒置我们可以首先根据直面上的意思去理解，就是依赖的关系发生倒置，举个大家都理解的例子，你的领域层(如果不了解领域驱动设计可以将其理解为service)需要将数据持久化到数据库，那么你就会调用DAO去持久化，那么按照领域驱动的设计来说，你的领域层代码才是最核心最稳定的内容，他不应该受到DAO的影响，假设我这里将之前service调用的一个DAO的方法删除，那么service就报错了，又由于我们系统的核心是领域层，它应该是最稳定的代码不应该受到其它非核心代码的干扰。好的做法是将依赖倒置，让我们的DAO去依赖领域层(Service)，这样即使DAO再怎么变化也不会影响到领域层(Service)，为了实现这个目的我们在领域层(Service)上开了一个java接口，由DAO层去实现这个接口，那么现在代码就变成了DAO依赖领域层（Service），如果你用过maven现在的依赖关系就变成了DAO的pom文件中依赖了领域层（Service），因为DAO需要实现到领域层的接口，那么在领域层中需要使用到DAO的实现时只需要调用自己开放给DAO的接口即可。</li>
+<li>依赖注入:仅仅使用依赖倒置是不足以使依赖发生倒置的，因为虽然现在领域层使用DAO的实现时调用了自己开放给DAO的接口，但是接口需要实现，如何让接口知道现在使用的是哪个实现类呢？如果在领域层去告诉代码DAO的接口具体是由哪个类实现的，那么这里又会出现了循环依赖的问题，即DAO依赖领域层(DAO实现了领域层的接口)，领域层也依赖了DAO(需要在领域层中配置接口是由哪个DAO的实现类实现的)，这样会导致更加严重的循环依赖问题。那么如何解决这个问题呢？答案就是我再引入一个通用的模块，所有层去依赖这个模块，你把你DAO需要实现的对象注入到Spring中，同样领域层需要渠道DAO的实现时去Spring中去获取，那么现在领域层不再依赖DAO层，而是依赖了更加通用稳定的的中间层Spring，这样就处理了系统层次划分的问题。</li>
+</ul>
+<h4 id="项目结构的划分"><a href="#项目结构的划分" class="headerlink" title="项目结构的划分"></a>项目结构的划分</h4><p>以下是项目结构的划分，以下是使用maven和Spring进行模块化进行的实践，其中app负责组装各个模块，auth是我创建的一个模块，模拟用户角色系统，开发完各个模块后，我们把auth创建层springboot starter，以下是我为何这样分层，和一些个人的的见解：</p>
+<ul>
+<li><p>关于文档</p>
+<p>文档我采用Spring Rest doc，因为个人不喜欢Swagger的侵入的注解。</p>
+</li>
+<li><p>关于持久层框架</p>
+<p>持久层我没有采用mybatis plus 因为我不喜欢它的类的命名方式不够直观，感觉有违领域驱动的理念，我更喜欢类Spring data</p>
+</li>
+<li><p>关于依赖倒置</p>
+<p>上文说到，我创建了领域层domain，和基础设施层infrastructure，持久层就是在这个包下实现的，根据上文所说，领域层是最核心的层，需要放在依赖链的最下层，但是domain又需要调用持久层中的代码去持久化数据，所以我在domain下写了一个接口，由基础设施层infrastructure去实现，而我又使用Spring去管理对象的什么周期，使用依赖注入去注入对象从而调用infrastructure层的方法，这样达到依赖倒置的目的。</p>
+</li>
+<li><p>关于各个层的反腐</p>
+<p>在我之前项目中我见过的大多项目没有明确的区分各个层次的对象，常常就是controller中传入一个DTO对象，然后这个DTO对象一直往下传，一直到DAO中进行持久化，这样会导致什么问题？这违反了领域驱动中领域层需要放在项目最底层的理念，因为领域层传入参数是controller中的DTO对象，导致了领域层依赖了controller层，而且最近在维护之前公司的一个老项目，且没有任何文档，在这种情况下走查代码，只能通过controller层一层层往下看，但是你又会发现DTO被各个层无限复用，入口传入的DTO中有许许多多不需要的对象属性，让我根本不无从下手。为了避免这种情况下，我讲controller，domain，repository层的对象严格区分，<strong>在这些包下都创建了pojo包或者dto的包，在进入每个层次前都需要进行防腐转换，不要让不相关的代码污染到其它的层次，这样导致多了很多对象加大了工作流，但是如果能让代码更加清晰多一些对象又何妨？所有涉及模式基本都是采用增加类和换区代码的灵活度。</strong></p>
+</li>
+<li><p>关于批量操作</p>
+<p>在领域驱动中所有command操作(insert，update)都需要走领域逻辑，但是批量查询为了兼顾效率等问题，我们可以直接从repository中读取对象然后直接返回回去。</p>
+</li>
+<li><p>方法体现意图</p>
+<p>在领域驱动中，你需要将你的意图封装成方法，你的方法名需要体现出你需要执行意图。这样的好处就是当你查看方法时，一进入方法就知道你要执行什么东西，<strong>印证了那句话，代码是给人看的，只是顺便让机器执行以下而言</strong>。</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">├── app</span><br><span class="line">|  └── src</span><br><span class="line">|     ├── main</span><br><span class="line">|     |  ├── asciidoc</span><br><span class="line">|     |  ├── java</span><br><span class="line">|     |  |  └── com</span><br><span class="line">|     |  |     └── liu</span><br><span class="line">|     |  └── resources</span><br><span class="line">|     └── test</span><br><span class="line">|        └── java</span><br><span class="line">|           └── com</span><br><span class="line">|              └── liu</span><br><span class="line">|                 └── auth</span><br><span class="line">└── auth</span><br><span class="line">   └── src</span><br><span class="line">      ├── main</span><br><span class="line">      |  ├── java</span><br><span class="line">      |  |  └── com</span><br><span class="line">      |  |     └── liu</span><br><span class="line">      |  |        ├── common</span><br><span class="line">      |  |        |  ├── pojo</span><br><span class="line">      |  |        |  └── utils</span><br><span class="line">      |  |        ├── controller</span><br><span class="line">      |  |        |  └── dto</span><br><span class="line">      |  |        ├── domain</span><br><span class="line">      |  |        |  ├── client</span><br><span class="line">      |  |        |  └── repository</span><br><span class="line">      |  |        └── infrastructure</span><br><span class="line">      |  |           ├── mapper</span><br><span class="line">      |  |           ├── pojo</span><br><span class="line">      |  |           └── repositoryImpl</span><br><span class="line">      |  └── resources</span><br><span class="line">      |     ├── com</span><br><span class="line">      |     |  └── liu</span><br><span class="line">      |     |     └── infrastructure</span><br><span class="line">      |     |        └── mapper</span><br><span class="line">      |     └── META-INF</span><br><span class="line">      └── test</span><br><span class="line">         └── java</span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+        
+      
+        <div id="reward-container">
+  <div></div>
+  <button id="reward-button" disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/赞赏码.png" alt="刘绍煌 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/领域驱动设计，模块化/" rel="tag"># 领域驱动设计，模块化</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/08/21/使用SpringDoc和AsciiDoc来构造项目文档/" rel="next" title="使用SpringRestDoc和AsciiDoc来构造项目文档">
+                  <i class="fa fa-chevron-left"></i> 使用SpringRestDoc和AsciiDoc来构造项目文档
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#为什么要模块化和为什么需要微服务"><span class="nav-number">2.</span> <span class="nav-text">为什么要模块化和为什么需要微服务</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#为什么要使用领域驱动设计-DDD"><span class="nav-number">3.</span> <span class="nav-text">为什么要使用领域驱动设计(DDD)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#系统分层"><span class="nav-number">4.</span> <span class="nav-text">系统分层</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#依赖倒置和依赖注入"><span class="nav-number">5.</span> <span class="nav-text">依赖倒置和依赖注入</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#项目结构的划分"><span class="nav-number">6.</span> <span class="nav-text">项目结构的划分</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">刘绍煌</p>
+  <div class="site-description" itemprop="description">刘绍煌的个人博客</div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">61</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">62</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">刘绍煌</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.3.0</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.3.0"></script><script src="/js/motion.js?v=7.3.0"></script>
+<script src="/js/schemes/pisces.js?v=7.3.0"></script>
+<script src="/js/next-boot.js?v=7.3.0"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
