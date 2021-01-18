@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.3.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.3.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.3.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.3.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.3.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.3.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="简介之前一直有计划学习Elasticsearch，刚好最近趁着项目空档期学习了Elasticsearch 7，且也打消了Elasticsearch和Hadoop MapReduce的使用情景有疑问，因为之前认为这两个框架都是对海量数据进行分析，且Elasticsearch的实时性更好为那么Hadoop的使用场景在哪？这是因为Elasticsearch对于精确复杂的统计分析并不支持，其更多是解决全文">
+<meta name="keywords" content="Elasticsearch">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Elasticsearch基本概念">
+<meta property="og:url" content="http://www.liushaohuang.cn/2021/01/18/Elasticsearch基本概念/index.html">
+<meta property="og:site_name" content="刘绍煌">
+<meta property="og:description" content="简介之前一直有计划学习Elasticsearch，刚好最近趁着项目空档期学习了Elasticsearch 7，且也打消了Elasticsearch和Hadoop MapReduce的使用情景有疑问，因为之前认为这两个框架都是对海量数据进行分析，且Elasticsearch的实时性更好为那么Hadoop的使用场景在哪？这是因为Elasticsearch对于精确复杂的统计分析并不支持，其更多是解决全文">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2021-01-18T00:46:29.129Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Elasticsearch基本概念">
+<meta name="twitter:description" content="简介之前一直有计划学习Elasticsearch，刚好最近趁着项目空档期学习了Elasticsearch 7，且也打消了Elasticsearch和Hadoop MapReduce的使用情景有疑问，因为之前认为这两个框架都是对海量数据进行分析，且Elasticsearch的实时性更好为那么Hadoop的使用场景在哪？这是因为Elasticsearch对于精确复杂的统计分析并不支持，其更多是解决全文">
+  <link rel="canonical" href="http://www.liushaohuang.cn/2021/01/18/Elasticsearch基本概念/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Elasticsearch基本概念 | 刘绍煌</title>
+  <meta name="generator" content="Hexo 3.9.0">
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">刘绍煌</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2021/01/18/Elasticsearch基本概念/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="刘绍煌">
+      <meta itemprop="description" content="刘绍煌的个人博客">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="刘绍煌">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">Elasticsearch基本概念
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2021-01-18 08:45:19 / 修改时间：08:46:29" itemprop="dateCreated datePublished" datetime="2021-01-18T08:45:19+08:00">2021-01-18</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Elasticsearch/" itemprop="url" rel="index"><span itemprop="name">Elasticsearch</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span class="post-meta-item" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>之前一直有计划学习Elasticsearch，刚好最近趁着项目空档期学习了Elasticsearch 7，且也打消了Elasticsearch和Hadoop MapReduce的使用情景有疑问，因为之前认为这两个框架都是对海量数据进行分析，且Elasticsearch的实时性更好为那么Hadoop的使用场景在哪？这是因为Elasticsearch对于精确复杂的统计分析并不支持，其更多是解决全文搜索而生，而MapReduce更多是为了精确分析而生，具体可看维护篇中关于索引的部分。</p>
+<hr>
+<a id="more"></a>
+
+<h4 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h4><p>简单的来说就是Elasticsearch对Lucene进行了封装，Lucene是Apache开源的搜索引擎库，但是使用它需要太多的专业知识，Elasticsearch对其进行了封装，并对外提供Rest服务，方便不是很了解全文检索的人使用。</p>
+<hr>
+<h5 id="节点篇"><a href="#节点篇" class="headerlink" title="节点篇"></a>节点篇</h5><ul>
+<li><p>Master：主节点,总体机制和其余高可用的主节点没有太多区别，比如写入由主节点统一写入保证数据写入等操作唯一,还有支持部署多个主节点在主节点挂掉后选举出新的主节点，且7.0中加入的防止闹裂等功能。</p>
+</li>
+<li><p>Data：数据节点，就是保存节点数据的地方，在查询中在各个节点中做查询后统一返回做处理</p>
+</li>
+<li><p>Coordinating：协调节点，用户请求直接访问到协调节点，由协调节点将数据路由到各个数据节点，数据节点完成查询后，再在协调节点进行统计处理返回，<strong>所以ES能承载多少的并发量，部署多少台协调节点是个重要的考虑点</strong></p>
+</li>
+<li><p>Ingest：ingest 节点可以看作是数据前置处理转换的节点，举个例子在写入文档时不由业务层在每个文档加入时间戳,由ES自动处理，其实这些操作都可以在业务层面去实现，网上看到的说法是，为了解决业务层性能问题(比如上文中说到的每个文档加入时间戳)</p>
+</li>
+<li><p>Machine learning：机器学习节点，高科技没用过。</p>
+<blockquote>
+<p>由上述节点构成的一组服务器就叫做Cluster集群</p>
+</blockquote>
+</li>
+</ul>
+<hr>
+<h5 id="索引篇"><a href="#索引篇" class="headerlink" title="索引篇"></a>索引篇</h5><p>首先了解一下倒排索引，以下是网上找的说明</p>
+<p><strong>倒排索引（英语：Inverted index），也常被称为反向索引、置入档案或反向档案，是一种索引方法，被用来存储在全文搜索下某个单词在一个文档或者一组文档中的存储位置的映射。它是文档检索系统中最常用的数据结构。</strong></p>
+<p>用个直观的例子说明一下：下面有两句话</p>
+<ol>
+<li>中国是社会主义国家</li>
+<li>美国是资本主义国家</li>
+</ol>
+<p>如果我们用关系数据库去查找的话且为这个字段建立了索引，我们做模糊匹配Like搜索，那么其实这个索引的作用就不大，因为他要全表扫描这个字段，让后再在每条记录中和你搜索的字符串做比较，而且假设我现在想搜索同时包含中国和国家的文档，那么关系型数据库就嗝屁了，那么在搜索引擎中为了解决这个问题，对上面的两句话进行了分词（分词的一种原理就是查询字典，比如中国这个词在字典中有没有，如果有的话他就是一个词，如果没有就不是，所以很多分词器为了定制化的远程都支持使用自己的字典库），让后再对每个词建立索引。比如下面那个表格就是一个倒排索引</p>
+<table>
+<thead>
+<tr>
+<th>词</th>
+<th>文档ID</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>中国</td>
+<td>1</td>
+</tr>
+<tr>
+<td>是</td>
+<td>1,2</td>
+</tr>
+<tr>
+<td>社会主义</td>
+<td>1</td>
+</tr>
+<tr>
+<td>国家</td>
+<td>1,2</td>
+</tr>
+<tr>
+<td>美国</td>
+<td>2</td>
+</tr>
+<tr>
+<td>资本主义</td>
+<td>2</td>
+</tr>
+</tbody></table>
+<ul>
+<li><p>Index:索引，就是存储上文说的倒排索引的地方，对比关系型数据库的表<strong>(网上资料都将关系型数据库中数据库类比为ES的Index，个人感觉在ES7中有点不太形象，因为7移除了Type，Mapping直接和是和Index关联的)</strong></p>
+</li>
+<li><p>Mapping：这里可以类比成关系型数据库的表结构</p>
+</li>
+<li><p>Field：对应关系型数据库表结构下的字段</p>
+</li>
+<li><p>Document： 文档，这里可以对于关系型数据库中的一条条数据，每条数据存储在Index中，其字段通过Mapping来定义</p>
+</li>
+<li><p>Sorce</p>
+</li>
+<li><p><del>Type: 在7中后移除了这个属性，具体的原因参考官方文档，里面提到了在Lucene 中一个Index中的相同的字段都存储在一起，如果一个Index下后多个不同Type且其存储Mapping字段相同，那么会对索引管理和效率等产生影响，所以删除</del></p>
+<p><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/removal-of-types.html" target="_blank" rel="noopener">https://www.elastic.co/guide/en/elasticsearch/reference/current/removal-of-types.html</a></p>
+</li>
+<li><p>Score：ES中对文档的搜索的相关度以算分来区分，在多字段查询中其颇为有用，假设我们需要对文档的标题和内容进行检索，假设我们认为标题中如果有搜索词的话其更匹配用户需求，那么我们可以在使用搜索API时提升标题的算分，如果一个字段同时出现在两个文档中，那么标题中有这个文档的算分跟高，就会排在更前面</p>
+</li>
+</ul>
+<hr>
+<h5 id="查询篇"><a href="#查询篇" class="headerlink" title="查询篇"></a>查询篇</h5><p><strong>说道查询还是要提起一下上文说道的分词，ES和其它数据库最大的不同就是在分词，所有查询都是围绕分词进行的，在建立索引的时候我们要制定对应Mapping 下的Field字段的类型和采用什么样的分词器，我们查询的时候其实是查询我们查询的词是否命中了倒排索引，而不是像关系型数据库那样全表扫描数据让后再进行比对，如何对查询的词进行分词和组合也是查询的关键</strong></p>
+<ul>
+<li><p>Term：不对查询的词语进行分词，以上文为例，我查询的词语为“中国是”，那么在ES中无法匹配出任何文档，因为假设ES对文档的分词内容如上文所示，那么按照Term查询的定义来说不对查询的词进行分词，那么它就会查询文档中是否有包含“中国是”这个词的索引，显然我们的索引中并没有“中国是”这个词，所以无法命中</p>
+</li>
+<li><p>Match：对查询的词进行分词，还是以上文为例，我查询“中国资本主义”，那么分词器会把词分为“中国”，“资本主义”去索引中查询文档，那么这里命中了 文档1，2,这两个文档都一起返回，另外Match查询又有Match and (同时匹配中国和资本主义的文档) ，Match Phrase查询(对查询进行分词关联查询)</p>
+</li>
+<li><p>Aggs：聚合查询，其中又重要包括Bucket和Metric查询，其中Bucket是对数据进行分桶，类比关系型数据库中的Group By，Metric对比关系型数据库的语法为 Min ，Max ，AVG，Distinct等操作，对数据进行统计计算等，一般和关系型数据库一样和Bucket(分桶函数搭配一起使用)</p>
+</li>
+</ul>
+<hr>
+<h5 id="维护篇"><a href="#维护篇" class="headerlink" title="维护篇"></a>维护篇</h5><ul>
+<li><p>Index：和数据库一样，一个索引数据多了为了查询性能就要对数据进行分片，且为了高可用防止硬盘损坏导致数据丢失可对索引做备份，索引如果ES的数据节点不需要对硬盘做磁盘阵列存储数据(如RAID5等)，这样节省了硬盘资源。<strong>注意:索引一旦创建就不可以修改Mapping(对于动态Mapping可以添加新的字段)和分片信息，如果需要修改只能reIndex重建索引，但是ES和MongoDB一样会对数据进行再平衡，举个例子，我们只有一台数据节点，并且在上建立了一个索引，并且指定了2个主分片，那个新增文档的时候数据会均匀分配在这两个主分片上，假设后续又加入了一个节点做数据节点，那个这两个主分片的一个会自动迁移到另一台数据节点上。至于一个索引要建立多少个分片需要看对数据量进行评估</strong>，<strong>官方推荐是搜索类文档单分片不超过20G,日志型不超过50G，但是分片也不是越多越好，分片越多查询就越不准确，假设现在执行一个聚合操作(group by)并且返回各个分组数最多的那个，其会在各个数据节点进行分组计算，再将计算后的数据发送到Coordinating节点进行重新聚合，那么数据节点会返回单前节点最大的那个分组给Coordinating节点，但是这样是不准确的，所以业务是需要精确统计的那么ES就不适用，应该选择Hadoop MapReduce这类离线计算的框架</strong>，且Index支持冷热数据的切换，假设现在有2台服务器，一台性能很好，一台较差，那么我们可以将热点的Index指定存储到较好配置的节点上，待这部分热点数据变冷后，通过Setting设置将其转移到较差的那台服务器上。</p>
+</li>
+<li><p>health：Index的分配情况决定了集群是否健康查看集群可通过以下API如果集群中所有索引都是green说明索引分片和副本都正常，如果是yellow说明至少一个副本分片分配失败，如果是red说明至少有一个主分片分配失败，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /_cat/health</span><br></pre></td></tr></table></figure>
+
+<p><strong>那么我们下一步可以查看所有索引的健康情况，再做对应的处理，如果是红色的话可以查看是否设置了一个node只能有一个分片，如果是黄色，可以查看是否节点不够，因为ES不允许主分片和副本分片同时分配在一台节点上</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET _cluster/health?level=indices</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<ul>
+<li><p>Mapping：以下是我之前定义的一个Index的Mapping</p>
+<p>我定义了id,label，label_des，sentence这几个字段，每个字段的类型又不同字段，</p>
+<p>id：字段类型keyword，该类型不会对其进行分词，因为ID都是进行精确匹配的，且aggs聚合操作不能对Text类型使用</p>
+<p>label：字段为整型</p>
+<p><strong>label_des，这个字段我们需要注意一下,其类型为text类型，且我指定了使用ik_smart进行分词，并且我指定了第二个数据类型为keyword，这是为了后续我可以使用该字段进行聚合和精确term查找，因为如果是text格式的话其是进行分词存储，所以无法精确匹配和聚合，且定义子数据类型有其它使用场景，比如我们在搜索中文数据时同时需要对拼音和中文进行检索，那么我们可以定义一个子字段，且其采用拼音的分词器，那么在查询时同时匹配中文和拼音字段中的索引</strong></p>
+<p>sentence：字段同上，只是区别在与对其存储时和查询时使用了不同的分词器（在进行查询时对查询字段采用ik_smart进行分词）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">PUT /data_test</span><br><span class="line">&#123;</span><br><span class="line">  </span><br><span class="line">  &quot;settings&quot; : &#123;</span><br><span class="line">        &quot;number_of_shards&quot; : &quot;1&quot;,</span><br><span class="line">        &quot;number_of_replicas&quot; : &quot;0&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">  </span><br><span class="line">  &quot;mappings&quot; : &#123;</span><br><span class="line">      &quot;properties&quot; : &#123;</span><br><span class="line">        &quot;id&quot; : &#123;</span><br><span class="line">          &quot;type&quot; : &quot;keyword&quot;,</span><br><span class="line">          &quot;ignore_above&quot; : 100</span><br><span class="line">        &#125;,</span><br><span class="line">        &quot;label&quot; : &#123;</span><br><span class="line">          &quot;type&quot; : &quot;integer&quot;</span><br><span class="line">        &#125;,</span><br><span class="line">        &quot;label_des&quot; : &#123;</span><br><span class="line">          &quot;type&quot; : &quot;text&quot;,</span><br><span class="line">          &quot;analyzer&quot; : &quot;ik_smart&quot;,</span><br><span class="line">          &quot;fields&quot;:&#123;</span><br><span class="line">            &quot;keyword&quot;:&#123;</span><br><span class="line">              &quot;type&quot;:&quot;keyword&quot;,</span><br><span class="line">              &quot;ignore_above&quot; : 256</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        &quot;sentence&quot; : &#123;</span><br><span class="line">          &quot;type&quot; : &quot;text&quot;,</span><br><span class="line">          &quot;analyzer&quot; : &quot;ik_max_word&quot;,</span><br><span class="line">          &quot;search_analyzer&quot; : &quot;ik_smart&quot;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+      
+        <div id="reward-container">
+  <div></div>
+  <button id="reward-button" disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/赞赏码.png" alt="刘绍煌 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/Elasticsearch/" rel="tag"># Elasticsearch</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/10/12/基于领域驱动设计和manve-spring的模块化开发的实践/" rel="next" title="基于领域驱动设计和manve spring的模块化开发的实践">
+                  <i class="fa fa-chevron-left"></i> 基于领域驱动设计和manve spring的模块化开发的实践
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#基本概念"><span class="nav-number">2.</span> <span class="nav-text">基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#节点篇"><span class="nav-number">2.1.</span> <span class="nav-text">节点篇</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#索引篇"><span class="nav-number">2.2.</span> <span class="nav-text">索引篇</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#查询篇"><span class="nav-number">2.3.</span> <span class="nav-text">查询篇</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#维护篇"><span class="nav-number">2.4.</span> <span class="nav-text">维护篇</span></a></li></ol></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">刘绍煌</p>
+  <div class="site-description" itemprop="description">刘绍煌的个人博客</div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">62</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">24</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">63</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">刘绍煌</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.3.0</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.3.0"></script><script src="/js/motion.js?v=7.3.0"></script>
+<script src="/js/schemes/pisces.js?v=7.3.0"></script>
+<script src="/js/next-boot.js?v=7.3.0"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
