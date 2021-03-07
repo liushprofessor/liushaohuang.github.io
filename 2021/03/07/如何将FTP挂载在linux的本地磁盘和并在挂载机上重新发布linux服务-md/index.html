@@ -58,14 +58,14 @@
   <meta name="description" content="简介需求是这样：客户公司对我们开发了一台FTP服务器以供我们上传数据回流给客户，但是客户为了安全原因只对我们开放了固定一台服务器才能进行FTP登录，由于想偷懒，也为了加快该功能的上线使用，所以思考时候能将FTP类似像NFS一样挂载在linux的本地，然后再在我们的服务器上开放一个FTP服务往挂载的客户FTP的目录上写入文件，这里使用的是Centos 7.5">
 <meta name="keywords" content="linux,ftp">
 <meta property="og:type" content="article">
-<meta property="og:title" content="如何将FTP挂载在linux的本地磁盘和并在挂载机上重新发布linux服务.md">
+<meta property="og:title" content="如何将FTP挂载在linux的本地磁盘并在挂载机上发布FTP服务.md">
 <meta property="og:url" content="http://www.liushaohuang.cn/2021/03/07/如何将FTP挂载在linux的本地磁盘和并在挂载机上重新发布linux服务-md/index.html">
 <meta property="og:site_name" content="刘绍煌">
 <meta property="og:description" content="简介需求是这样：客户公司对我们开发了一台FTP服务器以供我们上传数据回流给客户，但是客户为了安全原因只对我们开放了固定一台服务器才能进行FTP登录，由于想偷懒，也为了加快该功能的上线使用，所以思考时候能将FTP类似像NFS一样挂载在linux的本地，然后再在我们的服务器上开放一个FTP服务往挂载的客户FTP的目录上写入文件，这里使用的是Centos 7.5">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2021-03-07T13:45:05.252Z">
+<meta property="og:updated_time" content="2021-03-07T13:49:35.156Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="如何将FTP挂载在linux的本地磁盘和并在挂载机上重新发布linux服务.md">
+<meta name="twitter:title" content="如何将FTP挂载在linux的本地磁盘并在挂载机上发布FTP服务.md">
 <meta name="twitter:description" content="简介需求是这样：客户公司对我们开发了一台FTP服务器以供我们上传数据回流给客户，但是客户为了安全原因只对我们开放了固定一台服务器才能进行FTP登录，由于想偷懒，也为了加快该功能的上线使用，所以思考时候能将FTP类似像NFS一样挂载在linux的本地，然后再在我们的服务器上开放一个FTP服务往挂载的客户FTP的目录上写入文件，这里使用的是Centos 7.5">
   <link rel="canonical" href="http://www.liushaohuang.cn/2021/03/07/如何将FTP挂载在linux的本地磁盘和并在挂载机上重新发布linux服务-md/">
 
@@ -81,7 +81,7 @@
   };
 </script>
 
-  <title>如何将FTP挂载在linux的本地磁盘和并在挂载机上重新发布linux服务.md | 刘绍煌</title>
+  <title>如何将FTP挂载在linux的本地磁盘并在挂载机上发布FTP服务.md | 刘绍煌</title>
   <meta name="generator" content="Hexo 3.9.0">
   
 
@@ -231,7 +231,7 @@
       <meta itemprop="name" content="刘绍煌">
     </span>
       <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">如何将FTP挂载在linux的本地磁盘和并在挂载机上重新发布linux服务.md
+        <h1 class="post-title" itemprop="name headline">如何将FTP挂载在linux的本地磁盘并在挂载机上发布FTP服务.md
 
           
         </h1>
@@ -247,7 +247,7 @@
                 
               
 
-              <time title="创建时间：2021-03-07 21:38:01 / 修改时间：21:45:05" itemprop="dateCreated datePublished" datetime="2021-03-07T21:38:01+08:00">2021-03-07</time>
+              <time title="创建时间：2021-03-07 21:38:01 / 修改时间：21:49:35" itemprop="dateCreated datePublished" datetime="2021-03-07T21:38:01+08:00">2021-03-07</time>
             </span>
           
             
