@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.3.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.3.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.3.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.3.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.3.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.3.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="简介在实践中最常使用的就是查询，而Elasticsearch又提供了丰富的HTTP接口供人们调用（JAVA的高级API其实也差不多），这里借用kibana提供的开发者工具，使用HTTP API对遇到过的常用查询进行总结。">
+<meta name="keywords" content="Elasticsearch">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ES RestAPI示例">
+<meta property="og:url" content="http://www.liushaohuang.cn/2021/03/07/RestAPI示例/index.html">
+<meta property="og:site_name" content="刘绍煌">
+<meta property="og:description" content="简介在实践中最常使用的就是查询，而Elasticsearch又提供了丰富的HTTP接口供人们调用（JAVA的高级API其实也差不多），这里借用kibana提供的开发者工具，使用HTTP API对遇到过的常用查询进行总结。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2021-03-07T13:37:10.913Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ES RestAPI示例">
+<meta name="twitter:description" content="简介在实践中最常使用的就是查询，而Elasticsearch又提供了丰富的HTTP接口供人们调用（JAVA的高级API其实也差不多），这里借用kibana提供的开发者工具，使用HTTP API对遇到过的常用查询进行总结。">
+  <link rel="canonical" href="http://www.liushaohuang.cn/2021/03/07/RestAPI示例/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>ES RestAPI示例 | 刘绍煌</title>
+  <meta name="generator" content="Hexo 3.9.0">
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">刘绍煌</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2021/03/07/RestAPI示例/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="刘绍煌">
+      <meta itemprop="description" content="刘绍煌的个人博客">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="刘绍煌">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">ES RestAPI示例
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2021-03-07 21:34:14 / 修改时间：21:37:10" itemprop="dateCreated datePublished" datetime="2021-03-07T21:34:14+08:00">2021-03-07</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Elasticsearch/" itemprop="url" rel="index"><span itemprop="name">Elasticsearch</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span class="post-meta-item" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>在实践中最常使用的就是查询，而Elasticsearch又提供了丰富的HTTP接口供人们调用（JAVA的高级API其实也差不多），这里借用kibana提供的开发者工具，使用HTTP API对遇到过的常用查询进行总结。</p>
+<hr>
+<a id="more"></a>
+
+<h4 id="数据集"><a href="#数据集" class="headerlink" title="数据集"></a>数据集</h4><p>我采用科大讯飞的长文本分类数据集提供测试</p>
+<p><a href="https://github.com/CLUEbenchmark/CLUEDatasetSearch" target="_blank" rel="noopener">https://github.com/CLUEbenchmark/CLUEDatasetSearch</a></p>
+<p>其为json格式的文本集，具体示例数据如下</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">	<span class="attr">"label"</span>: <span class="string">"11"</span>,</span><br><span class="line">	<span class="attr">"label_des"</span>: <span class="string">"薅羊毛"</span>,</span><br><span class="line">	<span class="attr">"sentence"</span>: <span class="string">"活动新用户领5元现金即日起成功注册酷划的新用户，填写邀请码80008即可领取5元现金奖励哦。小伙伴们不要错过，赶快来酷划锁屏领红包吧~每天解锁50次，一年可赚上千元酷划锁屏是一款可以自动赚钱的手机锁屏APP，每次解锁手机均有数额不等的现金奖励。赚到的钱可以极速提现到微信钱包、支付宝，也可以用来购买爆款商品。除手机解锁可以赚钱外，酷划还提供邀请赚、分享赚、高额赚等十余种赚钱方式，零成本可得高额回报。三年时间里，酷划已累计服务了超一亿名用户。在手赚软件中处于无可争议的领先地位。手机赚钱，用酷划锁屏就对了功能介绍手机解锁领现金每次解锁均有现金奖励锁屏精选新鲜资讯，边看边赚零花钱十种以上赚钱方式邀请赚、分享赚、试玩赚…多种赚钱方式任你选每天花上五分钟，酷划收入翻倍领邀请徒弟收入加倍邀请好友体验酷划，建立师徒关系徒弟挣钱，师傅得现金奖励提现购物任你挑选您的收入可提现，购物，话费充值微信一元提现，极速到账官网www.coohua.com微信公众号酷划在线客服邮箱help@coohua.com,每天解锁50次，一年可赚上千块,1、客户端个人中心电商相关功能下线2、锁屏改造客户端SDK"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="索引类"><a href="#索引类" class="headerlink" title="索引类"></a>索引类</h4><h5 id="创建索引"><a href="#创建索引" class="headerlink" title="创建索引"></a>创建索引</h5><p>调用了HTTP PUT方法创建一个索引，且创建了Mapping和设置了索引的分片和索引信息，因为我只有使用一台节点（在Elasticsearch中节点默认即是Master，Data，Coordinating节点，如果需要子开启对于的设置可以配置yml文件，开启对于的节点角色即可），其指定了一个数据主分片（number_of_shards）和0个副本分片（number_of_replicas），且在mapping对各个字段做了定义，且label_des和sentence字段指定了分词器为IK分词器（中文分词器）的两种分词策略</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">PUT /data_test</span><br><span class="line">&#123;</span><br><span class="line">  </span><br><span class="line">  &quot;settings&quot; : &#123;</span><br><span class="line">        &quot;number_of_shards&quot; : &quot;1&quot;,</span><br><span class="line">        &quot;number_of_replicas&quot; : &quot;0&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">  </span><br><span class="line">  &quot;mappings&quot; : &#123;</span><br><span class="line">      &quot;properties&quot; : &#123;</span><br><span class="line">        &quot;id&quot; : &#123;</span><br><span class="line">          &quot;type&quot; : &quot;keyword&quot;,</span><br><span class="line">          &quot;ignore_above&quot; : 100</span><br><span class="line">        &#125;,</span><br><span class="line">        &quot;label&quot; : &#123;</span><br><span class="line">          &quot;type&quot; : &quot;integer&quot;</span><br><span class="line">        &#125;,</span><br><span class="line">        &quot;label_des&quot; : &#123;</span><br><span class="line">          &quot;type&quot; : &quot;text&quot;,</span><br><span class="line">          &quot;analyzer&quot; : &quot;ik_smart&quot;,</span><br><span class="line">          &quot;fields&quot;:&#123;</span><br><span class="line">            &quot;keyword&quot;:&#123;</span><br><span class="line">              &quot;type&quot;:&quot;keyword&quot;,</span><br><span class="line">              &quot;ignore_above&quot; : 256</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        &quot;sentence&quot; : &#123;</span><br><span class="line">          &quot;type&quot; : &quot;text&quot;,</span><br><span class="line">          &quot;analyzer&quot; : &quot;ik_max_word&quot;,</span><br><span class="line">          &quot;search_analyzer&quot; : &quot;ik_smart&quot;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>number_of_shards：分片数量</li>
+<li>number_of_replicas：副本数量</li>
+</ul>
+<h5 id="分词查询"><a href="#分词查询" class="headerlink" title="分词查询"></a>分词查询</h5><p>在优化查询的时候我们需要对我们使用的分词器的分词情况进行查看，就可以使用该API,以下时候是使用ik_smart分词器的情况下对休闲益智这个词进行查询其分词情况</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">GET /_analyze</span><br><span class="line">&#123;</span><br><span class="line">  &quot;text&quot;: &quot;休闲益智&quot;,</span><br><span class="line">  &quot;analyzer&quot;: &quot;ik_smart&quot;</span><br><span class="line">  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>结果如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;tokens&quot; : [</span><br><span class="line">    &#123;</span><br><span class="line">      &quot;token&quot; : &quot;休闲&quot;,</span><br><span class="line">      &quot;start_offset&quot; : 0,</span><br><span class="line">      &quot;end_offset&quot; : 2,</span><br><span class="line">      &quot;type&quot; : &quot;CN_WORD&quot;,</span><br><span class="line">      &quot;position&quot; : 0</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      &quot;token&quot; : &quot;益智&quot;,</span><br><span class="line">      &quot;start_offset&quot; : 2,</span><br><span class="line">      &quot;end_offset&quot; : 4,</span><br><span class="line">      &quot;type&quot; : &quot;CN_WORD&quot;,</span><br><span class="line">      &quot;position&quot; : 1</span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="查询"><a href="#查询" class="headerlink" title="查询"></a>查询</h4><h5 id="Term查询"><a href="#Term查询" class="headerlink" title="Term查询"></a>Term查询</h5><p>（对输入的词不进行分词）</p>
+<p><strong>注意：这边我们查询的是休闲益智，在IK分词器中这个词被分为休闲和益智两个词，所以我们这里使用label_des的子字段keyword来查询不分词的数据（该子字段的类型为keyword），如果直接对label_des字段查询则查询不出任何数据，因为根据上面我们设置的Mapping这中定义其为text，在es倒排索引中其呗分隔成休闲和益智两个词</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">GET /data_test2/_search</span><br><span class="line">&#123;</span><br><span class="line">  &quot;query&quot;: &#123;</span><br><span class="line">    &quot;term&quot;: &#123;</span><br><span class="line">      &quot;label_des.keyword&quot;: &quot;休闲益智&quot;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="Match查询"><a href="#Match查询" class="headerlink" title="Match查询"></a>Match查询</h5><p>（对输入的词进行分词查询）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">GET /data_test2/_search</span><br><span class="line">&#123;</span><br><span class="line">  &quot;query&quot;: &#123;</span><br><span class="line">    </span><br><span class="line">    &quot;match&quot;: &#123;</span><br><span class="line">      &quot;label_des&quot;: &quot;休闲益&quot;</span><br><span class="line">    </span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>查询结果能查询出label_des包含休闲益智的文档，因为ik分词器将其分词为休闲和益两个词，只要文档中出现其中一个倒排索引即可完成匹配</p>
+<h5 id="Match-and-查询"><a href="#Match-and-查询" class="headerlink" title="Match and 查询"></a>Match and 查询</h5><p>上文我们进行了Match查询，match对搜索词进行分词后再查询，只要有一个词命中文档，那么就返回文档，如果要两个词都要命中才返回文档那么就要使用bool 和must包含多个match,以下只能查询出同时包含休闲和益智两个词条的文档</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">GET /data_test2/_search</span><br><span class="line">&#123;</span><br><span class="line">  &quot;query&quot;: &#123;</span><br><span class="line">    &quot;bool&quot;: &#123;</span><br><span class="line">      &quot;must&quot;: [</span><br><span class="line">         &#123; &quot;match&quot;: &#123; &quot;label_des&quot;: &quot;休闲&quot; &#125;&#125;,</span><br><span class="line">         &#123; &quot;match&quot;: &#123; &quot;label_des&quot;: &quot;益智&quot;  &#125;&#125;</span><br><span class="line">      ]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="Match-phrase"><a href="#Match-phrase" class="headerlink" title="Match phrase"></a>Match phrase</h5><p>match phrase和term有些类似其核心在于时候分词match phrase会对输入的词进行分词，比如term中查询休闲益智，那么会执行查询文档中是否包含休闲益智这个词条，但是ik分词器中并没有这个词，只存在休闲和益智两个词条索引term无法查询出，如果使用Match phrase查询休闲益智这个词，则会将其分隔成休闲和益智两个词，再去文档中查询同时包含这两个题词条的数据，另外其还可指定slop来规定查询的这两个词之间可以间隔多少个词</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">GET /data_test2/_search</span><br><span class="line">&#123;</span><br><span class="line">  &quot;query&quot;: &#123;</span><br><span class="line">    &quot;match_phrase&quot;: &#123;</span><br><span class="line">      &quot;sentence&quot;: &#123;</span><br><span class="line">        &quot;query&quot;: &quot;点击自动&quot;,</span><br><span class="line">        &quot;slop&quot;: 10</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">   </span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="aggs聚合"><a href="#aggs聚合" class="headerlink" title="aggs聚合"></a>aggs聚合</h5><p>ES聚合查询分为Bucket和Metric ，Bucket类似SQL的Group By  ，Metric 类似SQL 的 AVG ,MAX ,MIN函数,并且在返回的Bucket桶中可以查看到当前桶下数据的条数</p>
+<p>以下语句类似SQL的</p>
+<p>select label_des as group， max(label) as max_name from  data_test2  group by label_des</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">GET /data_test2/_search</span><br><span class="line">&#123;</span><br><span class="line"> &quot;aggs&quot;: &#123;</span><br><span class="line">   &quot;group&quot;: &#123;</span><br><span class="line">     &quot;terms&quot;: &#123;</span><br><span class="line">       &quot;field&quot;: &quot;label_des.keyword&quot;,</span><br><span class="line">       &quot;size&quot;: 10</span><br><span class="line">     &#125;,</span><br><span class="line">     &quot;aggs&quot;: &#123;</span><br><span class="line">       &quot;max_name&quot;: &#123;</span><br><span class="line">         &quot;max&quot;: &#123;</span><br><span class="line">           &quot;field&quot;: &quot;label&quot;</span><br><span class="line">         &#125;</span><br><span class="line">       &#125;</span><br><span class="line">     &#125;</span><br><span class="line">   &#125;</span><br><span class="line"> &#125;</span><br><span class="line">  </span><br><span class="line">  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="Pipeline-aggregations"><a href="#Pipeline-aggregations" class="headerlink" title="Pipeline aggregations"></a>Pipeline aggregations</h5><p>和aggs不同的是，aggs针对的是文档的聚合，而pipeline aggs针对的aggs后的数据再做一次aggs<strong>(类似对SQL的Group By语句再做一次查询)</strong></p>
+<p>以下查询类似sql语句</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">select max(label_num) from (</span><br><span class="line">		SELECT  label_des  , max(label) as label_num from  data_test2 group by label_des</span><br><span class="line">	) t</span><br></pre></td></tr></table></figure>
+
+<p>具体的pipeline类型查看官方文档</p>
+<p><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline-max-bucket-aggregation.html" target="_blank" rel="noopener">https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline-max-bucket-aggregation.html</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">GET /data_test2/_search</span><br><span class="line">&#123;</span><br><span class="line">  &quot;query&quot;: &#123;</span><br><span class="line">    &quot;term&quot;: &#123;</span><br><span class="line">      &quot;label_des&quot;: &#123;</span><br><span class="line">        &quot;value&quot;: &quot;工具&quot;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">  &#125;,</span><br><span class="line">  &quot;aggs&quot;: &#123;</span><br><span class="line">    &quot;tool&quot;: &#123;</span><br><span class="line">      &quot;terms&quot;: &#123;</span><br><span class="line">        &quot;field&quot;: &quot;label_des.keyword&quot;</span><br><span class="line"></span><br><span class="line">      &#125;,</span><br><span class="line">      &quot;aggs&quot;: &#123;</span><br><span class="line">       &quot;label_num&quot;: &#123;</span><br><span class="line">         &quot;max&quot;: &#123;</span><br><span class="line">           &quot;field&quot;: &quot;label&quot;</span><br><span class="line">         &#125;</span><br><span class="line">       &#125;</span><br><span class="line">     &#125;</span><br><span class="line">      </span><br><span class="line">    &#125;</span><br><span class="line">   </span><br><span class="line">   ,</span><br><span class="line">     &quot;max_label&quot;: &#123;</span><br><span class="line">      &quot;max_bucket&quot;: &#123;</span><br><span class="line">        &quot;buckets_path&quot;: &quot;tool.label_num&quot; </span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+        
+      
+        <div id="reward-container">
+  <div></div>
+  <button id="reward-button" disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/赞赏码.png" alt="刘绍煌 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/Elasticsearch/" rel="tag"># Elasticsearch</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2021/03/07/ES设置/" rel="next" title="ES设置">
+                  <i class="fa fa-chevron-left"></i> ES设置
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2021/03/07/如何将FTP挂载在linux的本地磁盘和并在挂载机上重新发布linux服务-md/" rel="prev" title="如何将FTP挂载在linux的本地磁盘和并在挂载机上重新发布linux服务.md">
+                  如何将FTP挂载在linux的本地磁盘和并在挂载机上重新发布linux服务.md <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#数据集"><span class="nav-number">2.</span> <span class="nav-text">数据集</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#索引类"><span class="nav-number">3.</span> <span class="nav-text">索引类</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#创建索引"><span class="nav-number">3.1.</span> <span class="nav-text">创建索引</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#分词查询"><span class="nav-number">3.2.</span> <span class="nav-text">分词查询</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#查询"><span class="nav-number">4.</span> <span class="nav-text">查询</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Term查询"><span class="nav-number">4.1.</span> <span class="nav-text">Term查询</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Match查询"><span class="nav-number">4.2.</span> <span class="nav-text">Match查询</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Match-and-查询"><span class="nav-number">4.3.</span> <span class="nav-text">Match and 查询</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Match-phrase"><span class="nav-number">4.4.</span> <span class="nav-text">Match phrase</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#aggs聚合"><span class="nav-number">4.5.</span> <span class="nav-text">aggs聚合</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Pipeline-aggregations"><span class="nav-number">4.6.</span> <span class="nav-text">Pipeline aggregations</span></a></li></ol></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">刘绍煌</p>
+  <div class="site-description" itemprop="description">刘绍煌的个人博客</div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">65</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">65</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">刘绍煌</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.3.0</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.3.0"></script><script src="/js/motion.js?v=7.3.0"></script>
+<script src="/js/schemes/pisces.js?v=7.3.0"></script>
+<script src="/js/next-boot.js?v=7.3.0"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
