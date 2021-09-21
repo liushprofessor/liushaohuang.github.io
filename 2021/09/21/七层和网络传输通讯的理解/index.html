@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.3.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.3.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.3.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.3.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.3.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.3.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="七层和网络传输通讯的理解简介之前项目使用Netty构建TCP请求来构建应用，在项目上线后项目有很多问题，而之前对网络七层方面的了解只停留在口头和表面，导致排查问题的时候没有这方面的知识走了很多弯路，在排查问题时顺便复习了这块的知识，并且写下自己的理解">
+<meta name="keywords" content="网络">
+<meta property="og:type" content="article">
+<meta property="og:title" content="七层和网络传输通讯的理解">
+<meta property="og:url" content="http://www.liushaohuang.cn/2021/09/21/七层和网络传输通讯的理解/index.html">
+<meta property="og:site_name" content="刘绍煌">
+<meta property="og:description" content="七层和网络传输通讯的理解简介之前项目使用Netty构建TCP请求来构建应用，在项目上线后项目有很多问题，而之前对网络七层方面的了解只停留在口头和表面，导致排查问题的时候没有这方面的知识走了很多弯路，在排查问题时顺便复习了这块的知识，并且写下自己的理解">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="c:%5CUsers%5CLiush%5CDesktop%5C1632229094.png">
+<meta property="og:image" content="c:%5CUsers%5CLiush%5CDesktop%5C590b0d2c13aefbc5a0f867cb66e7271.jpg">
+<meta property="og:updated_time" content="2021-09-21T12:58:56.051Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="七层和网络传输通讯的理解">
+<meta name="twitter:description" content="七层和网络传输通讯的理解简介之前项目使用Netty构建TCP请求来构建应用，在项目上线后项目有很多问题，而之前对网络七层方面的了解只停留在口头和表面，导致排查问题的时候没有这方面的知识走了很多弯路，在排查问题时顺便复习了这块的知识，并且写下自己的理解">
+<meta name="twitter:image" content="c:%5CUsers%5CLiush%5CDesktop%5C1632229094.png">
+  <link rel="canonical" href="http://www.liushaohuang.cn/2021/09/21/七层和网络传输通讯的理解/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>七层和网络传输通讯的理解 | 刘绍煌</title>
+  <meta name="generator" content="Hexo 3.9.0">
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">刘绍煌</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2021/09/21/七层和网络传输通讯的理解/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="刘绍煌">
+      <meta itemprop="description" content="刘绍煌的个人博客">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="刘绍煌">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">七层和网络传输通讯的理解
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2021-09-21 20:55:28 / 修改时间：20:58:56" itemprop="dateCreated datePublished" datetime="2021-09-21T20:55:28+08:00">2021-09-21</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/网络/" itemprop="url" rel="index"><span itemprop="name">网络</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span class="post-meta-item" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h5 id="七层和网络传输通讯的理解"><a href="#七层和网络传输通讯的理解" class="headerlink" title="七层和网络传输通讯的理解"></a>七层和网络传输通讯的理解</h5><h5 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h5><p>之前项目使用Netty构建TCP请求来构建应用，在项目上线后项目有很多问题，而之前对网络七层方面的了解只停留在口头和表面，导致排查问题的时候没有这方面的知识走了很多弯路，在排查问题时顺便复习了这块的知识，并且写下自己的理解</p>
+<a id="more"></a>
+
+<h5 id="网络七层模型图"><a href="#网络七层模型图" class="headerlink" title="网络七层模型图"></a>网络七层模型图</h5><p><img src="C:%5CUsers%5CLiush%5CDesktop%5C1632229094.png" alt="1632229094"></p>
+<p>以上 从网上搜索出来的七层模型图，我这里举例说明</p>
+<ul>
+<li><p>物理层：物理层（Physical Layer）在局部局域网上发送<a href="https://zh.wikipedia.org/wiki/数据帧" target="_blank" rel="noopener">数据帧</a>（Data Frame），它负责管理电脑通信设备和网络媒体之间的互通，我们知道现在网络中传输的大多数都是数字型号，就是0和1，那么我们就可以用电信号（高电平和低电平）或者光的强弱（光纤）等来代表0或者1，来传输信号，这部分我们统一的称作物理层。</p>
+</li>
+<li><p>数据链路层：数据链路层负责网络寻址、错误侦测和改错,具体理解我我们物理层发的数据01在通讯中会可能会存在干扰或者丢失，物理层可以辅助纠错，并且其一个重要的功能就是进行寻址，二层交换机或者HUB就是在这一层，每台计算机都有一个网卡，这个网卡都有独一无二的MAC地址，数据在经过物理层，在经过数据链路层处理后会在包中带上要传输目标的MAC地址，这样就能知道数据是发给其它那台计算机的了</p>
+</li>
+<li><p>网络层（Network Layer）决定数据的路径选择和转寄，在实际传输中，如果只使用MAC地址去传输，那么将会非常不方便，因为MAC地址一长串，于是为了方便寻址抽象出了网络层，我们使用的IP和路由器就是在这一层，数据在经过网络层后，网络层会将数据链路层的数据加入IP的信息，比如目标IP和端口，在数据传输到对于的路由器，路由器再将IP解压提取对于的MAC地址，然后再交给交换机分发到对于MAC地址的电脑上。</p>
+</li>
+<li><p>传输层：网络层只是负责转发数据，并没有实现如何传输数据。比如TCP是在IP上是为了解决可靠传输而生的，在发送数据是通过序列号码和应答标志位ACK来确认数据是否送达，其保证了数据只要发出那么数据就能送达。</p>
+</li>
+<li><p>会话层：其表示数据传输何时建立连接，比如软件的开启就建立连接，这部分属于会话层的范畴.</p>
+</li>
+<li><p>表示层：数据如何展示，比如HTML页面就是表示层，他将来HTTP请求返回的数据包解析了也页面</p>
+</li>
+<li><p>应用层：就是我们定义的具体的协议，比如HTTP就是基于TCP协议而实现的应用层协议.</p>
+</li>
+</ul>
+<p><strong>那么他们之间具体的关系是咋样的呢？我们从2个角度来看</strong></p>
+<p>发送端</p>
+<p>应用层-&gt;表示层-&gt;会话层-&gt;网络层-&gt;数据链路层-&gt;物理层</p>
+<p>接收端</p>
+<p>物理层-&gt;数据链路层-&gt;网络层-&gt;会话层-&gt;表示层-&gt;应用层</p>
+<p>我们可以看到发送端是由上而下发的数据，接收端是由下往上接收数据，在发送端，每经过一层都会将对应一层的协议的信息加入到数据包中，然后再传给下一层，而接收端每进过一层就会将那一层的协议信息解析完后给去掉，然后返回给上一层</p>
+<h5 id="数据是如何在网络中传输的"><a href="#数据是如何在网络中传输的" class="headerlink" title="数据是如何在网络中传输的"></a>数据是如何在网络中传输的</h5><p><img src="C:%5CUsers%5CLiush%5CDesktop%5C590b0d2c13aefbc5a0f867cb66e7271.jpg" alt="590b0d2c13aefbc5a0f867cb66e7271"></p>
+<p>如图中所示了电脑发送的数据是如何传输的，我们以发送数据为例结合上问提到的7层来详细说明</p>
+<ul>
+<li><p>应用层，表示层，会话层，传输层，这部分都在我们电脑中实现，应用层，表示层，会话层，都由我们开发的应用去实现，传输层(如TCP,UDP)这部分由操作系统去实现（比如我们运行操作系统的命令能查看到我们应用具体的端口，所以这些应用的传输都是依托操作系统），首先我们在我们的应用中如通讯软件发起一条消息，这个通讯软件就是应用层，而通讯软件展示出的节目就是表示层，而当我点击发送按钮这时候触发发送消息，则我们这里点击按钮才发送消息的这个机制就是会话层。</p>
+</li>
+<li><p>传输层，接上面，我们发送TCP消息后，应用调用Sock方法将数据发送给操作系统，让操作系统进行TCP传输，这时数据包里除了我们应用层那边规定传输的数据协议外（如JSON），系统实现的会自动加上TCP协议的协议头。</p>
+</li>
+<li><p>网络层，接上，现在传输层已经将数据打包好，系统判断这个数据包的目标地址是否在同一个网段，如果是，字节将数据下发到数据链路层，现在我们需要将我们的数据发送到对应的收消息IP地址上，所以操作系统又将TCP包加上IP的数据包头接着往下发送到数据链路层，注意同网段数据传输其实不需要真正的用到IP,因位其通过同网段内广播就能获取到目标MAC地址。</p>
+</li>
+<li><p><strong>数据链路层，这一层由网卡和网卡驱动实现，系统将IP包和MAC地址等下信息进行包装后，发送给网卡，由网卡去发送消息，那这里我们是如何知道目标电脑的MAC地址的？答案是还是操作系统，本地系统中会存在一张静态ARP路由表，如果我们要查询的目标IP是和发送端在相同网段内，如果ARP路由表中没有，则操作系统将通过交换机发送一条地址MAC地址FF:FF:FF:FF的的广播，询问该IP是是属于哪个MAC的，在得到MAC地址后，将MAC地址信息添加到包中，封装成数据链路层的包，再经过网卡驱动和网卡将数据变成01发出去，如果在ARP中找不到路由，且不是同网段，那么将会使用默认路由（一般是路由器的地址）交由路由器去一层层的去寻找目标MAC，获取到MAC地址后，再回操作系统组成数据链路层的包再发给物理层。</strong></p>
+<p>​    </p>
+</li>
+<li><p>物理层：现在数据变成了01的电信号或者光信号往外传输</p>
+</li>
+<li><p>现在数据经过双绞线发送给交换机(同网段)或者路由器（不同网段），交换机由于实现了2层(也有3层交换机)，交换机在收到物理层传来的数据后，根据目标的MAC转发给对应的MAC地址设备，如果是同网段，直接转发，如果不是则发送给目标网关让它进行转发。同样目标地址的数据链路层收到数据后在往上一步步解析，最终变成应用层的协议</p>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+      
+        <div id="reward-container">
+  <div></div>
+  <button id="reward-button" disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/赞赏码.png" alt="刘绍煌 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/网络/" rel="tag"># 网络</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2021/09/21/使用Netty构建TCP通讯中通讯错误问题的排查和详解/" rel="next" title="使用Netty构建TCP通讯中通讯错误问题的排查和详解">
+                  <i class="fa fa-chevron-left"></i> 使用Netty构建TCP通讯中通讯错误问题的排查和详解
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#七层和网络传输通讯的理解"><span class="nav-number">1.</span> <span class="nav-text">七层和网络传输通讯的理解</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#简介"><span class="nav-number">2.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#网络七层模型图"><span class="nav-number">3.</span> <span class="nav-text">网络七层模型图</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#数据是如何在网络中传输的"><span class="nav-number">4.</span> <span class="nav-text">数据是如何在网络中传输的</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">刘绍煌</p>
+  <div class="site-description" itemprop="description">刘绍煌的个人博客</div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">68</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">66</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">刘绍煌</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.3.0</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.3.0"></script><script src="/js/motion.js?v=7.3.0"></script>
+<script src="/js/schemes/pisces.js?v=7.3.0"></script>
+<script src="/js/next-boot.js?v=7.3.0"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

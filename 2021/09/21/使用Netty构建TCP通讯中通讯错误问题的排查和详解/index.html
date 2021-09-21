@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.3.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.3.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.3.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.3.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.3.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.3.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="使用Netty构建TCP通讯中通讯错误问题的排查和详解简介最近上线的项目中使用Netty构建tcp服务去连接设备来收集设备运行的状态，在试运行一段时间后发现kibana中偶尔出现设备端发送了我们的数据，后端解析出错的问题，但是设备端又死活不承认他们的问题，无奈下本着做事要拿出证据的原则，这边被迫再次学习了TCP等知识来打他们的脸。">
+<meta name="keywords" content="netty">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用Netty构建TCP通讯中通讯错误问题的排查和详解">
+<meta property="og:url" content="http://www.liushaohuang.cn/2021/09/21/使用Netty构建TCP通讯中通讯错误问题的排查和详解/index.html">
+<meta property="og:site_name" content="刘绍煌">
+<meta property="og:description" content="使用Netty构建TCP通讯中通讯错误问题的排查和详解简介最近上线的项目中使用Netty构建tcp服务去连接设备来收集设备运行的状态，在试运行一段时间后发现kibana中偶尔出现设备端发送了我们的数据，后端解析出错的问题，但是设备端又死活不承认他们的问题，无奈下本着做事要拿出证据的原则，这边被迫再次学习了TCP等知识来打他们的脸。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="c:%5CUsers%5CLiush%5CDesktop%5CConnection_TCP.png">
+<meta property="og:image" content="c:%5CUsers%5CLiush%5CDesktop%5C1632228600(1).png">
+<meta property="og:image" content="https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/TCP_CLOSE.svg/1280px-TCP_CLOSE.svg.png">
+<meta property="og:updated_time" content="2021-09-21T12:51:03.684Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用Netty构建TCP通讯中通讯错误问题的排查和详解">
+<meta name="twitter:description" content="使用Netty构建TCP通讯中通讯错误问题的排查和详解简介最近上线的项目中使用Netty构建tcp服务去连接设备来收集设备运行的状态，在试运行一段时间后发现kibana中偶尔出现设备端发送了我们的数据，后端解析出错的问题，但是设备端又死活不承认他们的问题，无奈下本着做事要拿出证据的原则，这边被迫再次学习了TCP等知识来打他们的脸。">
+<meta name="twitter:image" content="c:%5CUsers%5CLiush%5CDesktop%5CConnection_TCP.png">
+  <link rel="canonical" href="http://www.liushaohuang.cn/2021/09/21/使用Netty构建TCP通讯中通讯错误问题的排查和详解/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>使用Netty构建TCP通讯中通讯错误问题的排查和详解 | 刘绍煌</title>
+  <meta name="generator" content="Hexo 3.9.0">
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">刘绍煌</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2021/09/21/使用Netty构建TCP通讯中通讯错误问题的排查和详解/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="刘绍煌">
+      <meta itemprop="description" content="刘绍煌的个人博客">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="刘绍煌">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">使用Netty构建TCP通讯中通讯错误问题的排查和详解
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2021-09-21 20:41:25 / 修改时间：20:51:03" itemprop="dateCreated datePublished" datetime="2021-09-21T20:41:25+08:00">2021-09-21</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/netty/" itemprop="url" rel="index"><span itemprop="name">netty</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span class="post-meta-item" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h4 id="使用Netty构建TCP通讯中通讯错误问题的排查和详解"><a href="#使用Netty构建TCP通讯中通讯错误问题的排查和详解" class="headerlink" title="使用Netty构建TCP通讯中通讯错误问题的排查和详解"></a>使用Netty构建TCP通讯中通讯错误问题的排查和详解</h4><h5 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h5><p>最近上线的项目中使用Netty构建tcp服务去连接设备来收集设备运行的状态，在试运行一段时间后发现kibana中偶尔出现设备端发送了我们的数据，后端解析出错的问题，但是设备端又死活不承认他们的问题，无奈下本着做事要拿出证据的原则，这边被迫再次学习了TCP等知识来打他们的脸。</p>
+<a id="more"></a>
+
+<h4 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h4><p>我们和设备端定义的协议核心为传输的时候在前面带上一个2个字节的数据域来表示数据域的长度，后端收到数据再读取这个数据域的长度，再获取接下来数据载体的长度，并且将其读出，再运行一段时间后我们发现kibana中的日志经常报以下两个错误</p>
+<p>错误：1</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Connection reset by peer</span><br></pre></td></tr></table></figure>
+
+<p>错误：2</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">在解析协议时出错</span><br></pre></td></tr></table></figure>
+
+<h5 id="问题分析"><a href="#问题分析" class="headerlink" title="问题分析"></a>问题分析</h5><p>错误1：明显是由于连接被关闭而报出的，这个在现场是有可能的</p>
+<p>错误2： 在解析协议时出错，服务端逻辑是应用层协议解析出错将关闭连接，所以接着日志引发错误1</p>
+<p>那么我们排查问题的重点就放在为啥会出现解析错误。</p>
+<h5 id="问题解决"><a href="#问题解决" class="headerlink" title="问题解决"></a>问题解决</h5><h6 id="问题1，数据域长度问题"><a href="#问题1，数据域长度问题" class="headerlink" title="问题1，数据域长度问题"></a>问题1，数据域长度问题</h6><p>一开始我们我们查看代码就发现之前应用层定义的2个字节来存储数据域太少了，2 个字节是16位，在java中用short来表示，2个字节能表示2的16次方 65 536个数字，但是java中要用一半表示负数一半表示正数，所以一共最多数据域可以发送32768个字节，在将其换算成k大概为32K，也就是一次最多传输32K 的数据</p>
+<h6 id="问题2，TCP协议"><a href="#问题2，TCP协议" class="headerlink" title="问题2，TCP协议"></a>问题2，TCP协议</h6><p>在限制传输大小后，后端仍然报解析错误。这是排查处理粘包和拆包的代码是Netty提供的LengthFieldBasedFrameDecoder 类，这部分基本不可能出现问题，为了排查出原因复习了一下TCP协议</p>
+<p>我们知道TCP建立连接时会发起3次握手，如图</p>
+<p><img src="C:%5CUsers%5CLiush%5CDesktop%5CConnection_TCP.png" alt="Connection_TCP"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1:客户端（通过执行connect函数）向服务器端发送一个SYN包，请求一个主动打开。该包携带客户端为这个连接请求而设定的随机数A作为消息序列号。</span><br><span class="line">2:服务器端收到一个合法的SYN包后，把该包放入SYN队列中；回送一个SYN/ACK。ACK的确认码应为A+1，SYN/ACK包本身携带一个随机产生的序号B。</span><br><span class="line">3:客户端收到SYN/ACK包后，发送一个ACK包，该包的序号被设定为A+1，而ACK的确认码则为B+1。然后客户端的connect函数成功返回。</span><br></pre></td></tr></table></figure>
+
+<p><strong>那具体什么是ACK什么是SYN呢？我们对照一下TCP协议就知道了，我们着重看下标志位的内容就是下图保留位000后面的数据，可以这样理解，这个标志位就相当于我们写接口，这个接口有一个参数，分别为1,2,3  这3个参数分别表示不同的3种状态，我们根据这个状态执行不同的逻辑操作，这个表示位相当于这个参数，至于为什么保留000，我想应该是为了后续协议扩展，如果后续出了更多的状态码，只需要补上就好了，不需要重新定义协议</strong></p>
+<hr>
+<p><img src="C:%5CUsers%5CLiush%5CDesktop%5C1632228600(1).png" alt="1632228600(1)"></p>
+<ul>
+<li>来源连接端口（16位长）－识别发送连接端口</li>
+<li>目的连接端口（16位长）－识别接收连接端口</li>
+<li>序列号（seq，32位长）<ul>
+<li>如果含有同步化旗标（SYN），则此为最初的序列号；第一个资料比特的序列码为本序列号加一。</li>
+<li>如果没有同步化旗标（SYN），则此为第一个资料比特的序列码。</li>
+</ul>
+</li>
+<li>确认号（ack，32位长）—期望收到的数据的开始序列号。也即已经收到的数据的字节长度加1。</li>
+<li>资料偏移（4位长）—以4字节为单位计算出的数据段开始地址的偏移值。</li>
+<li>保留（3比特长）—须置0</li>
+<li>标志符（9比特长）<ul>
+<li>NS—ECN-nonce。ECN显式拥塞通知（Explicit Congestion Notification）是对TCP的扩展，定义于 RFC 3540 （2003）。ECN允许拥塞控制的端对端通知而避免丢包。ECN为一项可选功能，如果底层网络设施支持，则可能被启用ECN的两个端点使用。在ECN成功协商的情况下，ECN感知路由器可以在IP头中设置一个标记来代替丢弃数据包，以标明阻塞即将发生。数据包的接收端回应发送端的表示，降低其传输速率，就如同在往常中检测到包丢失那样。</li>
+<li>CWR—Congestion Window Reduced，定义于 RFC 3168（2001）。</li>
+<li>ECE—ECN-Echo有两种意思，取决于SYN标志的值，定义于 RFC 3168（2001）。</li>
+<li>URG—为1表示高优先级数据包，紧急指针字段有效。</li>
+<li>ACK—为1表示确认号字段有效</li>
+<li>PSH—为1表示是带有PUSH标志的数据，指示接收方应该尽快将这个报文段交给应用层而不用等待缓冲区装满。</li>
+<li>RST—为1表示出现严重差错。可能需要重新创建TCP连接。还可以用于拒绝非法的报文段和拒绝连接请求。</li>
+<li>SYN—为1表示这是连接请求或是连接接受请求，用于创建连接和使顺序号同步</li>
+<li>FIN—为1表示发送方没有数据要传输了，要求释放连接。</li>
+</ul>
+</li>
+<li>窗口（WIN，16位长）—表示从确认号开始，本报文的发送方可以接收的字节数，即接收窗口大小。用于流量控制。</li>
+<li>校验和（Checksum，16位长）—对整个的TCP报文段，包括TCP头部和TCP数据，以16位字进行计算所得。这是一个强制性的字段。</li>
+<li>紧急指针（16位长）—本报文段中的紧急数据的最后一个字节的序号。</li>
+<li>选项字段—最多40字节。每个选项的开始是1字节的kind字段，说明选项的类型。<ul>
+<li>0：选项表结束（1字节）</li>
+<li>1：无操作（1字节）用于选项字段之间的字边界对齐。</li>
+<li>2：最大报文段长度（4字节，Maximum Segment Size，MSS）通常在创建连接而设置SYN标志的数据包中指明这个选项，指明本端所能接收的最大长度的报文段。通常将MSS设置为（MTU-40）字节，携带TCP报文段的IP数据报的长度就不会超过MTU（MTU最大长度为1518字节，最短为64字节），从而避免本机发生IP分片。只能出现在同步报文段中，否则将被忽略。</li>
+<li>3：窗口扩大因子（3字节，wscale），取值0-14。用来把TCP的窗口的值左移的位数，使窗口值乘倍。只能出现在同步报文段中，否则将被忽略。这是因为现在的TCP接收数据缓冲区（接收窗口）的长度通常大于65535字节。</li>
+<li>4：sackOK—发送端支持并同意使用SACK选项。</li>
+<li>5：SACK实际工作的选项。</li>
+<li>8：时间戳（10字节，TCP Timestamps Option，TSopt）<ul>
+<li>发送端的时间戳（Timestamp Value field，TSval，4字节）</li>
+<li>时间戳回显应答（Timestamp Echo Reply field，TSecr，4字节）</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<p>从上面资料中可知ACK和SYN或者是 SYN-ACK包其实就是将来TCP请求头对于的位置1而已</p>
+<p>知道了标志位的信息我们还需要状态TCP的状态码，其实我们理解成HTTP的状态码就好了，每个状态码对应的TCP现在处于的不同状态</p>
+<hr>
+<p>下表为TCP状态码列表，以<strong>S</strong>指代服务器，<strong>C</strong>指代客户端，<strong>S&amp;C</strong>表示两者，<strong>S/C</strong>表示两者之一：<a href="https://zh.wikipedia.org/wiki/传输控制协议#cite_note-15" target="_blank" rel="noopener">[15]</a></p>
+<ul>
+<li><p>LISTEN S</p>
+<p>服务器等待从任意远程TCP端口的连接请求。侦听状态。</p>
+</li>
+<li><p>SYN-SENT C</p>
+<p>客户在发送连接请求后等待匹配的连接请求。通过connect()函数向服务器发出一个同步（SYNC）信号后进入此状态。</p>
+</li>
+<li><p>SYN-RECEIVED S</p>
+<p>服务器已经收到并发送同步（SYNC）信号之后等待确认（ACK）请求。</p>
+</li>
+<li><p>ESTABLISHED S&amp;C</p>
+<p>服务器与客户的连接已经打开，收到的数据可以发送给用户。数据传输步骤的正常情况。此时连接两端是平等的。这称作全连接。</p>
+</li>
+<li><p>FIN-WAIT-1 S&amp;C</p>
+<p>（服务器或客户）主动关闭端调用close（）函数发出FIN请求包，表示本方的数据发送全部结束，等待TCP连接另一端的ACK确认包或FIN&amp;ACK请求包。</p>
+</li>
+<li><p>FIN-WAIT-2 S&amp;C</p>
+<p>主动关闭端在FIN-WAIT-1状态下收到ACK确认包，进入等待远程TCP的连接终止请求的半关闭状态。这时可以接收数据，但不再发送数据。</p>
+</li>
+<li><p>CLOSE-WAIT S&amp;C</p>
+<p>被动关闭端接到FIN后，就发出ACK以回应FIN请求，并进入等待本地用户的连接终止请求的半关闭状态。这时可以发送数据，但不再接收数据。</p>
+</li>
+<li><p>CLOSING S&amp;C</p>
+<p>在发出FIN后，又收到对方发来的FIN后，进入等待对方对己方的连接终止（FIN）的确认（ACK）的状态。少见。</p>
+</li>
+<li><p>LAST-ACK S&amp;C</p>
+<p>被动关闭端全部数据发送完成之后，向主动关闭端发送FIN，进入等待确认包的状态。</p>
+</li>
+<li><p>TIME-WAIT S/C</p>
+<p>主动关闭端接收到FIN后，就发送ACK包，等待足够时间以确保被动关闭端收到了终止请求的确认包。（按照RFC 793，一个连接可以在TIME-WAIT保证最大四分钟，即<a href="https://zh.wikipedia.org/wiki/最大分段寿命" target="_blank" rel="noopener">最大分段寿命</a>（maximum segment lifetime）的2倍）</p>
+</li>
+<li><p>CLOSED S&amp;C</p>
+<p>完全没有连接。</p>
+</li>
+</ul>
+<hr>
+<p>在linux中我执行了 lsof -i pid 查看我的程序,我的主服务在等待客户端连接所以其状态为LISTEN，下面状态都为ESTABLISHED说明我目前有这么多的TCP连接在同时通讯</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">COMMAND    PID USER   FD   TYPE    DEVICE SIZE/OFF NODE NAME</span><br><span class="line">java    272641 root   41u  IPv6 288726424      0t0  TCP *:ospf-lite (LISTEN)</span><br><span class="line">java    272641 root   43u  IPv6 288846370      0t0  TCP cdh1:ospf-lite-&gt;192.168.7.116:62294 (ESTABLISHED)</span><br><span class="line">java    272641 root   46u  IPv6 288903360      0t0  TCP cdh1:ospf-lite-&gt;192.168.7.112:62309 (ESTABLISHED)</span><br><span class="line">java    272641 root   47u  IPv6 288883851      0t0  TCP cdh1:ospf-lite-&gt;192.168.7.109:56469 (ESTABLISHED)</span><br><span class="line">java    272641 root   48u  IPv6 288846374      0t0  TCP cdh1:ospf-lite-&gt;192.168.7.105:49538 (ESTABLISHED)</span><br><span class="line">java    272641 root   49u  IPv6 288849436      0t0  TCP cdh1:ospf-lite-&gt;192.168.7.117:63780 (ESTABLISHED)</span><br><span class="line">java    272641 root   52u  IPv6 288846378      0t0  TCP cdh1:ospf-lite-&gt;192.168.7.104:62634 (ESTABLISHED)</span><br><span class="line">java    272641 root   56u  IPv6 289743582      0t0  TCP cdh1:ospf-lite-&gt;192.168.7.118:62854 (ESTABLISHED)</span><br><span class="line">java    272641 root   62u  IPv6 289434904      0t0  TCP cdh1:ospf-lite-&gt;192.168.7.106:56702 (ESTABLISHED)</span><br><span class="line">java    272641 root   63u  IPv6 288846379      0t0  TCP cdh1:ospf-lite-&gt;192.168.7.103:53834 (ESTABLISHED)</span><br><span class="line">java    272641 root   71u  IPv6 288740012      0t0  TCP cdh1:ospf-lite-&gt;192.168.7.111:55792 (ESTABLISHED)</span><br><span class="line">java    272641 root   72u  IPv6 291875760      0t0  TCP cdh1:ospf-lite-&gt;192.168.7.114:59756 (ESTABLISHED)</span><br><span class="line">java    272641 root   76u  IPv6 292145489      0t0  TCP cdh1:ospf-lite-&gt;192.168.7.102:58032 (ESTABLISHED)</span><br><span class="line">java    272641 root   79u  IPv6 292105805      0t0  TCP cdh1:ospf-lite-&gt;192.168.7.101:51138 (ESTABLISHED)</span><br><span class="line">java    272641 root  211u  IPv6 288846384      0t0  TCP cdh1:ospf-lite-&gt;192.168.7.108:65527 (ESTABLISHED)</span><br><span class="line">java    272641 root  213u  IPv6 288846385      0t0  TCP cdh1:ospf-lite-&gt;192.168.7.110:53628 (ESTABLISHED)</span><br><span class="line">java    272641 root  216u  IPv6 288849433      0t0  TCP cdh1:ospf-lite-&gt;192.168.7.107:51733 (ESTABLISHED)</span><br><span class="line">java    272641 root  217u  IPv6 288818776      0t0  TCP cdh1:ospf-lite-&gt;192.168.7.113:54426 (ESTABLISHED)</span><br><span class="line">java    272641 root  218u  IPv6 288818777      0t0  TCP cdh1:ospf-lite-&gt;192.168.7.115:54173 (ESTABLISHED)</span><br><span class="line">java    272641 root  219u  IPv6 288818778      0t0  TCP cdh1:ospf-lite-&gt;192.168.7.119:53698 (ESTABLISHED)</span><br></pre></td></tr></table></figure>
+
+<hr>
+<p><strong>那么现在重点来了TCP如何结束通讯，且如何处理结束时当前还在缓冲区未发完的数据？如图，我们上文得知TCP发送FIN状态码代码代表结束通讯，因此我们知道当应用主动关闭连接时TCP并不会马上关闭连接，而是将缓冲区的数据发送完毕后再调用FIN标识码码去关闭连接，这样保证了主动关闭连接下数据的准确性，如果应用被强制杀掉，或者应用被关闭时没有调用close时，这时TCP通道并不会主动关闭，而是在一端调用write或者read时报Connection reset by peer错误，而这就解释了为啥会报第一个错误，时因为我在Netty中开了心跳坚持如果30秒没有从tcp通道中读取数据或者写数据的话那么就关闭这个通道，当客户端崩溃或者没有关闭通道退出时，Netty 去Write写入心跳数据时报出这个错误，因此得出此所以报错是由于客户端人员发送协议错误</strong></p>
+<p><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/TCP_CLOSE.svg/1280px-TCP_CLOSE.svg.png" alt="img"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">连接终止使用了四路握手过程（或称四次握手，four-way handshake），在这个过程中连接的每一侧都独立地被终止。当一个端点要停止它这一侧的连接，就向对侧发送FIN，对侧回复ACK表示确认。因此，拆掉一侧的连接过程需要一对FIN和ACK，分别由两侧端点发出。</span><br><span class="line"></span><br><span class="line">首先发出FIN的一侧，如果给对侧的FIN响应了ACK，那么就会超时等待2*MSL时间，然后关闭连接。在这段超时等待时间内，本地的端口不能被新连接使用；避免延时的包的到达与随后的新连接相混淆</span><br><span class="line">连接可以工作在TCP半开状态。即一侧关闭了连接，不再发送数据；但另一侧没有关闭连接，仍可以发送数据。已关闭的一侧仍然应接收数据，直至对侧也关闭了连接。</span><br><span class="line"></span><br><span class="line">也可以通过测三次握手关闭连接。主机A发出FIN，主机B回复FIN &amp; ACK，然后主机A回复ACK.[13]</span><br></pre></td></tr></table></figure>
+
+<h6 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h6><p><strong>在TCP由应用调用close方法去关闭TCP会主动将TCP缓冲池的数据发送完毕再发一个FIN标示位,因此主动关闭tcp并不会导致数据丢失。</strong></p>
+<p>*<em>如果应用被强制杀掉，或者应用被关闭时没有调用close时，这时TCP通道并不会主动关闭，而是在一端调用write或者read时报Connection reset by peer错误 *</em></p>
+
+    </div>
+
+    
+    
+    
+        
+      
+        <div id="reward-container">
+  <div></div>
+  <button id="reward-button" disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/赞赏码.png" alt="刘绍煌 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/netty/" rel="tag"># netty</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2021/07/12/动态规划和回溯算法/" rel="next" title="动态规划和回溯算法">
+                  <i class="fa fa-chevron-left"></i> 动态规划和回溯算法
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2021/09/21/七层和网络传输通讯的理解/" rel="prev" title="七层和网络传输通讯的理解">
+                  七层和网络传输通讯的理解 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#使用Netty构建TCP通讯中通讯错误问题的排查和详解"><span class="nav-number">1.</span> <span class="nav-text">使用Netty构建TCP通讯中通讯错误问题的排查和详解</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#简介"><span class="nav-number">1.1.</span> <span class="nav-text">简介</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#问题描述"><span class="nav-number">2.</span> <span class="nav-text">问题描述</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#问题分析"><span class="nav-number">2.1.</span> <span class="nav-text">问题分析</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#问题解决"><span class="nav-number">2.2.</span> <span class="nav-text">问题解决</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#问题1，数据域长度问题"><span class="nav-number">2.2.1.</span> <span class="nav-text">问题1，数据域长度问题</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#问题2，TCP协议"><span class="nav-number">2.2.2.</span> <span class="nav-text">问题2，TCP协议</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#总结"><span class="nav-number">2.2.3.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">刘绍煌</p>
+  <div class="site-description" itemprop="description">刘绍煌的个人博客</div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">68</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">66</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">刘绍煌</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.3.0</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.3.0"></script><script src="/js/motion.js?v=7.3.0"></script>
+<script src="/js/schemes/pisces.js?v=7.3.0"></script>
+<script src="/js/next-boot.js?v=7.3.0"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
