@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.3.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.3.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.3.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.3.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.3.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.3.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="简介在SpringBoot还没兴起时，写SpringMVC代码还是基于xml配置的形式来做，但是由于当时对Spring只停留在一知半解和抄袭别人代码阶段，导致xml复制错误，导致项目跑步起来，其中一个就是Spring的父子容器问题，最近结合源码来做了一次彻底的分析，这里记录了一下分析源码的思路和过程">
+<meta name="keywords" content="Spring">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SpringMVC的父子容器源码解析和源码解析经验">
+<meta property="og:url" content="http://www.liushaohuang.cn/2021/09/26/SpringMVC的父子容器源码解析和源码解析经验/index.html">
+<meta property="og:site_name" content="刘绍煌">
+<meta property="og:description" content="简介在SpringBoot还没兴起时，写SpringMVC代码还是基于xml配置的形式来做，但是由于当时对Spring只停留在一知半解和抄袭别人代码阶段，导致xml复制错误，导致项目跑步起来，其中一个就是Spring的父子容器问题，最近结合源码来做了一次彻底的分析，这里记录了一下分析源码的思路和过程">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="c:%5CUsers%5CNebula%5CDesktop%5Cmvc-context-hierarchy.png">
+<meta property="og:updated_time" content="2021-09-26T15:36:44.902Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="SpringMVC的父子容器源码解析和源码解析经验">
+<meta name="twitter:description" content="简介在SpringBoot还没兴起时，写SpringMVC代码还是基于xml配置的形式来做，但是由于当时对Spring只停留在一知半解和抄袭别人代码阶段，导致xml复制错误，导致项目跑步起来，其中一个就是Spring的父子容器问题，最近结合源码来做了一次彻底的分析，这里记录了一下分析源码的思路和过程">
+<meta name="twitter:image" content="c:%5CUsers%5CNebula%5CDesktop%5Cmvc-context-hierarchy.png">
+  <link rel="canonical" href="http://www.liushaohuang.cn/2021/09/26/SpringMVC的父子容器源码解析和源码解析经验/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>SpringMVC的父子容器源码解析和源码解析经验 | 刘绍煌</title>
+  <meta name="generator" content="Hexo 3.9.0">
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">刘绍煌</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2021/09/26/SpringMVC的父子容器源码解析和源码解析经验/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="刘绍煌">
+      <meta itemprop="description" content="刘绍煌的个人博客">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="刘绍煌">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">SpringMVC的父子容器源码解析和源码解析经验
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2021-09-26 23:28:38 / 修改时间：23:36:44" itemprop="dateCreated datePublished" datetime="2021-09-26T23:28:38+08:00">2021-09-26</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Spring/" itemprop="url" rel="index"><span itemprop="name">Spring</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span class="post-meta-item" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h5 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h5><p>在SpringBoot还没兴起时，写SpringMVC代码还是基于xml配置的形式来做，但是由于当时对Spring只停留在一知半解和抄袭别人代码阶段，导致xml复制错误，导致项目跑步起来，其中一个就是Spring的父子容器问题，最近结合源码来做了一次彻底的分析，这里记录了一下分析源码的思路和过程</p>
+<a id="more"></a>
+
+<h5 id="构建项目"><a href="#构建项目" class="headerlink" title="构建项目"></a>构建项目</h5><p>分析源码的前提是会使用，所以这里使用Maven去构建一个Spring项目</p>
+<p>首先先从配置文件看起</p>
+<ol>
+<li><p>项目是基于Maven去构建的，首先当然是引入Spring依赖</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span><br><span class="line">&lt;project xmlns=&quot;http://maven.apache.org/POM/4.0.0&quot;</span><br><span class="line">         xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span><br><span class="line">         xsi:schemaLocation=&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&quot;&gt;</span><br><span class="line">    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;</span><br><span class="line"></span><br><span class="line">    &lt;groupId&gt;org.example&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;SpringMVCDemo&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;</span><br><span class="line">    &lt;packaging&gt;war&lt;/packaging&gt;</span><br><span class="line"></span><br><span class="line">    &lt;dependencies&gt;</span><br><span class="line"></span><br><span class="line">            &lt;!-- 使用 Servlet 3.1 API --&gt;</span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;javax.servlet&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;javax.servlet-api&lt;/artifactId&gt;</span><br><span class="line">            &lt;version&gt;3.1.0&lt;/version&gt;</span><br><span class="line">            &lt;scope&gt;provided&lt;/scope&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        &lt;!-- https://mvnrepository.com/artifact/org.springframework/spring-context --&gt;</span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;org.springframework&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;spring-context&lt;/artifactId&gt;</span><br><span class="line">            &lt;version&gt;5.2.17.RELEASE&lt;/version&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line"></span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;org.springframework&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;spring-webmvc&lt;/artifactId&gt;</span><br><span class="line">            &lt;version&gt;5.2.17.RELEASE&lt;/version&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    &lt;/dependencies&gt;</span><br><span class="line"></span><br><span class="line">    &lt;properties&gt;</span><br><span class="line">        &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;</span><br><span class="line">        &lt;maven.compiler.encoding&gt;UTF-8&lt;/maven.compiler.encoding&gt;</span><br><span class="line">        &lt;java.version&gt;11&lt;/java.version&gt;</span><br><span class="line">        &lt;maven.compiler.source&gt;11&lt;/maven.compiler.source&gt;</span><br><span class="line">        &lt;maven.compiler.target&gt;11&lt;/maven.compiler.target&gt;</span><br><span class="line">    &lt;/properties&gt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    &lt;build&gt;</span><br><span class="line">        &lt;plugins&gt;</span><br><span class="line">            &lt;!-- Tomcat 8 Maven 插件用于构建可执行 war --&gt;</span><br><span class="line">            &lt;!-- https://mvnrepository.com/artifact/org.apache.tomcat.maven/tomcat8-maven-plugin --&gt;</span><br><span class="line">            &lt;plugin&gt;</span><br><span class="line">                &lt;groupId&gt;org.apache.tomcat.maven&lt;/groupId&gt;</span><br><span class="line">                &lt;artifactId&gt;tomcat8-maven-plugin&lt;/artifactId&gt;</span><br><span class="line">                &lt;version&gt;3.0-r1655215&lt;/version&gt;</span><br><span class="line">                &lt;executions&gt;</span><br><span class="line">                    &lt;execution&gt;</span><br><span class="line">                        &lt;id&gt;tomcat-run&lt;/id&gt;</span><br><span class="line">                        &lt;goals&gt;</span><br><span class="line">                            &lt;!-- 最终打包成可执行的jar包 --&gt;</span><br><span class="line">                            &lt;goal&gt;exec-war-only&lt;/goal&gt;</span><br><span class="line">                        &lt;/goals&gt;</span><br><span class="line">                        &lt;phase&gt;package&lt;/phase&gt;</span><br><span class="line">                        &lt;configuration&gt;</span><br><span class="line">                            &lt;!-- ServletContext 路径 --&gt;</span><br><span class="line">                            &lt;path&gt;/&lt;/path&gt;</span><br><span class="line">                        &lt;/configuration&gt;</span><br><span class="line">                    &lt;/execution&gt;</span><br><span class="line">                &lt;/executions&gt;</span><br><span class="line">            &lt;/plugin&gt;</span><br><span class="line">        &lt;/plugins&gt;</span><br><span class="line">    &lt;/build&gt;</span><br><span class="line"></span><br><span class="line">    &lt;pluginRepositories&gt;</span><br><span class="line">        &lt;pluginRepository&gt;</span><br><span class="line">            &lt;!-- tomcat8-maven-plugin 所在仓库 --&gt;</span><br><span class="line">            &lt;id&gt;Alfresco&lt;/id&gt;</span><br><span class="line">            &lt;name&gt;Alfresco Repository&lt;/name&gt;</span><br><span class="line">            &lt;url&gt;https://artifacts.alfresco.com/nexus/content/repositories/public/&lt;/url&gt;</span><br><span class="line">            &lt;snapshots&gt;</span><br><span class="line">                &lt;enabled&gt;false&lt;/enabled&gt;</span><br><span class="line">            &lt;/snapshots&gt;</span><br><span class="line">        &lt;/pluginRepository&gt;</span><br><span class="line">    &lt;/pluginRepositories&gt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&lt;/project&gt;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li><p>为了找到当时的痛点，采用web.xml去构建MVC项目</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span><br><span class="line">&lt;web-app xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns=&quot;http://java.sun.com/xml/ns/javaee&quot;</span><br><span class="line">         xsi:schemaLocation=&quot;http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd&quot;</span><br><span class="line">         version=&quot;3.0&quot;&gt;</span><br><span class="line"></span><br><span class="line">    &lt;context-param&gt;</span><br><span class="line">        &lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;</span><br><span class="line">        &lt;param-value&gt;/WEB-INF/root-context.xml&lt;/param-value&gt;</span><br><span class="line">    &lt;/context-param&gt;</span><br><span class="line"></span><br><span class="line">    &lt;listener&gt;</span><br><span class="line">        &lt;listener-class&gt;org.springframework.web.context.ContextLoaderListener&lt;/listener-class&gt;</span><br><span class="line">    &lt;/listener&gt;</span><br><span class="line"></span><br><span class="line">    &lt;servlet&gt;</span><br><span class="line">        &lt;servlet-name&gt;dispatcher&lt;/servlet-name&gt;</span><br><span class="line">        &lt;servlet-class&gt;org.springframework.web.servlet.DispatcherServlet&lt;/servlet-class&gt;</span><br><span class="line">        &lt;init-param&gt;</span><br><span class="line">            &lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;</span><br><span class="line">            &lt;param-value&gt;/WEB-INF/dispatcher.xml&lt;/param-value&gt;</span><br><span class="line">        &lt;/init-param&gt;</span><br><span class="line">    &lt;/servlet&gt;</span><br><span class="line"></span><br><span class="line">    &lt;servlet-mapping&gt;</span><br><span class="line">        &lt;servlet-name&gt;dispatcher&lt;/servlet-name&gt;</span><br><span class="line">        &lt;url-pattern&gt;/&lt;/url-pattern&gt;</span><br><span class="line">    &lt;/servlet-mapping&gt;</span><br><span class="line"></span><br><span class="line">&lt;/web-app&gt;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>接着就是Spring上下文的配置文件 /WEB-INF/root-context.xml</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span><br><span class="line">&lt;beans</span><br><span class="line">        xmlns=&quot;http://www.springframework.org/schema/beans&quot;</span><br><span class="line">        xmlns:context=&quot;http://www.springframework.org/schema/context&quot;</span><br><span class="line">        xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span><br><span class="line">        xsi:schemaLocation=&quot;http://www.springframework.org/schema/beans</span><br><span class="line">        https://www.springframework.org/schema/beans/spring-beans.xsd</span><br><span class="line">        http://www.springframework.org/schema/context</span><br><span class="line">        https://www.springframework.org/schema/context/spring-context.xsd&quot;&gt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    &lt;context:component-scan base-package=&quot;com.liu&quot;/&gt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&lt;/beans&gt;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>然后是SpringMVC上下文配置文件  /WEB-INF/dispatcher.xml</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span><br><span class="line">&lt;beans</span><br><span class="line">        xmlns=&quot;http://www.springframework.org/schema/beans&quot;</span><br><span class="line">        xmlns:context=&quot;http://www.springframework.org/schema/context&quot;</span><br><span class="line">        xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span><br><span class="line">        xsi:schemaLocation=&quot;http://www.springframework.org/schema/beans</span><br><span class="line">        https://www.springframework.org/schema/beans/spring-beans.xsd</span><br><span class="line">        http://www.springframework.org/schema/context</span><br><span class="line">        https://www.springframework.org/schema/context/spring-context.xsd&quot;&gt;</span><br><span class="line"></span><br><span class="line">    &lt;!-- 激活 Spring 注解驱动 --&gt;</span><br><span class="line">    &lt;context:component-scan base-package=&quot;com.liu&quot;/&gt;</span><br><span class="line"></span><br><span class="line">    &lt;bean class=&quot;org.springframework.web.servlet.view.InternalResourceViewResolver&quot;&gt;</span><br><span class="line">        &lt;property name=&quot;prefix&quot; value=&quot;/WEB-INF/&quot;/&gt;</span><br><span class="line">        &lt;property name=&quot;suffix&quot; value=&quot;.jsp&quot;/&gt;</span><br><span class="line">    &lt;/bean&gt;</span><br><span class="line"></span><br><span class="line">&lt;/beans&gt;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+</li>
+</ol>
+</li>
+</ol>
+<h5 id="核心概念"><a href="#核心概念" class="headerlink" title="核心概念"></a>核心概念</h5><p><strong>分析源码的另一个关键点是去官网查看其项目架构设计，这样能极大缩短我们上手的时间</strong></p>
+<p>Spring是个依赖注入和依赖查找的框架，其核心是依靠ApplicationContext和BeanFactory容器来管理Bean的生命周期，其中ApplicationContext是对BeanFactory的抽象和封装，并对其做了扩展，其底层仍然也是使用BeanFactory来管理bean对象。ApplicationContext也可以类比为Classloader,一个Bean对象在多个ApplicationContext容器中具有不同的生命周期，就好比java中类的比较只在同一个Classloader中才有意义，一个类经由多个Classloader进行加载，其实不同的类一样。而在很早以前刚刚接触Spring和Spring MVC时，当时还在使用xml文件对Bean对象进行注册时，就经常因为&lt;context:component-scan base-package=””/&gt;标签使用错误导致Bean对象无法注入，这是由于Spring 的ApplicationContext是存在父子关系的，但子ApplicationContext找不到时其就会去父ApplicationContext中去查找，而配置component-scan错误导致子父容器的上下文发生了错误，导致Bean对象无法注入，最近结合了源码来具体分析这部分内容。</p>
+<p><strong>SpringMVC核心</strong></p>
+<p><img src="C:%5CUsers%5CNebula%5CDesktop%5Cmvc-context-hierarchy.png" alt="mvc-context-hierarchy"></p>
+<p>这是官网的图片，SpringMVC 的核心就是DispatcherServlet,其就是一个Servlet的实现。如果之前有接触过Servlet就会知道在很早很早以前，我们写一个HTTP的接口，要去实现一个叫HttpServlet 的接口，并且重写doGet，doPost方法，来对应HTTP的get ，post的请求等等，写完的Servlet接口还必须要在web.xml中注册对应访问的URL对应处理逻辑的接口，如下所示</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&lt;servlet&gt;</span><br><span class="line">        &lt;servlet-name&gt;dispatcher&lt;/servlet-name&gt;</span><br><span class="line">        &lt;servlet-class&gt;org.springframework.web.servlet.DispatcherServlet&lt;/servlet-class&gt;</span><br><span class="line">        &lt;init-param&gt;</span><br><span class="line">            &lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;</span><br><span class="line">            &lt;param-value&gt;/WEB-INF/dispatcher.xml&lt;/param-value&gt;</span><br><span class="line">        &lt;/init-param&gt;</span><br><span class="line">    &lt;/servlet&gt;</span><br><span class="line"></span><br><span class="line">    &lt;servlet-mapping&gt;</span><br><span class="line">        &lt;servlet-name&gt;dispatcher&lt;/servlet-name&gt;</span><br><span class="line">        &lt;url-pattern&gt;/&lt;/url-pattern&gt;</span><br><span class="line">    &lt;/servlet-mapping&gt;</span><br></pre></td></tr></table></figure>
+
+<p>久而久处web.xml的配置就越来越浮肿，而SpringMVC 索性就利用Spring 依赖查找和依赖注入去管理我们实现的对象，然后统一定义一个Servlet，就是DispatcherServlet，然后我们写的http的只需要注入到Srping中，再由DispatcherServlet完成接口的分发，让其去决定调用哪个接口。</p>
+<h5 id="Spring容器的构建"><a href="#Spring容器的构建" class="headerlink" title="Spring容器的构建"></a>Spring容器的构建</h5><p><strong>ContextLoaderListener是Spring上下文容器创建的地方，该容器是SpringMVC容器的父容器</strong></p>
+<p>我们从项目入口web.xml开始分析，再servlet容器启动时最先调用的是<strong>ContextLoaderListener</strong>,并且其传入了contextConfigLocation参数，其值为我们Spring的上下文配置文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">public class ContextLoaderListener extends ContextLoader implements ServletContextListener &#123;</span><br><span class="line">    public ContextLoaderListener() &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public ContextLoaderListener(WebApplicationContext context) &#123;</span><br><span class="line">        super(context);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void contextInitialized(ServletContextEvent event) &#123;</span><br><span class="line">        this.initWebApplicationContext(event.getServletContext());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void contextDestroyed(ServletContextEvent event) &#123;</span><br><span class="line">        this.closeWebApplicationContext(event.getServletContext());</span><br><span class="line">        ContextCleanupListener.cleanupAttributes(event.getServletContext());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们看到这部分逻辑我们并看不懂，没关系我们可以从初始化的contextConfigLocation参数入手，我们在其父类ContextLoader中找到了这个参数，在web.xml中其注入的就是这个变量。接着我们在ContextLoader中查找contextConfigLocation在哪里被调用，根据这个参数我在代码中找打了initWebApplicationContext方法，而这个方法又在ContextLoaderListener类中调用，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line">public WebApplicationContext initWebApplicationContext(ServletContext servletContext) &#123;</span><br><span class="line">        if (servletContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE) != null) &#123;</span><br><span class="line">            throw new IllegalStateException(&quot;Cannot initialize context because there is already a root application context present - check whether you have multiple ContextLoader* definitions in your web.xml!&quot;);</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            servletContext.log(&quot;Initializing Spring root WebApplicationContext&quot;);</span><br><span class="line">            Log logger = LogFactory.getLog(ContextLoader.class);</span><br><span class="line">            if (logger.isInfoEnabled()) &#123;</span><br><span class="line">                logger.info(&quot;Root WebApplicationContext: initialization started&quot;);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            long startTime = System.currentTimeMillis();</span><br><span class="line"></span><br><span class="line">            try &#123;</span><br><span class="line">                if (this.context == null) &#123;</span><br><span class="line">                    this.context = this.createWebApplicationContext(servletContext);</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                if (this.context instanceof ConfigurableWebApplicationContext) &#123;</span><br><span class="line">                    ConfigurableWebApplicationContext cwac = (ConfigurableWebApplicationContext)this.context;</span><br><span class="line">                    if (!cwac.isActive()) &#123;</span><br><span class="line">                        if (cwac.getParent() == null) &#123;</span><br><span class="line">                            ApplicationContext parent = this.loadParentContext(servletContext);</span><br><span class="line">                            cwac.setParent(parent);</span><br><span class="line">                        &#125;</span><br><span class="line"></span><br><span class="line">                        this.configureAndRefreshWebApplicationContext(cwac, servletContext);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, this.context);</span><br><span class="line">                ClassLoader ccl = Thread.currentThread().getContextClassLoader();</span><br><span class="line">                if (ccl == ContextLoader.class.getClassLoader()) &#123;</span><br><span class="line">                    currentContext = this.context;</span><br><span class="line">                &#125; else if (ccl != null) &#123;</span><br><span class="line">                    currentContextPerThread.put(ccl, this.context);</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                if (logger.isInfoEnabled()) &#123;</span><br><span class="line">                    long elapsedTime = System.currentTimeMillis() - startTime;</span><br><span class="line">                    logger.info(&quot;Root WebApplicationContext initialized in &quot; + elapsedTime + &quot; ms&quot;);</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                return this.context;</span><br><span class="line">            &#125; catch (Error | RuntimeException var8) &#123;</span><br><span class="line">                logger.error(&quot;Context initialization failed&quot;, var8);</span><br><span class="line">                servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, var8);</span><br><span class="line">                throw var8;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>由于我们知道Spring核心其实就是ApplicationContext构建的问题，我们看到代码里有一行</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">this.context = this.createWebApplicationContext(servletContext);</span><br></pre></td></tr></table></figure>
+
+<p>看上去是像构建ApplicationContext的方法，我们再进去</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">protected WebApplicationContext createWebApplicationContext(ServletContext sc) &#123;</span><br><span class="line">        Class&lt;?&gt; contextClass = this.determineContextClass(sc);</span><br><span class="line">        if (!ConfigurableWebApplicationContext.class.isAssignableFrom(contextClass)) &#123;</span><br><span class="line">            throw new ApplicationContextException(&quot;Custom context class [&quot; + contextClass.getName() + &quot;] is not of type [&quot; + ConfigurableWebApplicationContext.class.getName() + &quot;]&quot;);</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            return (ConfigurableWebApplicationContext)BeanUtils.instantiateClass(contextClass);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>再进入determineContextClass方法看下是如何获取容器喝获取的容器是具体的哪个类</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">protected Class&lt;?&gt; determineContextClass(ServletContext servletContext) &#123;</span><br><span class="line">        String contextClassName = servletContext.getInitParameter(&quot;contextClass&quot;);</span><br><span class="line">        if (contextClassName != null) &#123;</span><br><span class="line">            try &#123;</span><br><span class="line">                return ClassUtils.forName(contextClassName, ClassUtils.getDefaultClassLoader());</span><br><span class="line">            &#125; catch (ClassNotFoundException var4) &#123;</span><br><span class="line">                throw new ApplicationContextException(&quot;Failed to load custom context class [&quot; + contextClassName + &quot;]&quot;, var4);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            contextClassName = defaultStrategies.getProperty(WebApplicationContext.class.getName());</span><br><span class="line"></span><br><span class="line">            try &#123;</span><br><span class="line">                return ClassUtils.forName(contextClassName, ContextLoader.class.getClassLoader());</span><br><span class="line">            &#125; catch (ClassNotFoundException var5) &#123;</span><br><span class="line">                throw new ApplicationContextException(&quot;Failed to load default context class [&quot; + contextClassName + &quot;]&quot;, var5);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>由于我们并没哟传入contextClass这个参数，所以我们直接看以下代码，我们知道这个类似由defaultStrategies从查找出来的其是一个配置类</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">contextClassName = defaultStrategies.getProperty(WebApplicationContext.class.getName());</span><br></pre></td></tr></table></figure>
+
+<p>那么我们只要查到defaultStrategies是在哪里被初始化的我们就知道我们初始化的是哪个ApplicationContext</p>
+<p>我们在ContextLoader类中找到静态初始化方法，我们找到了实在DEFAULT_STRATEGIES_PATH这个属性中的值为ContextLoader.properties</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">static &#123;</span><br><span class="line">		// Load default strategy implementations from properties file.</span><br><span class="line">		// This is currently strictly internal and not meant to be customized</span><br><span class="line">		// by application developers.</span><br><span class="line">		try &#123;</span><br><span class="line">			ClassPathResource resource = new ClassPathResource(DEFAULT_STRATEGIES_PATH, ContextLoader.class);</span><br><span class="line">			defaultStrategies = PropertiesLoaderUtils.loadProperties(resource);</span><br><span class="line">		&#125;</span><br><span class="line">		catch (IOException ex) &#123;</span><br><span class="line">			throw new IllegalStateException(&quot;Could not load &apos;ContextLoader.properties&apos;: &quot; + ex.getMessage());</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们我们只要全局搜索这个文件就知道我们注入的具体ApplicationContex了,搜索到的ContextLoader.properties文件如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rg.springframework.web.context.WebApplicationContext=org.springframework.web.context.support.XmlWebApplicationContext</span><br></pre></td></tr></table></figure>
+
+<p>所以到这里我们就知道我们注入的是<strong>XmlWebApplicationContext</strong></p>
+<p>接着我们再回到ContextLoader 中的 initWebApplicationContext方法接着往下看，看到以下一行</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, this.context);</span><br></pre></td></tr></table></figure>
+
+<p>我们知道了在初始化XmlWebApplicationContext后将其放在了servletContext中供后面调用。</p>
+<h5 id="MVC容器的构建"><a href="#MVC容器的构建" class="headerlink" title="MVC容器的构建"></a>MVC容器的构建</h5><p>DispatcherServlet</p>
+<p>上面我们看到了Spring 上下文容器是如何创建的,现在我们看下MVC容器DispatcherServlet是如何创建的,进入DispatcherServlet，里面代码非常多，很多东西短时间内无从入手，由于我们想要查看的是Spring容器和SpringMVC容器的关系，那我们就猜测这部分应该是在初始化中就初始化了两个容器的关系，而DispatcherServlet又是继承与Servlet，而Servlet初始化方法又在init（）方法中，于是我们改变思路从init方法上往下找，看下具体初始化 的过程。最后我们在DispatcherServlet 的父类FrameworkServlet的initWebApplicationContext方法中找到了初始化的方法，该方法经过漫长的继承链后最终被Servliet的init方法调用从而完成初始化,其获从ServletContext中获取了Spring的上下文容器</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">protected WebApplicationContext initWebApplicationContext() &#123;</span><br><span class="line">//获取Spring上下文容易</span><br><span class="line">        WebApplicationContext rootContext = WebApplicationContextUtils.getWebApplicationContext(this.getServletContext());</span><br><span class="line">        WebApplicationContext wac = null;</span><br><span class="line">        if (this.webApplicationContext != null) &#123;</span><br><span class="line">            wac = this.webApplicationContext;</span><br><span class="line">            if (wac instanceof ConfigurableWebApplicationContext) &#123;</span><br><span class="line">                ConfigurableWebApplicationContext cwac = (ConfigurableWebApplicationContext)wac;</span><br><span class="line">                if (!cwac.isActive()) &#123;</span><br><span class="line">                    if (cwac.getParent() == null) &#123;</span><br><span class="line">                        cwac.setParent(rootContext);</span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                    this.configureAndRefreshWebApplicationContext(cwac);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        if (wac == null) &#123;</span><br><span class="line">            wac = this.findWebApplicationContext();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        if (wac == null) &#123;</span><br><span class="line">        	//将Spring上下文容器作为MVC的父容器</span><br><span class="line">            wac = this.createWebApplicationContext(rootContext);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        if (!this.refreshEventReceived) &#123;</span><br><span class="line">            synchronized(this.onRefreshMonitor) &#123;</span><br><span class="line">                this.onRefresh(wac);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        if (this.publishContext) &#123;</span><br><span class="line">            String attrName = this.getServletContextAttributeName();</span><br><span class="line">            this.getServletContext().setAttribute(attrName, wac);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        return wac;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p> 接着 我们再进入createWebApplicationContext这个方法,我们看到其将Spring的容器作为MVC的父容器set进去了</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">protected WebApplicationContext createWebApplicationContext(@Nullable ApplicationContext parent) &#123;</span><br><span class="line">        Class&lt;?&gt; contextClass = this.getContextClass();</span><br><span class="line">        if (!ConfigurableWebApplicationContext.class.isAssignableFrom(contextClass)) &#123;</span><br><span class="line">            throw new ApplicationContextException(&quot;Fatal initialization error in servlet with name &apos;&quot; + this.getServletName() + &quot;&apos;: custom WebApplicationContext class [&quot; + contextClass.getName() + &quot;] is not of type ConfigurableWebApplicationContext&quot;);</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            ConfigurableWebApplicationContext wac = (ConfigurableWebApplicationContext)BeanUtils.instantiateClass(contextClass);</span><br><span class="line">            wac.setEnvironment(this.getEnvironment());</span><br><span class="line">            wac.setParent(parent);</span><br><span class="line">            String configLocation = this.getContextConfigLocation();</span><br><span class="line">            if (configLocation != null) &#123;</span><br><span class="line">                wac.setConfigLocation(configLocation);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            this.configureAndRefreshWebApplicationContext(wac);</span><br><span class="line">            return wac;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="关于依赖查找"><a href="#关于依赖查找" class="headerlink" title="关于依赖查找"></a>关于依赖查找</h5><p>Spring的依赖查找的具体逻辑是先在子容器中查找，如果子容器中没有bean对象则到父容器中查找，如果父容器中也没有则抛出异常,</p>
+<p>具体代码逻辑在AbstractBeanFactory下的doGetBean方法中</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">if (parentBeanFactory != null &amp;&amp; !containsBeanDefinition(beanName)) &#123;</span><br><span class="line">				// Not found -&gt; check parent.</span><br><span class="line">				String nameToLookup = originalBeanName(name);</span><br><span class="line">				if (parentBeanFactory instanceof AbstractBeanFactory) &#123;</span><br><span class="line">					return ((AbstractBeanFactory) parentBeanFactory).doGetBean(</span><br><span class="line">							nameToLookup, requiredType, args, typeCheckOnly);</span><br><span class="line">				&#125;</span><br><span class="line">				else if (args != null) &#123;</span><br><span class="line">					// Delegation to parent with explicit args.</span><br><span class="line">					return (T) parentBeanFactory.getBean(nameToLookup, args);</span><br><span class="line">				&#125;</span><br><span class="line">				else if (requiredType != null) &#123;</span><br><span class="line">					// No args -&gt; delegate to standard getBean method.</span><br><span class="line">					return parentBeanFactory.getBean(nameToLookup, requiredType);</span><br><span class="line">				&#125;</span><br><span class="line">				else &#123;</span><br><span class="line">					return (T) parentBeanFactory.getBean(nameToLookup);</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="想当然的猜想"><a href="#想当然的猜想" class="headerlink" title="想当然的猜想"></a>想当然的猜想</h5><p>让我们回到开头容器配置的地方,在我的配置Spring容器和MVC容器的地方我都配置了一个扫描，这两容器都会扫描同一个包及子包的注解来注入Bean</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;context:component-scan base-package=&quot;com.liu&quot;/&gt;</span><br></pre></td></tr></table></figure>
+
+<p><strong>那么我这里猜想既然MVC的父容器是Spring容器，而Spring容器的查找策略是子容器查找不到依赖则去父容器查找那么我可以把MVC配置文件中的扫描给去掉，让项目依赖注入和查找时去父容器(Spring)中去查找依赖？</strong></p>
+<p>经过本人实践，答案是否定的，再我去掉MVC容器的扫描代码后访问http接口直接404,所以接下来我又继续去查找这部分的原因。</p>
+<h5 id="Controller和RestController-的处理"><a href="#Controller和RestController-的处理" class="headerlink" title="Controller和RestController 的处理"></a>Controller和RestController 的处理</h5><p>我第一点想到的就是从这两个注解入手，因为我是基于注解扫描的方式去注册Bean那么SpringMVC肯定要去扫描Controller,RestController,所以通过IDEA去全局去找这两个注解的引用，发现只在RequestMappingHandlerMapping中有存在以下代码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">	protected boolean isHandler(Class&lt;?&gt; beanType) &#123;</span><br><span class="line">		return (AnnotatedElementUtils.hasAnnotation(beanType, Controller.class) ||</span><br><span class="line">				AnnotatedElementUtils.hasAnnotation(beanType, RequestMapping.class));</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+<p>根据我们写代码和类命名的套路，这里应该就是扫描MVC注解和处理逻辑的地方，虽然我们找到了处理扫码MVC注解逻辑的代码当时我们大致扫了一眼里面的代码基本上是一头雾水，而且我对其继承体系和使用根本不了解，也不知道他是如何被Spring去调用的，于是我这里又想到DispatcherServlet，根据网上大量资料显示其是处理SpringMVC核心分发业务的地方，且其又实现了Servlet，Servlet的生命周期我们就熟悉了，所以我又从这边入手。</p>
+<h5 id="DispatcherServlet"><a href="#DispatcherServlet" class="headerlink" title="DispatcherServlet"></a>DispatcherServlet</h5><p>通过源码查找在Servlet在调用doGet ,doPost类是会调用 DispatcherServlet#doDispatch方法，于是我们发现了新大陆，继续从这个类进行分析。我们找到了顺着代码往下找，找到getHandler方法，这是我们发现了我们之前的RequestMappingHandlerMapping，其去处理了我们注入的Controller和RestController对象，那么这里一定就是我们重点关注的地方</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">protected HandlerExecutionChain getHandler(HttpServletRequest request) throws Exception &#123;</span><br><span class="line">	if (this.handlerMappings != null) &#123;</span><br><span class="line">		for (HandlerMapping mapping : this.handlerMappings) &#123;</span><br><span class="line">			HandlerExecutionChain handler = mapping.getHandler(request);</span><br><span class="line">			if (handler != null) &#123;</span><br><span class="line">				return handler;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	return null;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当时RequestMappingHandlerMapping又是如何赋值给DispatcherServlet的呢，我们在DispatcherServlet中去搜索handlerMappings变量，找到了initHandlerMappings方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">private void initHandlerMappings(ApplicationContext context) &#123;</span><br><span class="line">		this.handlerMappings = null;</span><br><span class="line"></span><br><span class="line">		if (this.detectAllHandlerMappings) &#123;</span><br><span class="line">			// Find all HandlerMappings in the ApplicationContext, including ancestor contexts.</span><br><span class="line">			Map&lt;String, HandlerMapping&gt; matchingBeans =</span><br><span class="line">					BeanFactoryUtils.beansOfTypeIncludingAncestors(context, HandlerMapping.class, true, false);</span><br><span class="line">			if (!matchingBeans.isEmpty()) &#123;</span><br><span class="line">				this.handlerMappings = new ArrayList&lt;&gt;(matchingBeans.values());</span><br><span class="line">				// We keep HandlerMappings in sorted order.</span><br><span class="line">				AnnotationAwareOrderComparator.sort(this.handlerMappings);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		else &#123;</span><br><span class="line">			try &#123;</span><br><span class="line">				HandlerMapping hm = context.getBean(HANDLER_MAPPING_BEAN_NAME, HandlerMapping.class);</span><br><span class="line">				this.handlerMappings = Collections.singletonList(hm);</span><br><span class="line">			&#125;</span><br><span class="line">			catch (NoSuchBeanDefinitionException ex) &#123;</span><br><span class="line">				// Ignore, we&apos;ll add a default HandlerMapping later.</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		// Ensure we have at least one HandlerMapping, by registering</span><br><span class="line">		// a default HandlerMapping if no other mappings are found.</span><br><span class="line">		if (this.handlerMappings == null) &#123;</span><br><span class="line">			this.handlerMappings = getDefaultStrategies(context, HandlerMapping.class);</span><br><span class="line">			if (logger.isTraceEnabled()) &#123;</span><br><span class="line">				logger.trace(&quot;No HandlerMappings declared for servlet &apos;&quot; + getServletName() +</span><br><span class="line">						&quot;&apos;: using default strategies from DispatcherServlet.properties&quot;);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+<p>找到其中的,我们看源码注释，这里写着保证最少要有一个HandlerMapping，如果没有的话就使用默认HandlerMapping，但是代码里有很多if逻辑，我们不知道是不是会进入到这个分支，在我们debug后发现确实会进入这个分支</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">// Ensure we have at least one HandlerMapping, by registering</span><br><span class="line">		// a default HandlerMapping if no other mappings are found.</span><br><span class="line">		if (this.handlerMappings == null) &#123;</span><br><span class="line">			this.handlerMappings = getDefaultStrategies(context, HandlerMapping.class);</span><br><span class="line">			if (logger.isTraceEnabled()) &#123;</span><br><span class="line">				logger.trace(&quot;No HandlerMappings declared for servlet &apos;&quot; + getServletName() +</span><br><span class="line">						&quot;&apos;: using default strategies from DispatcherServlet.properties&quot;);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接着再进入 getDefaultStrategies方法查看具体是怎么初始化HandlerMapping的，我看到貌似是从defaultStrategies读出来的</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">protected &lt;T&gt; List&lt;T&gt; getDefaultStrategies(ApplicationContext context, Class&lt;T&gt; strategyInterface) &#123;</span><br><span class="line">		String key = strategyInterface.getName();</span><br><span class="line">		String value = defaultStrategies.getProperty(key);</span><br><span class="line">		if (value != null) &#123;</span><br><span class="line">			String[] classNames = StringUtils.commaDelimitedListToStringArray(value);</span><br><span class="line">			List&lt;T&gt; strategies = new ArrayList&lt;&gt;(classNames.length);</span><br><span class="line">			for (String className : classNames) &#123;</span><br><span class="line">				try &#123;</span><br><span class="line">					Class&lt;?&gt; clazz = ClassUtils.forName(className, DispatcherServlet.class.getClassLoader());</span><br><span class="line">					Object strategy = createDefaultStrategy(context, clazz);</span><br><span class="line">					strategies.add((T) strategy);</span><br><span class="line">				&#125;</span><br><span class="line">				catch (ClassNotFoundException ex) &#123;</span><br><span class="line">					throw new BeanInitializationException(</span><br><span class="line">							&quot;Could not find DispatcherServlet&apos;s default strategy class [&quot; + className +</span><br><span class="line">							&quot;] for interface [&quot; + key + &quot;]&quot;, ex);</span><br><span class="line">				&#125;</span><br><span class="line">				catch (LinkageError err) &#123;</span><br><span class="line">					throw new BeanInitializationException(</span><br><span class="line">							&quot;Unresolvable class definition for DispatcherServlet&apos;s default strategy class [&quot; +</span><br><span class="line">							className + &quot;] for interface [&quot; + key + &quot;]&quot;, err);</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">			return strategies;</span><br><span class="line">		&#125;</span><br><span class="line">		else &#123;</span><br><span class="line">			return new LinkedList&lt;&gt;();</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+<p>于是继续查找，找到其配置文件DEFAULT_STRATEGIES_PATH  （DispatcherServlet.properties）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">static &#123;</span><br><span class="line">   // Load default strategy implementations from properties file.</span><br><span class="line">   // This is currently strictly internal and not meant to be customized</span><br><span class="line">   // by application developers.</span><br><span class="line">   try &#123;</span><br><span class="line">      ClassPathResource resource = new ClassPathResource(DEFAULT_STRATEGIES_PATH, DispatcherServlet.class);</span><br><span class="line">      defaultStrategies = PropertiesLoaderUtils.loadProperties(resource);</span><br><span class="line">   &#125;</span><br><span class="line">   catch (IOException ex) &#123;</span><br><span class="line">      throw new IllegalStateException(&quot;Could not load &apos;&quot; + DEFAULT_STRATEGIES_PATH + &quot;&apos;: &quot; + ex.getMessage());</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>找到如下配置,到此我们就已经了解到RequestMappingHandlerMapping是如何注入到DispatcherServlet的了</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">org.springframework.web.servlet.HandlerMapping=org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping,\</span><br><span class="line">	org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping,\</span><br><span class="line">	org.springframework.web.servlet.function.support.RouterFunctionMapping</span><br></pre></td></tr></table></figure>
+
+<p>至此我们已经成功了一大半，在知道RequestMappingHandlerMapping的初始化逻辑后我们回到getHandler其调用了mapping.getHandler,目测HandlerExecutionChain就是处理核心代码的地方</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">@Nullable</span><br><span class="line">	protected HandlerExecutionChain getHandler(HttpServletRequest request) throws Exception &#123;</span><br><span class="line">		if (this.handlerMappings != null) &#123;</span><br><span class="line">			for (HandlerMapping mapping : this.handlerMappings) &#123;</span><br><span class="line">				HandlerExecutionChain handler = mapping.getHandler(request);</span><br><span class="line">				if (handler != null) &#123;</span><br><span class="line">					return handler;</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		return null;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="RequestMappingHandlerMapping"><a href="#RequestMappingHandlerMapping" class="headerlink" title="RequestMappingHandlerMapping"></a>RequestMappingHandlerMapping</h5><p>接着上面我们查看getHandler代码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">	@Nullable</span><br><span class="line">	public final HandlerExecutionChain getHandler(HttpServletRequest request) throws Exception &#123;</span><br><span class="line">		Object handler = getHandlerInternal(request);</span><br><span class="line">		if (handler == null) &#123;</span><br><span class="line">			handler = getDefaultHandler();</span><br><span class="line">		&#125;</span><br><span class="line">		if (handler == null) &#123;</span><br><span class="line">			return null;</span><br><span class="line">		&#125;</span><br><span class="line">		// Bean name or resolved handler?</span><br><span class="line">		if (handler instanceof String) &#123;</span><br><span class="line">			String handlerName = (String) handler;</span><br><span class="line">			handler = obtainApplicationContext().getBean(handlerName);</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		HandlerExecutionChain executionChain = getHandlerExecutionChain(handler, request);</span><br><span class="line"></span><br><span class="line">		if (logger.isTraceEnabled()) &#123;</span><br><span class="line">			logger.trace(&quot;Mapped to &quot; + handler);</span><br><span class="line">		&#125;</span><br><span class="line">		else if (logger.isDebugEnabled() &amp;&amp; !request.getDispatcherType().equals(DispatcherType.ASYNC)) &#123;</span><br><span class="line">			logger.debug(&quot;Mapped to &quot; + executionChain.getHandler());</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		if (hasCorsConfigurationSource(handler)) &#123;</span><br><span class="line">			CorsConfiguration config = (this.corsConfigurationSource != null ? this.corsConfigurationSource.getCorsConfiguration(request) : null);</span><br><span class="line">			CorsConfiguration handlerConfig = getCorsConfiguration(handler, request);</span><br><span class="line">			config = (config != null ? config.combine(handlerConfig) : handlerConfig);</span><br><span class="line">			executionChain = getCorsHandlerExecutionChain(request, executionChain, config);</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		return executionChain;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接着进入getHandlerInternal其调用了lookupHandlerMethod</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">@Nullable</span><br><span class="line">	protected HandlerMethod lookupHandlerMethod(String lookupPath, HttpServletRequest request) throws Exception &#123;</span><br><span class="line">		List&lt;Match&gt; matches = new ArrayList&lt;&gt;();</span><br><span class="line">		List&lt;T&gt; directPathMatches = this.mappingRegistry.getMappingsByUrl(lookupPath);</span><br><span class="line">		if (directPathMatches != null) &#123;</span><br><span class="line">			addMatchingMappings(directPathMatches, matches, request);</span><br><span class="line">			.</span><br><span class="line">			.</span><br><span class="line">			.</span><br></pre></td></tr></table></figure>
+
+<p>从代码中我们又可以看到this.mappingRegistry.getMappingsByUrl(lookupPath);方法，从方法名上看这里就是处理注册Controllerd 地方，于是我们继续寻找其是如何初始化的我们发现RequestMappingHandlerMapping实现了Spring的InitializingBean 接口，其是在Spring初始化后自动回执行的地方 其回调方法afterPropertiesSet -又调用了initHandlerMethods </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">protected void initHandlerMethods() &#123;</span><br><span class="line">		for (String beanName : getCandidateBeanNames()) &#123;</span><br><span class="line">			if (!beanName.startsWith(SCOPED_TARGET_NAME_PREFIX)) &#123;</span><br><span class="line">				processCandidateBean(beanName);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		handlerMethodsInitialized(getHandlerMethods());</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+<p>继续进入getCandidateBeanNames()，我们看到代码里面找出了所以Spring中Object的之类，由于所有JAVA类都继承了Object，所以这里找出了所有注入到Spring的Bean对象</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">protected String[] getCandidateBeanNames() &#123;</span><br><span class="line">		return (this.detectHandlerMethodsInAncestorContexts ?</span><br><span class="line">				BeanFactoryUtils.beanNamesForTypeIncludingAncestors(obtainApplicationContext(), Object.class) :</span><br><span class="line">				obtainApplicationContext().getBeanNamesForType(Object.class));</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接着找到继续进入handlerMethodsInitialized方法找到processCandidateBean方法，<strong>注意到isHandler方法，这里就是我们最早之前看到的如果类是带有Controller或者RestController的注解的话将会交由DispatcherServlet去做分发处理</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">protected void processCandidateBean(String beanName) &#123;</span><br><span class="line">		Class&lt;?&gt; beanType = null;</span><br><span class="line">		try &#123;</span><br><span class="line">			beanType = obtainApplicationContext().getType(beanName);</span><br><span class="line">		&#125;</span><br><span class="line">		catch (Throwable ex) &#123;</span><br><span class="line">			// An unresolvable bean type, probably from a lazy bean - let&apos;s ignore it.</span><br><span class="line">			if (logger.isTraceEnabled()) &#123;</span><br><span class="line">				logger.trace(&quot;Could not resolve type for bean &apos;&quot; + beanName + &quot;&apos;&quot;, ex);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		if (beanType != null &amp;&amp; isHandler(beanType)) &#123;</span><br><span class="line">			detectHandlerMethods(beanName);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接着再顺藤摸瓜找到detectHandlerMethods,这里的所及就是找到Spring中所有的类，将其方法和和url地址封装起来供后面DispatcherServlet去分发时查找路由路径</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">protected void detectHandlerMethods(Object handler) &#123;</span><br><span class="line">		Class&lt;?&gt; handlerType = (handler instanceof String ?</span><br><span class="line">				obtainApplicationContext().getType((String) handler) : handler.getClass());</span><br><span class="line"></span><br><span class="line">		if (handlerType != null) &#123;</span><br><span class="line">			Class&lt;?&gt; userType = ClassUtils.getUserClass(handlerType);</span><br><span class="line">			Map&lt;Method, T&gt; methods = MethodIntrospector.selectMethods(userType,</span><br><span class="line">					(MethodIntrospector.MetadataLookup&lt;T&gt;) method -&gt; &#123;</span><br><span class="line">						try &#123;</span><br><span class="line">							return getMappingForMethod(method, userType);</span><br><span class="line">						&#125;</span><br><span class="line">						catch (Throwable ex) &#123;</span><br><span class="line">							throw new IllegalStateException(&quot;Invalid mapping on handler class [&quot; +</span><br><span class="line">									userType.getName() + &quot;]: &quot; + method, ex);</span><br><span class="line">						&#125;</span><br><span class="line">					&#125;);</span><br><span class="line">			if (logger.isTraceEnabled()) &#123;</span><br><span class="line">				logger.trace(formatMappings(userType, methods));</span><br><span class="line">			&#125;</span><br><span class="line">			methods.forEach((method, mapping) -&gt; &#123;</span><br><span class="line">				Method invocableMethod = AopUtils.selectInvocableMethod(method, userType);</span><br><span class="line">				registerHandlerMethod(handler, invocableMethod, mapping);</span><br><span class="line">			&#125;);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h5><p>那么这里总结一下，之所以我们SpringMVC中配置错component-scan扫描的包后扫描不到Bean对象是因为我们配置了2个容器，一个是Spring容器，一个是MVC容器，那么有以下几种情况</p>
+<p>1.Spring容器是MVC的父容器如果MVC扫描的包配置错误，那么扫描不到Controller注解和RestController注解，那么DispatcherServlet无法分发，直接就404</p>
+<p>2.不配置Spring容器的扫描路径，在MVC中配置根包，扫描所有Spring的注解，那么项目正常工作，因为所有的Bean对象都注入到MVC容器（子容器中），后续所有查找都在子容器中能找到，自然就不会去父容器查找，那么这时父容器就没有用了</p>
+<p>3.同理如果MVC上下文的扫描路径和Spring的相同，那么只会在子容器中MVC中进行依赖查找，父容器同样没用</p>
+<p>4.如果将MVC容器中的所有注解都配置在MVC上下文扫描路径中，其余的注解都配置在Spring容器可扫描的路径中，那么在读取MVC注解时访问子容器，访问其他注解Bean对象时访问父容器（Spring的容器)</p>
+<p>5.不用配置父容器，直接使用MVC的容器，这样做也很简单我们直接将web.xml中,ContextLoaderListener监听器删除即可，这样我们就没有父容器了</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;listener&gt;</span><br><span class="line">        &lt;listener-class&gt;org.springframework.web.context.ContextLoaderListener&lt;/listener-class&gt;</span><br><span class="line">    &lt;/listener&gt;</span><br></pre></td></tr></table></figure>
+
+<h5 id="解析源码经验"><a href="#解析源码经验" class="headerlink" title="解析源码经验"></a>解析源码经验</h5><ul>
+<li>第一要素就是会使用，至少能跑的起来，用起来后才知道如何去查找项目的入口，才有切入点</li>
+<li>第二要素是了解项目的架构和设计，大型的框架项目源码庞杂难懂，读取官网的架构设计能大大加快我们阅读的进度</li>
+<li>第三要素是刚开始读源码时没必要看懂所有细节，刚刚接触时太注重时我们根本就没有头绪，因为要记住的东西太多，所以我们看懂主要逻辑即可</li>
+<li>第四要素是DEBUG，在不清楚细节的时候DEBUG一下，看清楚流程走向</li>
+<li>第五要素是善用编译工具，IDEA等工具大大方便了源码阅读，使用idea download source和 find usage能非常方便的找到源码应用和入口。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+      
+        <div id="reward-container">
+  <div></div>
+  <button id="reward-button" disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/赞赏码.png" alt="刘绍煌 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/Spring/" rel="tag"># Spring</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2021/09/21/七层和网络传输通讯的理解/" rel="next" title="七层和网络传输通讯的理解">
+                  <i class="fa fa-chevron-left"></i> 七层和网络传输通讯的理解
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#构建项目"><span class="nav-number">2.</span> <span class="nav-text">构建项目</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#核心概念"><span class="nav-number">3.</span> <span class="nav-text">核心概念</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Spring容器的构建"><span class="nav-number">4.</span> <span class="nav-text">Spring容器的构建</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#MVC容器的构建"><span class="nav-number">5.</span> <span class="nav-text">MVC容器的构建</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#关于依赖查找"><span class="nav-number">6.</span> <span class="nav-text">关于依赖查找</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#想当然的猜想"><span class="nav-number">7.</span> <span class="nav-text">想当然的猜想</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Controller和RestController-的处理"><span class="nav-number">8.</span> <span class="nav-text">Controller和RestController 的处理</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#DispatcherServlet"><span class="nav-number">9.</span> <span class="nav-text">DispatcherServlet</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#RequestMappingHandlerMapping"><span class="nav-number">10.</span> <span class="nav-text">RequestMappingHandlerMapping</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#结论"><span class="nav-number">11.</span> <span class="nav-text">结论</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#解析源码经验"><span class="nav-number">12.</span> <span class="nav-text">解析源码经验</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">刘绍煌</p>
+  <div class="site-description" itemprop="description">刘绍煌的个人博客</div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">69</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">27</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">66</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">刘绍煌</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.3.0</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.3.0"></script><script src="/js/motion.js?v=7.3.0"></script>
+<script src="/js/schemes/pisces.js?v=7.3.0"></script>
+<script src="/js/next-boot.js?v=7.3.0"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
