@@ -55,21 +55,21 @@
   };
 </script>
 
-  <meta name="description" content="使用Netty构建TCP通讯中通讯错误问题的排查和详解简介最近上线的项目中使用Netty构建tcp服务去连接设备来收集设备运行的状态，在试运行一段时间后发现kibana中偶尔出现设备端发送了我们的数据，后端解析出错的问题，但是设备端又死活不承认他们的问题，无奈下本着做事要拿出证据的原则，这边被迫再次学习了TCP等知识来打他们的脸。">
+  <meta name="description" content="简介最近上线的项目中使用Netty构建tcp服务去连接设备来收集设备运行的状态，在试运行一段时间后发现kibana中偶尔出现设备端发送了我们的数据，后端解析出错的问题，但是设备端又死活不承认他们的问题，无奈下本着做事要拿出证据的原则，这边被迫再次学习了TCP等知识来打他们的脸。">
 <meta name="keywords" content="netty">
 <meta property="og:type" content="article">
 <meta property="og:title" content="使用Netty构建TCP通讯中通讯错误问题的排查和详解">
 <meta property="og:url" content="http://www.liushaohuang.cn/2021/09/21/使用Netty构建TCP通讯中通讯错误问题的排查和详解/index.html">
 <meta property="og:site_name" content="刘绍煌">
-<meta property="og:description" content="使用Netty构建TCP通讯中通讯错误问题的排查和详解简介最近上线的项目中使用Netty构建tcp服务去连接设备来收集设备运行的状态，在试运行一段时间后发现kibana中偶尔出现设备端发送了我们的数据，后端解析出错的问题，但是设备端又死活不承认他们的问题，无奈下本着做事要拿出证据的原则，这边被迫再次学习了TCP等知识来打他们的脸。">
+<meta property="og:description" content="简介最近上线的项目中使用Netty构建tcp服务去连接设备来收集设备运行的状态，在试运行一段时间后发现kibana中偶尔出现设备端发送了我们的数据，后端解析出错的问题，但是设备端又死活不承认他们的问题，无奈下本着做事要拿出证据的原则，这边被迫再次学习了TCP等知识来打他们的脸。">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://www.liushaohuang.cn/images/Connection_TCP.png">
 <meta property="og:image" content="http://www.liushaohuang.cn/images/1632228600(1).png">
 <meta property="og:image" content="https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/TCP_CLOSE.svg/1280px-TCP_CLOSE.svg.png">
-<meta property="og:updated_time" content="2021-09-26T15:27:03.202Z">
+<meta property="og:updated_time" content="2021-09-26T15:47:52.054Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="使用Netty构建TCP通讯中通讯错误问题的排查和详解">
-<meta name="twitter:description" content="使用Netty构建TCP通讯中通讯错误问题的排查和详解简介最近上线的项目中使用Netty构建tcp服务去连接设备来收集设备运行的状态，在试运行一段时间后发现kibana中偶尔出现设备端发送了我们的数据，后端解析出错的问题，但是设备端又死活不承认他们的问题，无奈下本着做事要拿出证据的原则，这边被迫再次学习了TCP等知识来打他们的脸。">
+<meta name="twitter:description" content="简介最近上线的项目中使用Netty构建tcp服务去连接设备来收集设备运行的状态，在试运行一段时间后发现kibana中偶尔出现设备端发送了我们的数据，后端解析出错的问题，但是设备端又死活不承认他们的问题，无奈下本着做事要拿出证据的原则，这边被迫再次学习了TCP等知识来打他们的脸。">
 <meta name="twitter:image" content="http://www.liushaohuang.cn/images/Connection_TCP.png">
   <link rel="canonical" href="http://www.liushaohuang.cn/2021/09/21/使用Netty构建TCP通讯中通讯错误问题的排查和详解/">
 
@@ -262,7 +262,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-09-26 23:27:03" itemprop="dateModified" datetime="2021-09-26T23:27:03+08:00">2021-09-26</time>
+                <time title="修改时间：2021-09-26 23:47:52" itemprop="dateModified" datetime="2021-09-26T23:47:52+08:00">2021-09-26</time>
               </span>
             
           
@@ -299,7 +299,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h4 id="使用Netty构建TCP通讯中通讯错误问题的排查和详解"><a href="#使用Netty构建TCP通讯中通讯错误问题的排查和详解" class="headerlink" title="使用Netty构建TCP通讯中通讯错误问题的排查和详解"></a>使用Netty构建TCP通讯中通讯错误问题的排查和详解</h4><h5 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h5><p>最近上线的项目中使用Netty构建tcp服务去连接设备来收集设备运行的状态，在试运行一段时间后发现kibana中偶尔出现设备端发送了我们的数据，后端解析出错的问题，但是设备端又死活不承认他们的问题，无奈下本着做事要拿出证据的原则，这边被迫再次学习了TCP等知识来打他们的脸。</p>
+        <h5 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h5><p>最近上线的项目中使用Netty构建tcp服务去连接设备来收集设备运行的状态，在试运行一段时间后发现kibana中偶尔出现设备端发送了我们的数据，后端解析出错的问题，但是设备端又死活不承认他们的问题，无奈下本着做事要拿出证据的原则，这边被迫再次学习了TCP等知识来打他们的脸。</p>
 <a id="more"></a>
 
 <h4 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h4><p>我们和设备端定义的协议核心为传输的时候在前面带上一个2个字节的数据域来表示数据域的长度，后端收到数据再读取这个数据域的长度，再获取接下来数据载体的长度，并且将其读出，再运行一段时间后我们发现kibana中的日志经常报以下两个错误</p>
@@ -516,7 +516,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#使用Netty构建TCP通讯中通讯错误问题的排查和详解"><span class="nav-number">1.</span> <span class="nav-text">使用Netty构建TCP通讯中通讯错误问题的排查和详解</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#简介"><span class="nav-number">1.1.</span> <span class="nav-text">简介</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#问题描述"><span class="nav-number">2.</span> <span class="nav-text">问题描述</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#问题分析"><span class="nav-number">2.1.</span> <span class="nav-text">问题分析</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#问题解决"><span class="nav-number">2.2.</span> <span class="nav-text">问题解决</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#问题1，数据域长度问题"><span class="nav-number">2.2.1.</span> <span class="nav-text">问题1，数据域长度问题</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#问题2，TCP协议"><span class="nav-number">2.2.2.</span> <span class="nav-text">问题2，TCP协议</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#总结"><span class="nav-number">2.2.3.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#问题描述"><span class="nav-number"></span> <span class="nav-text">问题描述</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#问题分析"><span class="nav-number">1.</span> <span class="nav-text">问题分析</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#问题解决"><span class="nav-number">2.</span> <span class="nav-text">问题解决</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#问题1，数据域长度问题"><span class="nav-number">2.1.</span> <span class="nav-text">问题1，数据域长度问题</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#问题2，TCP协议"><span class="nav-number">2.2.</span> <span class="nav-text">问题2，TCP协议</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#总结"><span class="nav-number">2.3.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></div>
         
       </div>
       <!--/noindex-->
