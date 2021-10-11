@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.3.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.3.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.3.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.3.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.3.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.3.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="简介在最开始接触Mybatis之前就好奇Mybatis是如何将我们执行我们定义的接口？其如何和我们编写的xml关联起来，最近又带着这个疑问分析了一下Mybatis Spring的源码，发现其核心也不复杂就是java 的动态代理。">
+<meta name="keywords" content="Spring,Mybatis">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mybatis-Spring核心源码分析">
+<meta property="og:url" content="http://www.liushaohuang.cn/2021/10/11/Mybatis-Spring核心源码分析/index.html">
+<meta property="og:site_name" content="刘绍煌">
+<meta property="og:description" content="简介在最开始接触Mybatis之前就好奇Mybatis是如何将我们执行我们定义的接口？其如何和我们编写的xml关联起来，最近又带着这个疑问分析了一下Mybatis Spring的源码，发现其核心也不复杂就是java 的动态代理。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2021-10-11T15:58:46.505Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Mybatis-Spring核心源码分析">
+<meta name="twitter:description" content="简介在最开始接触Mybatis之前就好奇Mybatis是如何将我们执行我们定义的接口？其如何和我们编写的xml关联起来，最近又带着这个疑问分析了一下Mybatis Spring的源码，发现其核心也不复杂就是java 的动态代理。">
+  <link rel="canonical" href="http://www.liushaohuang.cn/2021/10/11/Mybatis-Spring核心源码分析/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Mybatis-Spring核心源码分析 | 刘绍煌</title>
+  <meta name="generator" content="Hexo 3.9.0">
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">刘绍煌</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2021/10/11/Mybatis-Spring核心源码分析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="刘绍煌">
+      <meta itemprop="description" content="刘绍煌的个人博客">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="刘绍煌">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">Mybatis-Spring核心源码分析
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2021-10-11 23:56:46 / 修改时间：23:58:46" itemprop="dateCreated datePublished" datetime="2021-10-11T23:56:46+08:00">2021-10-11</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Spring/" itemprop="url" rel="index"><span itemprop="name">Spring</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span class="post-meta-item" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h5 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h5><p>在最开始接触Mybatis之前就好奇Mybatis是如何将我们执行我们定义的接口？其如何和我们编写的xml关联起来，最近又带着这个疑问分析了一下Mybatis Spring的源码，发现其核心也不复杂就是java 的动态代理。</p>
+<a id="more"></a>
+
+<h5 id="配置入口"><a href="#配置入口" class="headerlink" title="配置入口"></a>配置入口</h5><p>依旧是老套路，我们先从入口分析，Mybatis需要使用@Mapper注解来在Spring中注册，我们只需要全局搜索看在哪里调用打@Mapper即可，在MybatisAutoConfiguration中找到了内部类以下方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">public static class AutoConfiguredMapperScannerRegistrar implements BeanFactoryAware, ImportBeanDefinitionRegistrar &#123;</span><br><span class="line"></span><br><span class="line">   private BeanFactory beanFactory;</span><br><span class="line"></span><br><span class="line">   @Override</span><br><span class="line">   public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) &#123;</span><br><span class="line"></span><br><span class="line">     if (!AutoConfigurationPackages.has(this.beanFactory)) &#123;</span><br><span class="line">       logger.debug(&quot;Could not determine auto-configuration package, automatic mapper scanning disabled.&quot;);</span><br><span class="line">       return;</span><br><span class="line">     &#125;</span><br><span class="line"></span><br><span class="line">     logger.debug(&quot;Searching for mappers annotated with @Mapper&quot;);</span><br><span class="line"></span><br><span class="line">     List&lt;String&gt; packages = AutoConfigurationPackages.get(this.beanFactory);</span><br><span class="line">     if (logger.isDebugEnabled()) &#123;</span><br><span class="line">       packages.forEach(pkg -&gt; logger.debug(&quot;Using auto-configuration base package &apos;&#123;&#125;&apos;&quot;, pkg));</span><br><span class="line">     &#125;</span><br><span class="line"></span><br><span class="line">     BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(MapperScannerConfigurer.class);</span><br><span class="line">     builder.addPropertyValue(&quot;processPropertyPlaceHolders&quot;, true);</span><br><span class="line">     builder.addPropertyValue(&quot;annotationClass&quot;, Mapper.class);</span><br><span class="line">     builder.addPropertyValue(&quot;basePackage&quot;, StringUtils.collectionToCommaDelimitedString(packages));</span><br><span class="line">     BeanWrapper beanWrapper = new BeanWrapperImpl(MapperScannerConfigurer.class);</span><br><span class="line">     Stream.of(beanWrapper.getPropertyDescriptors())</span><br><span class="line">         // Need to mybatis-spring 2.0.2+</span><br><span class="line">         .filter(x -&gt; x.getName().equals(&quot;lazyInitialization&quot;)).findAny()</span><br><span class="line">         .ifPresent(x -&gt; builder.addPropertyValue(&quot;lazyInitialization&quot;, &quot;$&#123;mybatis.lazy-initialization:false&#125;&quot;));</span><br><span class="line">     registry.registerBeanDefinition(MapperScannerConfigurer.class.getName(), builder.getBeanDefinition());</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   @Override</span><br><span class="line">   public void setBeanFactory(BeanFactory beanFactory) &#123;</span><br><span class="line">     this.beanFactory = beanFactory;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<p>其实现了ImportBeanDefinitionRegistrar 接口，并且在外部类的配种中使用了@Import注解，那么在其初始化时就会调用registerBeanDefinitions方法，我们看到核心代码就是其在Spring中注册了一个MapperScannerConfigurer的类，我们继续进去查看</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">public class MapperScannerConfigurer</span><br><span class="line">    implements BeanDefinitionRegistryPostProcessor, InitializingBean, ApplicationContextAware, BeanNameAware</span><br></pre></td></tr></table></figure>
+
+<p>其实现了BeanDefinitionRegistryPostProcessor,InitializingBean这两个接口，其中BeanDefinitionRegistryPostProcessor在Bean被定义前没调用，而InitializingBean在初始化后被调用且InitializingBean并没有太多逻辑，所以我们重点查看BeanDefinitionRegistryPostProcessor的接口方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">  public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) &#123;</span><br><span class="line">    if (this.processPropertyPlaceHolders) &#123;</span><br><span class="line">      processPropertyPlaceHolders();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ClassPathMapperScanner scanner = new ClassPathMapperScanner(registry);</span><br><span class="line">    scanner.setAddToConfig(this.addToConfig);</span><br><span class="line">    scanner.setAnnotationClass(this.annotationClass);</span><br><span class="line">    scanner.setMarkerInterface(this.markerInterface);</span><br><span class="line">    scanner.setSqlSessionFactory(this.sqlSessionFactory);</span><br><span class="line">    scanner.setSqlSessionTemplate(this.sqlSessionTemplate);</span><br><span class="line">    scanner.setSqlSessionFactoryBeanName(this.sqlSessionFactoryBeanName);</span><br><span class="line">    scanner.setSqlSessionTemplateBeanName(this.sqlSessionTemplateBeanName);</span><br><span class="line">    scanner.setResourceLoader(this.applicationContext);</span><br><span class="line">    scanner.setBeanNameGenerator(this.nameGenerator);</span><br><span class="line">    scanner.setMapperFactoryBeanClass(this.mapperFactoryBeanClass);</span><br><span class="line">    if (StringUtils.hasText(lazyInitialization)) &#123;</span><br><span class="line">      scanner.setLazyInitialization(Boolean.valueOf(lazyInitialization));</span><br><span class="line">    &#125;</span><br><span class="line">    scanner.registerFilters();</span><br><span class="line">    scanner.scan(</span><br><span class="line">        StringUtils.tokenizeToStringArray(this.basePackage, ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS));</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="Mapper的扫描"><a href="#Mapper的扫描" class="headerlink" title="Mapper的扫描"></a>Mapper的扫描</h5><p>我们看到这里新建了一个类ClassPathMapperScanner，并且调用了scan方法，看类命名我们就猜到其应该就是扫描@Mapper的地方，我们继续进去</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner</span><br></pre></td></tr></table></figure>
+
+<p>发现其继承了ClassPathBeanDefinitionScanner类，而ClassPathBeanDefinitionScanner类时Spring 扫描类的核心，其会扫描配置路径下的所有类，这也印证了我们之前的猜想。我们寻该类型scan相关方法，发现其调用了父类的scan方法，父类又调用了doScan方法，而其重写了doScan方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">  public Set&lt;BeanDefinitionHolder&gt; doScan(String... basePackages) &#123;</span><br><span class="line">    Set&lt;BeanDefinitionHolder&gt; beanDefinitions = super.doScan(basePackages);</span><br><span class="line"></span><br><span class="line">    if (beanDefinitions.isEmpty()) &#123;</span><br><span class="line">      LOGGER.warn(() -&gt; &quot;No MyBatis mapper was found in &apos;&quot; + Arrays.toString(basePackages)</span><br><span class="line">          + &quot;&apos; package. Please check your configuration.&quot;);</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">      processBeanDefinitions(beanDefinitions);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    return beanDefinitions;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>super.doScan 方法会扫描包下所有包含我们过滤条件的所有的类，并且将其注册到Spring，而在AutoConfiguredMapperScannerRegistrar配置类中，我们已经将我们需要扫描的注解@Mapper加入进来了,并且在MapperScannerConfigurer#postProcessBeanDefinitionRegistry中初始化了拦截器</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">builder.addPropertyValue(&quot;annotationClass&quot;, Mapper.class);</span><br></pre></td></tr></table></figure>
+
+<p><strong>我们顺着逻辑继续查看processBeanDefinitions方法，上面说到ClassPathBeanDefinitionScanner的doScan方法会扫描所有符合条件的类，并且注册到Spring，我们这里执行的了doScan方法，我们定义的接口已经被注册到Spring中了，如果我们这时候去调用肯定会报错，因为根本没有实现类，于是Mybatis投机取巧在processBeanDefinitions下修改BeanDefinition强行将@Mapper扫描到的接口关联到他的代理类中</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line">private void processBeanDefinitions(Set&lt;BeanDefinitionHolder&gt; beanDefinitions) &#123;</span><br><span class="line">   GenericBeanDefinition definition;</span><br><span class="line">   for (BeanDefinitionHolder holder : beanDefinitions) &#123;</span><br><span class="line">     definition = (GenericBeanDefinition) holder.getBeanDefinition();</span><br><span class="line">     String beanClassName = definition.getBeanClassName();</span><br><span class="line">     LOGGER.debug(() -&gt; &quot;Creating MapperFactoryBean with name &apos;&quot; + holder.getBeanName() + &quot;&apos; and &apos;&quot; + beanClassName</span><br><span class="line">         + &quot;&apos; mapperInterface&quot;);</span><br><span class="line"></span><br><span class="line">     // the mapper interface is the original class of the bean</span><br><span class="line">     // but, the actual class of the bean is MapperFactoryBean</span><br><span class="line">     definition.getConstructorArgumentValues().addGenericArgumentValue(beanClassName); // issue #59</span><br><span class="line">     definition.setBeanClass(this.mapperFactoryBeanClass);</span><br><span class="line"></span><br><span class="line">     definition.getPropertyValues().add(&quot;addToConfig&quot;, this.addToConfig);</span><br><span class="line"></span><br><span class="line">     boolean explicitFactoryUsed = false;</span><br><span class="line">     if (StringUtils.hasText(this.sqlSessionFactoryBeanName)) &#123;</span><br><span class="line">       definition.getPropertyValues().add(&quot;sqlSessionFactory&quot;,</span><br><span class="line">           new RuntimeBeanReference(this.sqlSessionFactoryBeanName));</span><br><span class="line">       explicitFactoryUsed = true;</span><br><span class="line">     &#125; else if (this.sqlSessionFactory != null) &#123;</span><br><span class="line">       definition.getPropertyValues().add(&quot;sqlSessionFactory&quot;, this.sqlSessionFactory);</span><br><span class="line">       explicitFactoryUsed = true;</span><br><span class="line">     &#125;</span><br><span class="line"></span><br><span class="line">     if (StringUtils.hasText(this.sqlSessionTemplateBeanName)) &#123;</span><br><span class="line">       if (explicitFactoryUsed) &#123;</span><br><span class="line">         LOGGER.warn(</span><br><span class="line">             () -&gt; &quot;Cannot use both: sqlSessionTemplate and sqlSessionFactory together. sqlSessionFactory is ignored.&quot;);</span><br><span class="line">       &#125;</span><br><span class="line">       definition.getPropertyValues().add(&quot;sqlSessionTemplate&quot;,</span><br><span class="line">           new RuntimeBeanReference(this.sqlSessionTemplateBeanName));</span><br><span class="line">       explicitFactoryUsed = true;</span><br><span class="line">     &#125; else if (this.sqlSessionTemplate != null) &#123;</span><br><span class="line">       if (explicitFactoryUsed) &#123;</span><br><span class="line">         LOGGER.warn(</span><br><span class="line">             () -&gt; &quot;Cannot use both: sqlSessionTemplate and sqlSessionFactory together. sqlSessionFactory is ignored.&quot;);</span><br><span class="line">       &#125;</span><br><span class="line">       definition.getPropertyValues().add(&quot;sqlSessionTemplate&quot;, this.sqlSessionTemplate);</span><br><span class="line">       explicitFactoryUsed = true;</span><br><span class="line">     &#125;</span><br><span class="line"></span><br><span class="line">     if (!explicitFactoryUsed) &#123;</span><br><span class="line">       LOGGER.debug(() -&gt; &quot;Enabling autowire by type for MapperFactoryBean with name &apos;&quot; + holder.getBeanName() + &quot;&apos;.&quot;);</span><br><span class="line">       definition.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_BY_TYPE);</span><br><span class="line">     &#125;</span><br><span class="line">     definition.setLazyInit(lazyInitialization);</span><br><span class="line">   &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里 很多逻辑，我们并不需要全部都看懂，具体注意以下两点</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">private Class&lt;? extends MapperFactoryBean&gt; mapperFactoryBeanClass = MapperFactoryBean.class;</span><br><span class="line">	.</span><br><span class="line">	.</span><br><span class="line">	.</span><br><span class="line">definition.setBeanClass(this.mapperFactoryBeanClass);</span><br><span class="line">	.</span><br><span class="line">	.</span><br><span class="line">	.</span><br><span class="line"> definition.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_BY_TYPE);</span><br></pre></td></tr></table></figure>
+
+<p><strong>它将我们@Mapper扫描的类定义强行替换成MapperFactoryBean，且将其Spring的注入类型改成根据类型自动注入，这样我们去Spring中获取相关类时只要有get set方法，Spring就能自动根据类型注入，不需要再去使用注解或者手动去注入，在刚开始时我一直没找到类属性的输入点，知道看到这里才恍然大悟</strong></p>
+<p>所以这时候我们查看MapperFactoryBean的逻辑，第一步查看他的继承结构</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public class MapperFactoryBean&lt;T&gt; extends SqlSessionDaoSupport implements FactoryBean&lt;T&gt;</span><br></pre></td></tr></table></figure>
+
+<p>其继承了SqlSessionDaoSupport 而SqlSessionDaoSupport又实现了InitializingBean，在Bean初始化时会去调用checkDaoConfig方法</p>
+<p>而MapperFactoryBean重写了checkDaoConfig</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">  protected void checkDaoConfig() &#123;</span><br><span class="line">    super.checkDaoConfig();</span><br><span class="line"></span><br><span class="line">    notNull(this.mapperInterface, &quot;Property &apos;mapperInterface&apos; is required&quot;);</span><br><span class="line"></span><br><span class="line">    Configuration configuration = getSqlSession().getConfiguration();</span><br><span class="line">    if (this.addToConfig &amp;&amp; !configuration.hasMapper(this.mapperInterface)) &#123;</span><br><span class="line">      try &#123;</span><br><span class="line">        configuration.addMapper(this.mapperInterface);</span><br><span class="line">      &#125; catch (Exception e) &#123;</span><br><span class="line">        logger.error(&quot;Error while adding the mapper &apos;&quot; + this.mapperInterface + &quot;&apos; to configuration.&quot;, e);</span><br><span class="line">        throw new IllegalArgumentException(e);</span><br><span class="line">      &#125; finally &#123;</span><br><span class="line">        ErrorContext.instance().reset();</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们继续进入 configuration.addMapper(this.mapperInterface); 方法一直往下找找到了MapperRegistry#addMapper方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">public &lt;T&gt; void addMapper(Class&lt;T&gt; type) &#123;</span><br><span class="line">    if (type.isInterface()) &#123;</span><br><span class="line">      if (hasMapper(type)) &#123;</span><br><span class="line">        throw new BindingException(&quot;Type &quot; + type + &quot; is already known to the MapperRegistry.&quot;);</span><br><span class="line">      &#125;</span><br><span class="line">      boolean loadCompleted = false;</span><br><span class="line">      try &#123;</span><br><span class="line">        knownMappers.put(type, new MapperProxyFactory&lt;&gt;(type));</span><br><span class="line">        // It&apos;s important that the type is added before the parser is run</span><br><span class="line">        // otherwise the binding may automatically be attempted by the</span><br><span class="line">        // mapper parser. If the type is already known, it won&apos;t try.</span><br><span class="line">        MapperAnnotationBuilder parser = new MapperAnnotationBuilder(config, type);</span><br><span class="line">        parser.parse();</span><br><span class="line">        loadCompleted = true;</span><br><span class="line">      &#125; finally &#123;</span><br><span class="line">        if (!loadCompleted) &#123;</span><br><span class="line">          knownMappers.remove(type);</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>而这里就是解析Spring 我们编写xml的地方，并且解析完成后注册到Configuration的mapperRegistry中</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">protected final MapperRegistry mapperRegistry = new MapperRegistry(this);</span><br></pre></td></tr></table></figure>
+
+<h5 id="Mapper对象的查找和注入"><a href="#Mapper对象的查找和注入" class="headerlink" title="Mapper对象的查找和注入"></a>Mapper对象的查找和注入</h5><p>知道了xml是如何解析的，当时Mapper对象是如何注入的呢，我们现在知道了其是我们在Spring中注册的并不是我们定义的对象而是MapperFactoryBean ，我们查看其类的继承关系</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public class MapperFactoryBean&lt;T&gt; extends SqlSessionDaoSupport implements FactoryBean&lt;T&gt;</span><br></pre></td></tr></table></figure>
+
+<p><strong>他继承了Spring的FactoryBean，之前网上只说FactoryBean可以实现懒加载，当时并不理解，知道看了这里的代码才知道，FactoryBean不止可以实现懒加载，还可以实现Bean对象实例化前的增强，和BeanPostProcessor异曲同工，而不同的是FactoryBean可以针对单个具体Bean对象做增强，而BeanPostProcessor需要遍历一遍所有Bean对象然后选择自己需要增强的Bean效率较低。</strong></p>
+<p>我们顺着FactoryBean定义的接口getObject往下找，在Spring去查找Mapper对象时他回去调用FactoryBean的getObject对象去获取对象</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line"> public T getObject() throws Exception &#123;</span><br><span class="line">   return getSqlSession().getMapper(this.mapperInterface);</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<p>继续往下我们发现其本质就是调用了Configuration下的mapperRegistry去获取对象的，而这个对象在我们之前解析xml时写入到mapperRegistry中</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public &lt;T&gt; T getMapper(Class&lt;T&gt; type, SqlSession sqlSession) &#123;</span><br><span class="line">    return mapperRegistry.getMapper(type, sqlSession);</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>继续进入mapperRegistry.getMapper方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">public &lt;T&gt; T getMapper(Class&lt;T&gt; type, SqlSession sqlSession) &#123;</span><br><span class="line">    final MapperProxyFactory&lt;T&gt; mapperProxyFactory = (MapperProxyFactory&lt;T&gt;) knownMappers.get(type);</span><br><span class="line">    if (mapperProxyFactory == null) &#123;</span><br><span class="line">      throw new BindingException(&quot;Type &quot; + type + &quot; is not known to the MapperRegistry.&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    try &#123;</span><br><span class="line">      return mapperProxyFactory.newInstance(sqlSession);</span><br><span class="line">    &#125; catch (Exception e) &#123;</span><br><span class="line">      throw new BindingException(&quot;Error getting mapper instance. Cause: &quot; + e, e);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>再进入mapperProxyFactory.newInstance方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public T newInstance(SqlSession sqlSession) &#123;</span><br><span class="line">    final MapperProxy&lt;T&gt; mapperProxy = new MapperProxy&lt;&gt;(sqlSession, mapperInterface, methodCache);</span><br><span class="line">    return newInstance(mapperProxy);</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>再进入newInstance方法,发现其本质就是利用了java的反射</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">protected T newInstance(MapperProxy&lt;T&gt; mapperProxy) &#123;</span><br><span class="line">   return (T) Proxy.newProxyInstance(mapperInterface.getClassLoader(), new Class[] &#123; mapperInterface &#125;, mapperProxy);</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<p>而MapperProxy类是其的代理类，所以我们使用Mybatis Spring时我们调用的就是使用动态代理的MapperProxy，而其根本没有调用原始声明的方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public Object invoke(Object proxy, Method method, Object[] args) throws Throwable &#123;</span><br><span class="line">  try &#123;</span><br><span class="line">    if (Object.class.equals(method.getDeclaringClass())) &#123;</span><br><span class="line">      return method.invoke(this, args);</span><br><span class="line">    &#125; else if (method.isDefault()) &#123;</span><br><span class="line">      return invokeDefaultMethod(proxy, method, args);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; catch (Throwable t) &#123;</span><br><span class="line">    throw ExceptionUtil.unwrapThrowable(t);</span><br><span class="line">  &#125;</span><br><span class="line">  final MapperMethod mapperMethod = cachedMapperMethod(method);</span><br><span class="line">  return mapperMethod.execute(sqlSession, args);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h5><p>Mybatis Spring就是使用了java 的动态代理机制和Spring FactoryBean 增强机制，在Spring进行依赖注入时，使用动态代理技术，代理到我们代理的类上，其去执行sql语句，这也就是为什么我们去定义Mapper时只能用接口，这是由于java的动态代理只能使用接口而导致的，且利用依赖注入和动态代理的组合，往往能做到很多意想不到且有意思的事。</p>
+
+    </div>
+
+    
+    
+    
+        
+      
+        <div id="reward-container">
+  <div></div>
+  <button id="reward-button" disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/赞赏码.png" alt="刘绍煌 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/Spring/" rel="tag"># Spring</a>
+            
+              <a href="/tags/Mybatis/" rel="tag"># Mybatis</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2021/10/11/从源码分析SpringBean定义和Bean实例化的生命周期/" rel="next" title="从源码分析SpringBean定义和Bean实例化的生命周期">
+                  <i class="fa fa-chevron-left"></i> 从源码分析SpringBean定义和Bean实例化的生命周期
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#配置入口"><span class="nav-number">2.</span> <span class="nav-text">配置入口</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Mapper的扫描"><span class="nav-number">3.</span> <span class="nav-text">Mapper的扫描</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Mapper对象的查找和注入"><span class="nav-number">4.</span> <span class="nav-text">Mapper对象的查找和注入</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">刘绍煌</p>
+  <div class="site-description" itemprop="description">刘绍煌的个人博客</div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">27</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">67</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">刘绍煌</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.3.0</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.3.0"></script><script src="/js/motion.js?v=7.3.0"></script>
+<script src="/js/schemes/pisces.js?v=7.3.0"></script>
+<script src="/js/next-boot.js?v=7.3.0"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
