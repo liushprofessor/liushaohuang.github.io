@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.3.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.3.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.3.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.3.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.3.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.3.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="简介之前使用Spring结合Hibernate Validator来做接口校验经常由于使用姿势不对导致无法正常运行，在网上找到的文档也没有对我感兴趣的部分进行讲解，所以最近大致查看了下源码来了解下这部分信息。">
+<meta name="keywords" content="Spring">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring和Hibernate Validator">
+<meta property="og:url" content="http://www.liushaohuang.cn/2021/11/04/Spring和Hibernate-Validator/index.html">
+<meta property="og:site_name" content="刘绍煌">
+<meta property="og:description" content="简介之前使用Spring结合Hibernate Validator来做接口校验经常由于使用姿势不对导致无法正常运行，在网上找到的文档也没有对我感兴趣的部分进行讲解，所以最近大致查看了下源码来了解下这部分信息。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2021-11-04T13:52:56.393Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Spring和Hibernate Validator">
+<meta name="twitter:description" content="简介之前使用Spring结合Hibernate Validator来做接口校验经常由于使用姿势不对导致无法正常运行，在网上找到的文档也没有对我感兴趣的部分进行讲解，所以最近大致查看了下源码来了解下这部分信息。">
+  <link rel="canonical" href="http://www.liushaohuang.cn/2021/11/04/Spring和Hibernate-Validator/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Spring和Hibernate Validator | 刘绍煌</title>
+  <meta name="generator" content="Hexo 3.9.0">
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">刘绍煌</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2021/11/04/Spring和Hibernate-Validator/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="刘绍煌">
+      <meta itemprop="description" content="刘绍煌的个人博客">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="刘绍煌">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">Spring和Hibernate Validator
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2021-11-04 21:49:40 / 修改时间：21:52:56" itemprop="dateCreated datePublished" datetime="2021-11-04T21:49:40+08:00">2021-11-04</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Spring/" itemprop="url" rel="index"><span itemprop="name">Spring</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span class="post-meta-item" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>之前使用Spring结合Hibernate Validator来做接口校验经常由于使用姿势不对导致无法正常运行，在网上找到的文档也没有对我感兴趣的部分进行讲解，所以最近大致查看了下源码来了解下这部分信息。</p>
+<a id="more"></a>
+
+<h4 id="背景知识"><a href="#背景知识" class="headerlink" title="背景知识"></a>背景知识</h4><ul>
+<li><p>JSR380 这是一个java定义的一个校验标准接口在此之前还存在老版本JSR303</p>
+</li>
+<li><p>Hibernate Validator 对JSR380进行了实现</p>
+</li>
+<li><p>Spring Validator 是对Hibernate Validator 进行了包装使其和Spring完成整合,以下两个包分别为Java的标准校JSR380验接口，和Hibernate 的实现 注：Hibernate Validator  6.0版本实现的是JSR380之前为JSR303等版本，这里主要分析的是JSR380所以我采用的是6.0版本</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">     &lt;groupId&gt;javax.validation&lt;/groupId&gt;</span><br><span class="line">     &lt;artifactId&gt;validation-api&lt;/artifactId&gt;</span><br><span class="line">   &lt;/dependency&gt;</span><br><span class="line">   </span><br><span class="line">   &lt;dependency&gt;</span><br><span class="line">     &lt;groupId&gt;org.hibernate&lt;/groupId&gt;</span><br><span class="line">     &lt;artifactId&gt;hibernate-validator&lt;/artifactId&gt;</span><br><span class="line">   &lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<h4 id="核心概念"><a href="#核心概念" class="headerlink" title="核心概念"></a>核心概念</h4><p>既然是基于JSR380 实现的校验框架，那我们必须了解一下JSR380一些核心的概念，从官网上查看JSR380文档，以下几个接口为最核心的接口</p>
+<ul>
+<li><p>ConstraintValidator  此接口为校验的核心，所有的校验的逻辑都在这里，比如我们使用的@Min注解，其就有针对@Min注解所实现的校验逻辑代码MinValidatorForLong ，MinValidatorForDouble等代码分别为long类型和doubue类型来处理校验逻辑</p>
+</li>
+<li><p>Validator 这是JSR最主要的校验API，也是和使用方打交道的一个API,一下是JSR380文档提供的一个校验例子，我们获取Validator后直接调用validate方法即可完成校验，也就是说我们并不会和底层实现打交道，我们只要会使用Validator就可以使用JSR380校验框架</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">Author author = new Author();</span><br><span class="line">author.setCompany( &quot;ACME&quot; );</span><br><span class="line"></span><br><span class="line">List&lt;String&gt; tags = Arrays.asList( &quot;a&quot;, &quot;science fiction&quot; );</span><br><span class="line"></span><br><span class="line">Book book = new Book();</span><br><span class="line">book.setTitle( &quot;&quot; );</span><br><span class="line">book.setAuthor( author );</span><br><span class="line"></span><br><span class="line">book.setTags( tags );</span><br><span class="line"></span><br><span class="line">Validator validator = Validation.buildDefaultValidatorFactory().getValidator();</span><br><span class="line">Set&lt;ConstraintViolation&lt;Book&gt;&gt; constraintViolations = validator.validate( book );</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>ValidatorFactory 其实获取 Validator 的工程类</p>
+</li>
+<li><p>ExecutableValidator  JSR380不仅提供了校验对象，和提供了校验方法参数和返回值，这个是我们日常之中使用最多的，其底层就是调用Validator 的forExecutables方法来获取的ExecutableValidator  ，再调用其validateParameters方法去校验方法的参数返回值等，具体的大家可以查看接口文档</p>
+</li>
+<li><p>Validation 其类似一个启动类，其读取配置文件，获取JSR380的实现，它的buildDefaultValidatorFactory方法，帮我们方便的获取ValidatorFactory ，从而屏蔽了实现的细节。</p>
+</li>
+</ul>
+<h4 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h4><p>通过一些列debug和代码查找我找到了Spring Validate的入口MethodValidationPostProcessor,其很简单就是一个BeanFactoryProcessor，之前的文档已经说明了它在Spring的BeanFactory初始化后进行调用</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * A convenient &#123;@link BeanPostProcessor&#125; implementation that delegates to a</span><br><span class="line"> * JSR-303 provider for performing method-level validation on annotated methods.</span><br><span class="line"> *</span><br><span class="line"> * &lt;p&gt;Applicable methods have JSR-303 constraint annotations on their parameters</span><br><span class="line"> * and/or on their return value (in the latter case specified at the method level,</span><br><span class="line"> * typically as inline annotation), e.g.:</span><br><span class="line"> *</span><br><span class="line"> * &lt;pre class=&quot;code&quot;&gt;</span><br><span class="line"> * public @NotNull Object myValidMethod(@NotNull String arg1, @Max(10) int arg2)</span><br><span class="line"> * &lt;/pre&gt;</span><br><span class="line"> *</span><br><span class="line"> * &lt;p&gt;Target classes with such annotated methods need to be annotated with Spring&apos;s</span><br><span class="line"> * &#123;@link Validated&#125; annotation at the type level, for their methods to be searched for</span><br><span class="line"> * inline constraint annotations. Validation groups can be specified through &#123;@code @Validated&#125;</span><br><span class="line"> * as well. By default, JSR-303 will validate against its default group only.</span><br><span class="line"> *</span><br><span class="line"> * &lt;p&gt;As of Spring 5.0, this functionality requires a Bean Validation 1.1 provider.</span><br><span class="line"> *</span><br><span class="line"> * @author Juergen Hoeller</span><br><span class="line"> * @since 3.1</span><br><span class="line"> * @see MethodValidationInterceptor</span><br><span class="line"> * @see javax.validation.executable.ExecutableValidator</span><br><span class="line"> */</span><br><span class="line">@SuppressWarnings(&quot;serial&quot;)</span><br><span class="line">public class MethodValidationPostProcessor extends AbstractBeanFactoryAwareAdvisingPostProcessor</span><br><span class="line">		implements InitializingBean &#123;</span><br><span class="line"></span><br><span class="line">	private Class&lt;? extends Annotation&gt; validatedAnnotationType = Validated.class;</span><br><span class="line"></span><br><span class="line">	@Nullable</span><br><span class="line">	private Validator validator;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 * Set the &apos;validated&apos; annotation type.</span><br><span class="line">	 * The default validated annotation type is the &#123;@link Validated&#125; annotation.</span><br><span class="line">	 * &lt;p&gt;This setter property exists so that developers can provide their own</span><br><span class="line">	 * (non-Spring-specific) annotation type to indicate that a class is supposed</span><br><span class="line">	 * to be validated in the sense of applying method validation.</span><br><span class="line">	 * @param validatedAnnotationType the desired annotation type</span><br><span class="line">	 */</span><br><span class="line">	public void setValidatedAnnotationType(Class&lt;? extends Annotation&gt; validatedAnnotationType) &#123;</span><br><span class="line">		Assert.notNull(validatedAnnotationType, &quot;&apos;validatedAnnotationType&apos; must not be null&quot;);</span><br><span class="line">		this.validatedAnnotationType = validatedAnnotationType;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 * Set the JSR-303 Validator to delegate to for validating methods.</span><br><span class="line">	 * &lt;p&gt;Default is the default ValidatorFactory&apos;s default Validator.</span><br><span class="line">	 */</span><br><span class="line">	public void setValidator(Validator validator) &#123;</span><br><span class="line">		// Unwrap to the native Validator with forExecutables support</span><br><span class="line">		if (validator instanceof LocalValidatorFactoryBean) &#123;</span><br><span class="line">			this.validator = ((LocalValidatorFactoryBean) validator).getValidator();</span><br><span class="line">		&#125;</span><br><span class="line">		else if (validator instanceof SpringValidatorAdapter) &#123;</span><br><span class="line">			this.validator = validator.unwrap(Validator.class);</span><br><span class="line">		&#125;</span><br><span class="line">		else &#123;</span><br><span class="line">			this.validator = validator;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 * Set the JSR-303 ValidatorFactory to delegate to for validating methods,</span><br><span class="line">	 * using its default Validator.</span><br><span class="line">	 * &lt;p&gt;Default is the default ValidatorFactory&apos;s default Validator.</span><br><span class="line">	 * @see javax.validation.ValidatorFactory#getValidator()</span><br><span class="line">	 */</span><br><span class="line">	public void setValidatorFactory(ValidatorFactory validatorFactory) &#123;</span><br><span class="line">		this.validator = validatorFactory.getValidator();</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	@Override</span><br><span class="line">	public void afterPropertiesSet() &#123;</span><br><span class="line">		Pointcut pointcut = new AnnotationMatchingPointcut(this.validatedAnnotationType, true);</span><br><span class="line">		this.advisor = new DefaultPointcutAdvisor(pointcut, createMethodValidationAdvice(this.validator));</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 * Create AOP advice for method validation purposes, to be applied</span><br><span class="line">	 * with a pointcut for the specified &apos;validated&apos; annotation.</span><br><span class="line">	 * @param validator the JSR-303 Validator to delegate to</span><br><span class="line">	 * @return the interceptor to use (typically, but not necessarily,</span><br><span class="line">	 * a &#123;@link MethodValidationInterceptor&#125; or subclass thereof)</span><br><span class="line">	 * @since 4.2</span><br><span class="line">	 */</span><br><span class="line">	protected Advice createMethodValidationAdvice(@Nullable Validator validator) &#123;</span><br><span class="line">		return (validator != null ? new MethodValidationInterceptor(validator) : new MethodValidationInterceptor());</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在afterPropertiesSet方法中我们看到起定义了一个AOP，它会去扫描带有@Validated注解的类</p>
+<p>我们再进入MethodValidationInterceptor中查看下其AOP执行的逻辑，可以看到起就是使用validator.forExecutables方法来获取了JSR380 的ExecutableValidator  来做方法校验</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">	@SuppressWarnings(&quot;unchecked&quot;)</span><br><span class="line">	public Object invoke(MethodInvocation invocation) throws Throwable &#123;</span><br><span class="line">		// Avoid Validator invocation on FactoryBean.getObjectType/isSingleton</span><br><span class="line">		if (isFactoryBeanMetadataMethod(invocation.getMethod())) &#123;</span><br><span class="line">			return invocation.proceed();</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		Class&lt;?&gt;[] groups = determineValidationGroups(invocation);</span><br><span class="line"></span><br><span class="line">		// Standard Bean Validation 1.1 API</span><br><span class="line">		ExecutableValidator execVal = this.validator.forExecutables();</span><br><span class="line">		Method methodToValidate = invocation.getMethod();</span><br><span class="line">		Set&lt;ConstraintViolation&lt;Object&gt;&gt; result;</span><br><span class="line"></span><br><span class="line">		try &#123;</span><br><span class="line">			result = execVal.validateParameters(</span><br><span class="line">					invocation.getThis(), methodToValidate, invocation.getArguments(), groups);</span><br><span class="line">		&#125;</span><br><span class="line">		catch (IllegalArgumentException ex) &#123;</span><br><span class="line">			// Probably a generic type mismatch between interface and impl as reported in SPR-12237 / HV-1011</span><br><span class="line">			// Let&apos;s try to find the bridged method on the implementation class...</span><br><span class="line">			methodToValidate = BridgeMethodResolver.findBridgedMethod(</span><br><span class="line">					ClassUtils.getMostSpecificMethod(invocation.getMethod(), invocation.getThis().getClass()));</span><br><span class="line">			result = execVal.validateParameters(</span><br><span class="line">					invocation.getThis(), methodToValidate, invocation.getArguments(), groups);</span><br><span class="line">		&#125;</span><br><span class="line">		if (!result.isEmpty()) &#123;</span><br><span class="line">			throw new ConstraintViolationException(result);</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		Object returnValue = invocation.proceed();</span><br><span class="line"></span><br><span class="line">		result = execVal.validateReturnValue(invocation.getThis(), methodToValidate, returnValue, groups);</span><br><span class="line">		if (!result.isEmpty()) &#123;</span><br><span class="line">			throw new ConstraintViolationException(result);</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		return returnValue;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+<p>那Hibernate Validator的实现又是在哪里被注入的呢？我们查看MethodValidationPostProcessor下的createMethodValidationAdvice方法，继续定位到MethodValidationInterceptor类看到其构造,我们就知道了其也是通过Validation来完成的初始化</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public MethodValidationInterceptor() &#123;</span><br><span class="line">		this(Validation.buildDefaultValidatorFactory());</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们继续往下寻找Validation调用的方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public static ValidatorFactory buildDefaultValidatorFactory() &#123;</span><br><span class="line">		return byDefaultProvider().configure().buildValidatorFactory();</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+<p>进入byDefaultProvider().configure()方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">@Override</span><br><span class="line">public Configuration&lt;?&gt; configure() &#123;</span><br><span class="line">	ValidationProviderResolver resolver = this.resolver == null ?</span><br><span class="line">			getDefaultValidationProviderResolver() :</span><br><span class="line">			this.resolver;</span><br><span class="line"></span><br><span class="line">	List&lt;ValidationProvider&lt;?&gt;&gt; validationProviders;</span><br><span class="line">	try &#123;</span><br><span class="line">		validationProviders = resolver.getValidationProviders();</span><br><span class="line">	&#125;</span><br><span class="line">	// don&apos;t wrap existing ValidationExceptions in another ValidationException</span><br><span class="line">	catch ( ValidationException e ) &#123;</span><br><span class="line">		throw e;</span><br><span class="line">	&#125;</span><br><span class="line">	// if any other exception occurs wrap it in a ValidationException</span><br><span class="line">	catch ( RuntimeException re ) &#123;</span><br><span class="line">		throw new ValidationException( &quot;Unable to get available provider resolvers.&quot;, re );</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	if ( validationProviders.isEmpty() ) &#123;</span><br><span class="line">		String msg = &quot;Unable to create a Configuration, because no Bean Validation provider could be found.&quot; +</span><br><span class="line">				&quot; Add a provider like Hibernate Validator (RI) to your classpath.&quot;;</span><br><span class="line">		throw new NoProviderFoundException( msg );</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	Configuration&lt;?&gt; config;</span><br><span class="line">	try &#123;</span><br><span class="line">		config = resolver.getValidationProviders().get( 0 ).createGenericConfiguration( this );</span><br><span class="line">	&#125;</span><br><span class="line">	catch ( RuntimeException re ) &#123;</span><br><span class="line">		throw new ValidationException( &quot;Unable to instantiate Configuration.&quot;, re );</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	return config;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>再进入getDefaultValidationProviderResolver方法，一直往下定位知道看到Validation的内部类GetValidationProviderListAction的loadProviders方法,这里 ServiceLoader.load 使用了JAVA提供的SPI技术，从配置文件中读取了Hibernate Validator的实现</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">private List&lt;ValidationProvider&lt;?&gt;&gt; loadProviders(ClassLoader classloader) &#123;</span><br><span class="line">			ServiceLoader&lt;ValidationProvider&gt; loader = ServiceLoader.load( ValidationProvider.class, classloader );</span><br><span class="line">			Iterator&lt;ValidationProvider&gt; providerIterator = loader.iterator();</span><br><span class="line">			List&lt;ValidationProvider&lt;?&gt;&gt; validationProviderList = new ArrayList&lt;&gt;();</span><br><span class="line">			while ( providerIterator.hasNext() ) &#123;</span><br><span class="line">				try &#123;</span><br><span class="line">					validationProviderList.add( providerIterator.next() );</span><br><span class="line">				&#125;</span><br><span class="line">				catch ( ServiceConfigurationError e ) &#123;</span><br><span class="line">					// ignore, because it can happen when multiple</span><br><span class="line">					// providers are present and some of them are not class loader</span><br><span class="line">					// compatible with our API.</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">			return validationProviderList;</span><br><span class="line">		&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们去全局搜索找到了javax.validation.spi文件发现其配置了javax.validation.spi.ValidationProvider文件其注入配置了org.hibernate.validator.HibernateValidator完成了Hibernate Validator的注入</p>
+<h4 id="Hibernate-Validator校验逻辑"><a href="#Hibernate-Validator校验逻辑" class="headerlink" title="Hibernate Validator校验逻辑"></a>Hibernate Validator校验逻辑</h4><p>这里首先说一个问题，在我第一次看见ConstraintValidator的时，我感觉很奇怪，既然其是实现验证代码的地方，那么你是如何去定位到对应的实现类的？比如被@Max注解的Long 类型应该去调用ConstraintValidator的实现类MinValidatorForLong ，因为依照我以往的套路其往往有一个support方法来去校验调用的对象</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">public interface ConstraintValidator&lt;A extends Annotation, T&gt; &#123;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 * Initializes the validator in preparation for</span><br><span class="line">	 * &#123;@link #isValid(Object, ConstraintValidatorContext)&#125; calls.</span><br><span class="line">	 * The constraint annotation for a given constraint declaration</span><br><span class="line">	 * is passed.</span><br><span class="line">	 * &lt;p&gt;</span><br><span class="line">	 * This method is guaranteed to be called before any use of this instance for</span><br><span class="line">	 * validation.</span><br><span class="line">	 * &lt;p&gt;</span><br><span class="line">	 * The default implementation is a no-op.</span><br><span class="line">	 *</span><br><span class="line">	 * @param constraintAnnotation annotation instance for a given constraint declaration</span><br><span class="line">	 */</span><br><span class="line">	default void initialize(A constraintAnnotation) &#123;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 * Implements the validation logic.</span><br><span class="line">	 * The state of &#123;@code value&#125; must not be altered.</span><br><span class="line">	 * &lt;p&gt;</span><br><span class="line">	 * This method can be accessed concurrently, thread-safety must be ensured</span><br><span class="line">	 * by the implementation.</span><br><span class="line">	 *</span><br><span class="line">	 * @param value object to validate</span><br><span class="line">	 * @param context context in which the constraint is evaluated</span><br><span class="line">	 *</span><br><span class="line">	 * @return &#123;@code false&#125; if &#123;@code value&#125; does not pass the constraint</span><br><span class="line">	 */</span><br><span class="line">	boolean isValid(T value, ConstraintValidatorContext context);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>于是我又找到了ConstraintHelper方法，其定义了各种ConstraintValidator的实现类,我们这里截取到最主要的代码，它其实把能处理@Min的ConstraintValidator都放在了一起，在调用时根据@Min注解的参数对象的类型来调用不同的ConstraintValidator</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">putConstraints( tmpConstraints, Min.class, Arrays.asList(</span><br><span class="line">					MinValidatorForBigDecimal.class,</span><br><span class="line">					MinValidatorForBigInteger.class,</span><br><span class="line">					MinValidatorForDouble.class,</span><br><span class="line">					MinValidatorForFloat.class,</span><br><span class="line">					MinValidatorForLong.class,</span><br><span class="line">					MinValidatorForNumber.class,</span><br><span class="line">					MinValidatorForCharSequence.class</span><br><span class="line">			) );</span><br></pre></td></tr></table></figure>
+
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>Spring Validator 使用了AOP扫描@Validated注解来对Hibernate Validator进行了封装，并使用MethodValidationPostProcessor建其注入到Spring的生命周期中</p>
+
+    </div>
+
+    
+    
+    
+        
+      
+        <div id="reward-container">
+  <div></div>
+  <button id="reward-button" disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/赞赏码.png" alt="刘绍煌 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/Spring/" rel="tag"># Spring</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2021/10/11/Mybatis-Spring核心源码分析/" rel="next" title="Mybatis-Spring核心源码分析">
+                  <i class="fa fa-chevron-left"></i> Mybatis-Spring核心源码分析
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2021/11/04/读取java外部jar包下的资源/" rel="prev" title="读取java外部jar包下的资源">
+                  读取java外部jar包下的资源 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#背景知识"><span class="nav-number">2.</span> <span class="nav-text">背景知识</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#核心概念"><span class="nav-number">3.</span> <span class="nav-text">核心概念</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#代码分析"><span class="nav-number">4.</span> <span class="nav-text">代码分析</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Hibernate-Validator校验逻辑"><span class="nav-number">5.</span> <span class="nav-text">Hibernate Validator校验逻辑</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#总结"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">刘绍煌</p>
+  <div class="site-description" itemprop="description">刘绍煌的个人博客</div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">73</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">67</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">刘绍煌</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.3.0</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.3.0"></script><script src="/js/motion.js?v=7.3.0"></script>
+<script src="/js/schemes/pisces.js?v=7.3.0"></script>
+<script src="/js/next-boot.js?v=7.3.0"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
