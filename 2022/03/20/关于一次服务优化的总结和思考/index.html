@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.3.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.3.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.3.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.3.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.3.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.3.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="简介最近业务上线已经有一段时间了，在这期间业务的流量逐渐上升，由刚开始时几乎忽略不计的并发流量，上升到平均每秒6M左右，高峰期可达20M，在排除掉一些其他数据的流量后，真实入库的数据平均在2M，高峰期在8M左右，在这期间系统出现了一些并发问题，这里对排查方法和自己对优化方面的思考做了一些总结。">
+<meta name="keywords" content="系统优化">
+<meta property="og:type" content="article">
+<meta property="og:title" content="关于一次服务优化的总结和思考">
+<meta property="og:url" content="http://www.liushaohuang.cn/2022/03/20/关于一次服务优化的总结和思考/index.html">
+<meta property="og:site_name" content="刘绍煌">
+<meta property="og:description" content="简介最近业务上线已经有一段时间了，在这期间业务的流量逐渐上升，由刚开始时几乎忽略不计的并发流量，上升到平均每秒6M左右，高峰期可达20M，在排除掉一些其他数据的流量后，真实入库的数据平均在2M，高峰期在8M左右，在这期间系统出现了一些并发问题，这里对排查方法和自己对优化方面的思考做了一些总结。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2022-03-20T15:08:28.643Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="关于一次服务优化的总结和思考">
+<meta name="twitter:description" content="简介最近业务上线已经有一段时间了，在这期间业务的流量逐渐上升，由刚开始时几乎忽略不计的并发流量，上升到平均每秒6M左右，高峰期可达20M，在排除掉一些其他数据的流量后，真实入库的数据平均在2M，高峰期在8M左右，在这期间系统出现了一些并发问题，这里对排查方法和自己对优化方面的思考做了一些总结。">
+  <link rel="canonical" href="http://www.liushaohuang.cn/2022/03/20/关于一次服务优化的总结和思考/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>关于一次服务优化的总结和思考 | 刘绍煌</title>
+  <meta name="generator" content="Hexo 3.9.0">
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">刘绍煌</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2022/03/20/关于一次服务优化的总结和思考/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="刘绍煌">
+      <meta itemprop="description" content="刘绍煌的个人博客">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="刘绍煌">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">关于一次服务优化的总结和思考
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2022-03-20 23:07:31 / 修改时间：23:08:28" itemprop="dateCreated datePublished" datetime="2022-03-20T23:07:31+08:00">2022-03-20</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/JAVA/" itemprop="url" rel="index"><span itemprop="name">JAVA</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span class="post-meta-item" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h5 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h5><p>最近业务上线已经有一段时间了，在这期间业务的流量逐渐上升，由刚开始时几乎忽略不计的并发流量，上升到平均每秒6M左右，高峰期可达20M，在排除掉一些其他数据的流量后，真实入库的数据平均在2M，高峰期在8M左右，在这期间系统出现了一些并发问题，这里对排查方法和自己对优化方面的思考做了一些总结。</p>
+<a id="more"></a>
+
+<h5 id="系统架构和业务"><a href="#系统架构和业务" class="headerlink" title="系统架构和业务"></a>系统架构和业务</h5><p>系统是一个物联网平台，主要的就是对硬件设备进行管理，和收集硬件所产生的数据，并且存储入库。目前系统有800多个设备实时的产生数据，每个设备0.2s-1s产生一条测试数据（下面称作测试数据），每条测试数据大概300个字节左右，另外每个设备每2-3秒还会上传一条状态数据（下面称作状态数据）每条大概300个字节。这些设备由设备接入软件（下文简称上位机）来分批管理数据上传（一个上位机管理40个通道），服务器硬件是3台服务器，配置为64G内存，80线程CPU,和3块HHD硬盘，每块1T，共30T存储空间，3块硬盘做了RAID5 磁盘阵列，所以实际空间为20T。</p>
+<p>系统传输层采用TCP协议，并在TCP上自定义了应用层协议去传输数据，服务器端采用Netty去编写，数据库采用Mongo做数据集群，对数据划分了3个分片，每个分片又有一个副本，分别放3台服务器上。</p>
+<h5 id="系统问题和瓶颈分析"><a href="#系统问题和瓶颈分析" class="headerlink" title="系统问题和瓶颈分析"></a>系统问题和瓶颈分析</h5><p>由于设备是批量上线的，刚刚开始时零星设备系统跑的很好，但是随着后续设备逐渐接入，设备监控开始出现陆续且经常的掉线，在ES上查看日志后发现是由于上位机在一段时间内都没有发送数据，导致Netty认为其已经掉线，强制关闭了TCP连接（Netty的IdleStateHandler处理这部分逻辑）在要求上位机记录日志后，查询日志发现上位机发送数据并没有异常，每次发送数据都成功，但是TCP仍然被强制断开。于是怀疑是不是java 的gc导致了应用STW的时间过长到时连接被Netty终端，JAVA 采用了Open jdk 11，我为分配了2G的内存，其默认的是G1回收器，其是并行为了减少STW的垃圾回收器，给应用加了如下日志参数</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-verbose:gc -Xlog:gc*=debug:file=/home/logs/gc/gc_%t.log:tags,uptime,time,level:filecount=10,filesize=100m -Xlog:safepoint:file=/home/logs/gc/safepoint_%t.log:tags,uptime,time,level:filecount=10,filesize=100m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/home/Nebula/logs/gc -XX:ErrorFile=/home/Nebula/logs/gc/hs_error_pid%t.log,filecount=10,filesize=100m -XX:-OmitStackTraceInFastThrow</span><br></pre></td></tr></table></figure>
+
+<p>运行一段时间后查看日志,发现虽然gc的频率十分频繁，(大概30s左右就会回收一次年轻代)，但是总体的gc时间可控百分99.9的时间都在100ms内，在使用如下top命令观察一段时间后，发现gc占用cpu时间很少，cpu时间load指标也非常的低</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">top -Hp (pid)</span><br></pre></td></tr></table></figure>
+
+<p>但是发现了一点top 命令输出的cpu的I/O等待时间（wa）在个位数徘徊。而系统目前能产生大量IO等待的是地方就2个，一个是Netty接收数据的时候，一个就是写mongo的时候，于是执行以下命令监控 tcp端口连接是否正常</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">netstat -anp |grep (pid)</span><br></pre></td></tr></table></figure>
+
+<p>又经过一些列的观察发现TCP端口上会再经过一段时间内会产生数据堆积（netstat 输出的第二列），于是这里可以分析出掉线原因是，由于数据太多，服务器处理不过来，导致tcp数据一直堆积导致，netty无法读取到数据，然后认为tcp连接已经断开，然后关闭连接。而通过top命令查看的cpu和内存使用情况都很低，因此怀疑是不是netty的线程太少导致数据处理不过来。由于cpu的负载很低（80线程的cpu平均负债5都不到），于是我这里选择扩展线程数，在将netty的workGroup线程组有8个扩展到16个后，再观察一段时间后，发现cpu负载并没有上升，且依旧tcp端口上会产生数据堆积，于是这边怀疑就是mongo的写入问题，怀疑是mongo写入阻塞导致了tcp连接掉线，于是我由架起队列的大枪，将写入数据放入kafka队列，由队列去消费写入数据，果然在消息入队列后，在观察了10几分钟后tcp端口的数据堆积就不存在了。</p>
+<p>但是好景不长，过了一段时间后，系统全面崩盘，上服务器查看后发现kafka崩了，在重启kafka后，通过kafka的<code>kafka-consumer-groups.sh</code>脚本查看消费组后，发现其产生了几十万条的数据，好家伙，现在数据是不堆积在tcp端口上了，而是堆积到kafka上来了，于是第一想法就是增加kafka分片，我把kafka分片增加到了8个，开了8线程的消费者去消费，发现还是会有少量堆积，于是我又将kafka消费者线程开到16个，发现cpu负载并没有提升多少，反而I/O等待时间飙升到20多，于是这里基本可以定位是由于mongo并发写入的问题。</p>
+<p>优化mongo第一个想到的就是增大mongo的缓存使用，由于mongo是建数据先写入到内存，在内存达到一定阈值后再刷新到磁盘，这样将费时的磁盘I/O操作变成了内存操作，大大加快了相应的时间，但是在我将mongo的存在由5g增加到10g，20g后kafka队列数据堆积的情况并没有好转，于是我又使用了mongo自带的<code>mongostat</code>监控命令其监控mongo，发现其分片并发写入最大只能到200 -300左右，在使用<code>yscb</code>对新建的一个集合进行压测，发现并发写入的条数可以到达5000左右，于是这里可以断定，应该是数据量太大导致写入的相应性能大大降低，查看mongo集合数据后，发现其产生了27亿条数据。</p>
+<p>但是明明我的CPU和内存都出现很多的性能冗余，为啥我mongo的并发写入就是上不来？于是我又使用了如下命令每2s去收集一次磁盘I/O信息</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iostat -mtx 2</span><br></pre></td></tr></table></figure>
+
+<p>（在学习iostat命令的时候我遇到网上很多的坑，导致了我分析绕了很多弯路，这里分享一个靠谱的文章</p>
+<p><a href="https://bean-li.github.io/dive-into-iostat/" target="_blank" rel="noopener">https://bean-li.github.io/dive-into-iostat/</a>   )</p>
+<p>通过 iostat 工具我发现了磁盘的使用率基本都是百分百（<strong>说明磁盘一直有读写操作，但是又可能磁盘并没有达达瓶颈，具体的磁盘时候达到瓶颈还要结合IOPS来分析</strong>），而IOPS的读和写加起来一直在500上下</p>
+<p>继续使用<code>iotop</code>命令查看具体是哪个应用吃掉了磁盘，发现基本都是mongo占用了大多数磁盘资源</p>
+<p>于是为了进一步测试服务器的磁盘性能，我找了一台空闲相同配置的服务器做了，使用<code>FIO</code>工具进行了一次磁盘性能测试</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fio -filename=/dev/sda -direct=1 -iodepth 1 -thread -rw=randrw -rwmixread=70 -ioengine=psync -bs=4k -size=2G -numjobs=10 -runtime=60 -group_reporting -name=mytest -ioscheduler=noop</span><br></pre></td></tr></table></figure>
+
+<p>以上命令我对磁盘 sda 进行了60秒的随机读写测试，每个io大小为4k，现在我的磁盘随机写入的性能只能达到IOPS 200多，而之前使用iosta命令发现我的磁盘写入IOPS基本都已经达到200-300，<strong>于是我这里猜测是由于磁盘随机写入性能不够导致mongo在大集合下写入性能低下(至于为什么我这里只敢猜测，是由于我无法确定iostat监控到的是随机写入，还是顺序写入，还是两者都有，磁盘顺序写入的性能会大大高于随机写入，因为磁盘少了寻址等操作，磁盘的顺序写入甚至和内存一样快)</strong></p>
+<p>所以我这边继续使用<code>iotop</code>查看是哪个进程占用了大量I/O,最后发现是mongoDb的副本占用了大量I/O,</p>
+<p>上面我们提到我们磁盘采用了raid5阵列，raid5用冗余的一块磁盘来保证数据的安全性，最多一个有一块磁盘损坏而数据不丢失，那么对数据安全性而言副本不是必须的（但是对于高可用而言，副本是必须的），但是为了目前系统的可用性来说只能牺牲可用性来换取系统的稳定性，所以我这边选择了去掉副本。</p>
+<p>果然在去掉副本后kafka队列中不再产生数据堆积，磁盘的IOPS也区域稳定（稳定在50-150之间）。</p>
+<h5 id="思考与不足"><a href="#思考与不足" class="headerlink" title="思考与不足"></a>思考与不足</h5><h6 id="JVM-gc频繁"><a href="#JVM-gc频繁" class="headerlink" title="JVM gc频繁"></a>JVM gc频繁</h6><p>对目前来说只分配了2G堆，gc频率大概30s左右，但是基本没有发生针对老年代的gc，由于采用的是个g1回收器，其STW时间区域稳定，大部分时间在100ms以内，所以目前阶段我没有过多去优化这一块，但是如果后续业务变动，gc这块成为了瓶颈，那么我会从以下几点着手去优化</p>
+<ol>
+<li>堆内存分配，适当扩大堆内存，G1垃圾回收器支持较大的堆内存回收而在回收是有较短的STW，所以最简单暴力的就是扩大堆内存，从而减少gc频率，但是目前从现有gc日志放到easy gc分析器中分析，系统中每秒产生的对象是在40M左右，就目前系统而言，在不做代码优化的情况下，扩大堆内存显然不会有很明显的改善。</li>
+<li>JVM优化年轻代和老年代的分布，由于手动设置年轻代和老年代的内存空间分布比，查看系统的gc发现大部分gc都是针对年轻代的，而年轻代产生的STW时间较短，那么根据gc我们可以增大年轻代的内存占比</li>
+<li>增加大对象入老年大的阈值大小，由于业务本身传输的是设备的检测数据，上位机会被多台设备在一段时间内的数据一起打包通过tcp上传，这些大对象不应该进入老年代，因为其是传输完该次数据后就不再使用，而老年代gc又是最花时间的，所以在本系统中尽量让大对象不要进入老年代</li>
+<li>对象池化，考虑到每次上传的数据后端都是已一样的对象接收，我们可以采用对象池的技术去接收这部分对象，这样系统就不会频繁的去new对象，从而导致gc频繁发现，而对象池目前又有成熟的开源框架如apache common pool等。比如Netty为了控制数据接收的jvm 的gc回收，其就使用了池化堆外内存来保存数据，这也是我们使用完Netty的ByteBuf对象后需要执行release方法释放掉对象的原因。</li>
+<li>更紧凑的传输层协议，在先前定义协议的时候，为了方便使用，我们定义的应用层协议不够紧凑，导致产生了较多的冗余字节，比如数据长度域名我们用4个字节去表示，但是我们根本用不到4个字节，这就产生了协议的冗余传输，倒是到服务端的流量变大。</li>
+</ol>
+<h6 id="Mysql，Mongo，or-Hbase"><a href="#Mysql，Mongo，or-Hbase" class="headerlink" title="Mysql，Mongo，or  Hbase"></a>Mysql，Mongo，or  Hbase</h6><p>这三种数据库是目前接触比较多的数据库这里稍微提下他们的优缺点</p>
+<pre><code>1. Mysql 关系型数据库 b+树存储索引，数据库各方面性能稳定，但是数据库本身不支持扩容，需要依靠第三方中间件，所以网上长说Mysql数据到达多少多少行的时候会出现性能瓶颈，我觉得这是不正确的，一切脱离业务使用和硬件性能的性能评估都是扯淡。其实我认能存储多少数据和Mysql没有本身没有太大关系，有关系的是在Mysql这种b+ 树且不支持自动分片的架构中什么才是硬件中最先发生瓶颈的地方。目前我的理解是，内存和磁盘,而其中磁盘又是最慢的地方，所以我们需要控制磁盘的寻址次数。数据之所以能在大量数据中，能够被快速的查询就是因为有索引，而常用的索引无非就是树和跳表这种对排序完的数据进行快速查找的算法。而我们要做到的就是尽可能的让查询数据尽可能的命中索引，让它使用各种高效率的算法去找到数据，而这些优秀的算法，基本都能将寻址的次数控制在很小，其实我认为大多数情况下即使数据量大一些（针对少量数据查询比如单条），如果仍然命中了索引，那么磁盘寻址的次数其实也有限，那么查询的时间其实还算快，如果查询大量数据或者查询数据规则太灵活多变，那么这些查询无法命中索引，那么只能走全表扫描，那么性能就会大大折扣，基本上数据库都会尽可能的将索引存储在内存中，由内存的索引找到磁盘的数据地址，尽量的减少磁盘寻址次数。
+1. MongoDB 和Mysql一样也是采用B+树这种结构存储索引，这种索引结构查询数据相对灵活且快速，不同点在与mongodb支持器群分片，且扩展分片自动再平衡，还有一点就是MongoDb内存利用率更高，在写入数据时会先将写入到内存，然后等数据达到一个数后再统一写入磁盘，这样减少了并发下磁盘IO的压力，在最新版本的mongo中似乎又加入了跨分片实物功能。。。
+1. Hbase 最后一种介绍的就是Hbase 其设计和前两种都不一样，其采用列簇的设计，相对于上面两种，其需要的资源是最少的，因为其架构设计就是为了将原本磁盘的随机I/O转换成顺序I/O，简单的来说就是数据根据ID分片，而数据会先写到内存中且进行排序，当达到设置的阈值后将其刷新到磁盘，其只支持ID进行查询数据，所以相对前面两种来说其查询能力最弱，但是存储能力最强，其不再需要维护B+数结构，而是将数据分片，查询是去查询数据对应在哪个分片中然后在分片中进行扫描，从而做到海量数据的实时查询。</code></pre><p>其实结合我们的业务，我们实际中可能最适合的数据库是Hbase，我们查询的条件和场景比较少，而磁盘的性能和服务器资源又有限，而Hbase能将原本捉襟见肘的随机I/O转换成顺序I/0这样大大提升了硬件的利用率。</p>
+<h6 id="系统优化思路"><a href="#系统优化思路" class="headerlink" title="系统优化思路"></a>系统优化思路</h6><p>其实优化的强制条件就是要找到瓶颈所在，这里我们要善用各种Linux监控命令 如 top,iotop,iostat,netstat等，如果硬件监控没有什么问题，再根据自身业务情况定位可能存在的软件问题针对下药。</p>
+
+    </div>
+
+    
+    
+    
+        
+      
+        <div id="reward-container">
+  <div></div>
+  <button id="reward-button" disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/赞赏码.png" alt="刘绍煌 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/系统优化/" rel="tag"># 系统优化</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2021/12/22/Spring依赖注入和循环依赖的源码分析/" rel="next" title="Spring依赖注入和循环依赖的源码分析">
+                  <i class="fa fa-chevron-left"></i> Spring依赖注入和循环依赖的源码分析
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#系统架构和业务"><span class="nav-number">2.</span> <span class="nav-text">系统架构和业务</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#系统问题和瓶颈分析"><span class="nav-number">3.</span> <span class="nav-text">系统问题和瓶颈分析</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#思考与不足"><span class="nav-number">4.</span> <span class="nav-text">思考与不足</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#JVM-gc频繁"><span class="nav-number">4.1.</span> <span class="nav-text">JVM gc频繁</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#Mysql，Mongo，or-Hbase"><span class="nav-number">4.2.</span> <span class="nav-text">Mysql，Mongo，or  Hbase</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#系统优化思路"><span class="nav-number">4.3.</span> <span class="nav-text">系统优化思路</span></a></li></ol></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">刘绍煌</p>
+  <div class="site-description" itemprop="description">刘绍煌的个人博客</div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">75</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">68</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2022</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">刘绍煌</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.3.0</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.3.0"></script><script src="/js/motion.js?v=7.3.0"></script>
+<script src="/js/schemes/pisces.js?v=7.3.0"></script>
+<script src="/js/next-boot.js?v=7.3.0"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
