@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.3.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.3.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.3.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.3.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.3.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.3.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="简介最近线上应用再次发生了TCP接收拥堵，还记的上次服务发生拥堵时我将数据写入Kafka，由Kafka进行削峰异步消费数据，且去除了MongoDB副本来解决磁盘I/O的瓶颈，那为何在运行了几个月后TCP接收缓冲区为何又发生了拥堵？经过一番排查后这里记录一下解决问题的过程和方法。">
+<meta name="keywords" content="网络,tcp">
+<meta property="og:type" content="article">
+<meta property="og:title" content="关于一次tcp网络拥堵的问题排查与解决">
+<meta property="og:url" content="http://www.liushaohuang.cn/2022/05/31/关于一次tcp网络拥堵的问题排查与解决/index.html">
+<meta property="og:site_name" content="刘绍煌">
+<meta property="og:description" content="简介最近线上应用再次发生了TCP接收拥堵，还记的上次服务发生拥堵时我将数据写入Kafka，由Kafka进行削峰异步消费数据，且去除了MongoDB副本来解决磁盘I/O的瓶颈，那为何在运行了几个月后TCP接收缓冲区为何又发生了拥堵？经过一番排查后这里记录一下解决问题的过程和方法。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="c:%5CUsers%5CNebula%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5Cimage-20220601093527800.png">
+<meta property="og:image" content="c:%5CUsers%5CNebula%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5Cimage-20220602140828145.png">
+<meta property="og:updated_time" content="2022-06-05T17:02:13.997Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="关于一次tcp网络拥堵的问题排查与解决">
+<meta name="twitter:description" content="简介最近线上应用再次发生了TCP接收拥堵，还记的上次服务发生拥堵时我将数据写入Kafka，由Kafka进行削峰异步消费数据，且去除了MongoDB副本来解决磁盘I/O的瓶颈，那为何在运行了几个月后TCP接收缓冲区为何又发生了拥堵？经过一番排查后这里记录一下解决问题的过程和方法。">
+<meta name="twitter:image" content="c:%5CUsers%5CNebula%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5Cimage-20220601093527800.png">
+  <link rel="canonical" href="http://www.liushaohuang.cn/2022/05/31/关于一次tcp网络拥堵的问题排查与解决/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>关于一次tcp网络拥堵的问题排查与解决 | 刘绍煌</title>
+  <meta name="generator" content="Hexo 3.9.0">
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">刘绍煌</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="http://www.liushaohuang.cn/2022/05/31/关于一次tcp网络拥堵的问题排查与解决/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="刘绍煌">
+      <meta itemprop="description" content="刘绍煌的个人博客">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="刘绍煌">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">关于一次tcp网络拥堵的问题排查与解决
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2022-05-31 21:13:42" itemprop="dateCreated datePublished" datetime="2022-05-31T21:13:42+08:00">2022-05-31</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-06-06 01:02:13" itemprop="dateModified" datetime="2022-06-06T01:02:13+08:00">2022-06-06</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/网络/" itemprop="url" rel="index"><span itemprop="name">网络</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span class="post-meta-item" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>最近线上应用再次发生了TCP接收拥堵，还记的上次服务发生拥堵时我将数据写入Kafka，由Kafka进行削峰异步消费数据，且去除了MongoDB副本来解决磁盘I/O的瓶颈，那为何在运行了几个月后TCP接收缓冲区为何又发生了拥堵？经过一番排查后这里记录一下解决问题的过程和方法。</p>
+<a id="more"></a>
+
+<h4 id="故障重现"><a href="#故障重现" class="headerlink" title="故障重现"></a>故障重现</h4><p>日常服务器监控中通过<code>netstat -tnp |grep port</code>发现一个基于TCP构建的应用层服务中，其端口下的TCP连接<code>Recv-Q</code>接收缓存中产生了大量的堵塞每个通道大概阻塞了1w到20w个字节不等，而收到消息后应用并没有太多的逻辑，只是将消息写入Kafka供下游消费者去消费入库，通过 <code>kafka-consumer-groups</code> 命令查看Kafka的消费组每个消费者的偏移量，发现有没有消费迟滞，又通过<code>top</code>,<code>iostat</code>，java的gc日志去分析 并没有发现异常，但是通过<code>netstat -ts</code>查看系统tcp通讯信息发现<code>failed connection attempts</code>tcp重连次数增长的很快。</p>
+<h4 id="TCP抓包"><a href="#TCP抓包" class="headerlink" title="TCP抓包"></a>TCP抓包</h4><p>既然是tcp网络问题，又找不到下游处理异常，那第一个想到就是抓包，在linux中通过执行以下tcpdump命令对指定端口和网卡进行抓包并且将数据写入<code>/home/info.pcap</code>文件下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tcpdump -i eth0 port 8080 -w /home/info.pcap</span><br></pre></td></tr></table></figure>
+
+<p>由于执行<code>tcpdump</code>中我并没有指定<code>- c</code>参数指定抓取信息条数，所以这个命令会一直抓取数据，所以在执行几分钟后我手动执行<code>Ctrl + c</code>结束了数据抓取。</p>
+<p>将抓取的抓包数据导入到抓包分析工具Wireshark中，</p>
+<p>因为抓取的是所有的Tcp通讯信息，所有我们这里只要指定一个tcp连接来分析具体情况</p>
+<p>所以在过滤器栏中输入<code>ip.addr == ip</code>要查找过滤的IP，抓取的结果部分截图如下</p>
+<p><img src="C:%5CUsers%5CNebula%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5Cimage-20220601093527800.png" alt="image-20220601093527800"></p>
+<p>我们大致可以看到字段如下</p>
+<ul>
+<li>Time 抓取时间戳</li>
+<li>Source 消息的来源IP</li>
+<li>Destination 消息的目的地址IP，这里一般就是你运行tcpdump抓包的机器的IP </li>
+<li>Protcol 抓取的协议，我抓取的都是tcp包，所以这里都显示tcp</li>
+<li>Length 这个消息包的长度，单位字节</li>
+<li>Info tcp消息的具体信息[PSH,ACK]代表的是数据传输 [ACK]代表的是服务端收到消息TCP返回的应答，同理，还有SYN,[SYN,ACK]，代表着TCP连接的三次握手，seq代表着是tcp的序列号，len是tcp的消息体长度，我们可以看到但数据传输时tcp客户端会将当期客户端数据传输的seq序列传给服务端，服务端收到后将Len+seq 的值回传给客户端，告诉客户端下一次上传的seq序列，从而保证tcp传输的可靠性。</li>
+</ul>
+<p>在通过对抓包的数据进行浏览后，发现tcp存在<code>ZeroWindow</code>异常</p>
+<p><img src="C:%5CUsers%5CNebula%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5Cimage-20220602140828145.png" alt="image-20220602140828145"></p>
+<p>这是由于tcp在发送数据时为了传输效率等原因，不会立马把数据发送出去，而是先将数据发送到缓冲区，然后再发送给服务端，同理服务端也有一个tcp接受的缓冲区,而Linux <code>netstat</code>网络监控命令中对于的<code>Recv-Q</code>和<code>Send-Q</code>字段则分别代表了监控端口的tcp接受缓存，和发送缓存。</p>
+<h4 id="问题的解决过程"><a href="#问题的解决过程" class="headerlink" title="问题的解决过程"></a>问题的解决过程</h4><h5 id="增加Netty工作线程数"><a href="#增加Netty工作线程数" class="headerlink" title="增加Netty工作线程数"></a>增加Netty工作线程数</h5><p>我的第一反应就是Netty的工作现场太少，导致消息无法被线程池及时消费，但是通过<code>top -Hp pid</code>去分析应用现场，发现Netty的工作线程大部分<code>cpu</code>利用资源都很低，而且应用没有执行什么太多的逻辑，所以不太可能是线程不够，但是秉着死马当活马医的态度，我还是尝试增大Netty的工作线程，结果可想而知，肯定是什么卵用也没有。</p>
+<h5 id="尝试修改缓冲区大小"><a href="#尝试修改缓冲区大小" class="headerlink" title="尝试修改缓冲区大小"></a>尝试修改缓冲区大小</h5><p>​        那么问题已经明确了，我的第一想法就是调整Netty的接收端缓冲区和Linux系统的最大缓冲区限制，</p>
+<p>​        Netty通过以<code>ChannelOption.SO_SNDBUF</code>和<code>ChannelOption.SO_RCVBUF</code>调整缓冲区大小</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">serverBootstrap.group(bossGroup, workerGroup)</span><br><span class="line">              .childOption(ChannelOption.SO_KEEPALIVE,                                                              tcpSoKeepalive)</span><br><span class="line">           .channel(NioServerSocketChannel.class)</span><br><span class="line">           .option(ChannelOption.SO_SNDBUF, 1024*1024*2)</span><br><span class="line">           .option(ChannelOption.SO_RCVBUF, 1024*1024*2)</span><br></pre></td></tr></table></figure>
+
+<p>而操作系统的调优则通过以下命令调整</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">echo 65536 &gt; /proc/sys/net/core/rmem_max        #收缓冲区最大值</span><br><span class="line">echo 256960 &gt; /proc/sys/net/core/wmem_max        #发缓冲区最大值</span><br><span class="line">echo 65536 &gt; /proc/sys/net/core/rmem_default        #收缓冲区默认值</span><br><span class="line">echo 65536 &gt; /proc/sys/net/core/wmen_default        #发缓冲区默认值</span><br></pre></td></tr></table></figure>
+
+<p>经过调整后，再次进行抓包，结果发现问题依旧存在，TCP缓冲区依旧存在数据堆积，抓包数据仍然报<code>ZeroWindow</code>异常</p>
+<h5 id="抓取java栈信息"><a href="#抓取java栈信息" class="headerlink" title="抓取java栈信息"></a>抓取java栈信息</h5><p>经过第一次尝试失败后，仍然找不到原因，于是只能通过java的<code>jstack</code>命令打印栈信息了</p>
+<p>执行以下命令，将栈信息保存在文件中，<strong>注意：由于jstack会暂停应用的运行，所以基本是不到万不得已也不会使用这个方法，本人打印栈信息大概使应用暂停了15分钟左右</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jstack -l pid &gt;/home/stack.txt</span><br></pre></td></tr></table></figure>
+
+<p>接下来开始分析栈，由于我的应用使用的是Netty，那么我们重点查看Netty的工作线程的栈信息，看他卡在什么地方,这边发现有三分之一的Netty的工作线程在卡在<code>HttpClient</code>这个地方，而显而易见这是一个Http调用的方法，通过栈信息找到对应的类和函数，发现了在Netty 的handler中存在一个逻辑就是满足固定条件时会使用Http的方式去通知另一个应用</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">&quot;nioEventLoopGroup-5-16&quot; #47 prio=10 tid=0x00007f5ed4037000 nid=0x5289d runnable [0x00007f5eb05ee000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line">   JavaThread state: _thread_in_native</span><br><span class="line"> - java.net.SocketInputStream.socketRead0(java.io.FileDescriptor, byte[], int, int, int) @bci=0 (Compiled frame; information may be imprecise)</span><br><span class="line"> - java.net.SocketInputStream.socketRead(java.io.FileDescriptor, byte[], int, int, int) @bci=8, line=115 (Compiled frame)</span><br><span class="line"> - java.net.SocketInputStream.read(byte[], int, int, int) @bci=114, line=168 (Compiled frame)</span><br><span class="line"> - java.net.SocketInputStream.read(byte[], int, int) @bci=11, line=140 (Compiled frame)</span><br><span class="line"> - java.io.BufferedInputStream.fill() @bci=217, line=252 (Compiled frame)</span><br><span class="line"> - java.io.BufferedInputStream.read1(byte[], int, int) @bci=44, line=292 (Compiled frame)</span><br><span class="line"> - java.io.BufferedInputStream.read(byte[], int, int) @bci=49, line=351 (Compiled frame)</span><br><span class="line">	- locked &lt;0x00000000d29259d8&gt; (a java.io.BufferedInputStream)</span><br><span class="line"> - sun.net.www.http.HttpClient.parseHTTPHeader(sun.net.www.MessageHeader, sun.net.ProgressSource, sun.net.www.protocol.http.HttpURLConnection) @bci=51, line=746 (Compiled frame)</span><br><span class="line"> - sun.net.www.http.HttpClient.parseHTTP(sun.net.www.MessageHeader, sun.net.ProgressSource, sun.net.www.protocol.http.HttpURLConnection) @bci=56, line=689 (Compiled frame)</span><br><span class="line"> - sun.net.www.protocol.http.HttpURLConnection.getInputStream0() @bci=327, line=1604 (Compiled frame)</span><br><span class="line">	- locked &lt;0x00000000d291ed58&gt; (a sun.net.www.protocol.http.HttpURLConnection)</span><br><span class="line"> - sun.net.www.protocol.http.HttpURLConnection.getInputStream() @bci=52, line=1509 (Compiled frame)</span><br><span class="line">	- locked &lt;0x00000000d291ed58&gt; (a sun.net.www.protocol.http.HttpURLConnection)</span><br><span class="line"> - java.net.HttpURLConnection.getResponseCode() @bci=16, line=527 (Compiled frame)</span><br><span class="line"> - cn.hutool.http.HttpConnection.responseCode() @bci=12, line=460 (Compiled frame)</span><br><span class="line"> - cn.hutool.http.HttpResponse.init() @bci=5, line=374 (Compiled frame)</span><br><span class="line"> - cn.hutool.http.HttpResponse.initWithDisconnect() @bci=1, line=350 (Compiled frame)</span><br><span class="line"> - cn.hutool.http.HttpResponse.&lt;init&gt;(cn.hutool.http.HttpConnection, java.nio.charset.Charset, boolean, boolean) @bci=26, line=64 (Compiled frame)</span><br><span class="line"> - cn.hutool.http.HttpRequest.execute(boolean) @bci=61, line=944 (Compiled frame)</span><br><span class="line"> - cn.hutool.http.HttpRequest.execute() @bci=2, line=902 (Compiled frame)</span><br><span class="line"> - cn.hutool.http.HttpUtil.post(java.lang.String, java.util.Map, int) @bci=12, line=171 (Compiled frame)</span><br><span class="line"> - cn.hutool.http.HttpUtil.post(java.lang.String, java.util.Map) @bci=5, line=158 (Compiled frame)</span><br></pre></td></tr></table></figure>
+
+<h5 id="分析Mysql-日志"><a href="#分析Mysql-日志" class="headerlink" title="分析Mysql 日志"></a>分析Mysql 日志</h5><p>通过上面栈的分析，我们切换到被调用的那台应用，在使用<code>Top</code>命令对服务器进行资源监控的时候，发现该服务器中的Mysql的cpu使用率高达百分之300，在开启mysql慢日志后发现一条语句查询时长高达10s，这条语句是执行的是一个count语句，接有where过滤条件，语句类似如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select count(*) from users where username!=&apos;Liush&apos;</span><br></pre></td></tr></table></figure>
+
+<p>这张表中有200多万条数据，执行count语句也不应该需要10秒，在对表结构进行查看后发现这表表居然连主键都没有。。。这就导致了每次执行count都不会用到索引，直接走全表扫描，而过滤条件也没有索引，所以导致了效率异常地下，在给这张表建立了主键后，再执行count统计仍然需要2s，经过对表分析后发现该查询语句的where条件过滤的是少数数据，比如上面举例的username字段，基本上每条数据的username都是不同的，及时我再在username上建立索引执行效率也不会太高，最后没办法只能进入代码查看该代码的在业务中的作用来看下有没有优化的空间，最后发现该代码仅仅只是查看是否存在该过滤条件的数据，且业务代码中只有一个地方调用了这个方法，于是乎修改了sql语句,并且在过滤条件中加入了索引</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select username from users where username!=&apos;Liush&apos;</span><br></pre></td></tr></table></figure>
+
+<p>在修改了这部分语句后执行恢复正常，同样tcp网络阻塞的问题得到了解决。</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><ol>
+<li>TCP缓冲区拥堵其实本质就是消费数据的速度赶不上产生数据的数据，应该从消费数据的一端入手</li>
+<li><strong>项目中基于TCP去构建应用层协议时，为了保证数据传输不丢失，还需要在应用层协议上做一个数据准确性校验或者应答，常用的方法是在应用层中构建一个自增的序列，客户端每次发送消息都将这个序列+1，服务端收到数据后对这个序列的连续性做校验。也许大家会疑问TCP不是可靠的传输协议吗，发送了数据就一点会收到到，为何应用层还需要校验或者设置消息应答？因为在时间中发现，如果tcp缓冲发生了拥堵的情况下，tcp服务端收到数据，将数据存放在缓冲区中，且给客户端应答，告诉数据已经成功接收，但是如果发生了缓冲区拥堵，这时应用层又断掉tcp发起了RST命令，那么连接就会立即关闭，这些数据还没来得及消费就被系统丢弃，tcp正常挥手需要4次，且其会保证数据发送完毕，但是如果tcp发起了rst标志位的话，那边连接就会立即关闭，只是还有消费还没发送，所以在netty中经常看见Connection reset by peer，其就是操作系统由于异常等原因发送了RST标志位断开了连接，且抛给应用层(Netty)消息，而应用层(Netty)并不知道断开连接的原因</strong></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+        
+      
+        <div id="reward-container">
+  <div></div>
+  <button id="reward-button" disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/赞赏码.png" alt="刘绍煌 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/网络/" rel="tag"># 网络</a>
+            
+              <a href="/tags/tcp/" rel="tag"># tcp</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2022/03/20/关于一次服务优化的总结和思考/" rel="next" title="关于一次服务优化的总结和思考">
+                  <i class="fa fa-chevron-left"></i> 关于一次服务优化的总结和思考
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#故障重现"><span class="nav-number">2.</span> <span class="nav-text">故障重现</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#TCP抓包"><span class="nav-number">3.</span> <span class="nav-text">TCP抓包</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#问题的解决过程"><span class="nav-number">4.</span> <span class="nav-text">问题的解决过程</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#增加Netty工作线程数"><span class="nav-number">4.1.</span> <span class="nav-text">增加Netty工作线程数</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#尝试修改缓冲区大小"><span class="nav-number">4.2.</span> <span class="nav-text">尝试修改缓冲区大小</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#抓取java栈信息"><span class="nav-number">4.3.</span> <span class="nav-text">抓取java栈信息</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#分析Mysql-日志"><span class="nav-number">4.4.</span> <span class="nav-text">分析Mysql 日志</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">刘绍煌</p>
+  <div class="site-description" itemprop="description">刘绍煌的个人博客</div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">69</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2022</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">刘绍煌</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.3.0</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.3.0"></script><script src="/js/motion.js?v=7.3.0"></script>
+<script src="/js/schemes/pisces.js?v=7.3.0"></script>
+<script src="/js/next-boot.js?v=7.3.0"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
